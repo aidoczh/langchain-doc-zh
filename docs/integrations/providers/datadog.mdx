@@ -1,0 +1,84 @@
+# Datadog追踪
+
+>[ddtrace](https://github.com/DataDog/dd-trace-py)是Datadog的应用性能监控（APM）库，提供了一个集成来监控您的LangChain应用程序。
+
+ddtrace集成LangChain的主要特点包括：
+
+- 追踪：捕获LangChain请求、参数、提示完成，并帮助可视化LangChain操作。
+
+- 指标：捕获LangChain请求延迟、错误，以及令牌/成本使用情况（适用于OpenAI的LLMs和聊天模型）。
+
+- 日志：为每个LangChain操作存储提示完成数据。
+
+- 仪表板：将指标、日志和追踪数据合并到一个单一平面中，以监视LangChain请求。
+
+- 监视器：对LangChain请求延迟或错误率上升提供警报。
+
+注意：ddtrace LangChain集成目前为LLMs、聊天模型、文本嵌入模型、链和向量存储提供追踪。
+
+## 安装和设置
+
+1. 在Datadog代理中启用APM和StatsD，以及Datadog API密钥。例如，在Docker中：
+
+```bash
+docker run -d --cgroupns host \
+              --pid host \
+              -v /var/run/docker.sock:/var/run/docker.sock:ro \
+              -v /proc/:/host/proc/:ro \
+              -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
+              -e DD_API_KEY=<DATADOG_API_KEY> \
+              -p 127.0.0.1:8126:8126/tcp \
+              -p 127.0.0.1:8125:8125/udp \
+              -e DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true \
+              -e DD_APM_ENABLED=true \
+              gcr.io/datadoghq/agent:latest
+```
+
+2. 安装Datadog APM Python库。
+
+```bash
+pip install ddtrace>=1.17
+```
+
+3. 当您在LangChain Python应用程序命令前加上`ddtrace-run`前缀时，LangChain集成可以自动启用：
+
+```bash
+DD_SERVICE="my-service" DD_ENV="staging" DD_API_KEY=<DATADOG_API_KEY> ddtrace-run python <your-app>.py
+```
+
+**注意**：如果代理正在使用非默认主机名或端口，请确保还设置`DD_AGENT_HOST`、`DD_TRACE_AGENT_PORT`或`DD_DOGSTATSD_PORT`。
+
+此外，通过在应用程序中的第一个`langchain`导入之前添加`patch_all()`或`patch(langchain=True)`，也可以以编程方式启用LangChain集成。
+
+请注意，使用`ddtrace-run`或`patch_all()`还将启用对LLM提供商的HTTP请求进行追踪的`requests`和`aiohttp`集成，以及对OpenAI库的请求进行追踪的`openai`集成。
+
+```python
+from ddtrace import config, patch
+# 注意：在调用``patch()``之前确保配置集成！
+# 例如 config.langchain["logs_enabled"] = True
+patch(langchain=True)
+# 追踪同步HTTP请求
+# patch(langchain=True, requests=True)
+# 追踪异步HTTP请求（到OpenAI库）
+# patch(langchain=True, aiohttp=True)
+# 包括来自OpenAI集成的底层OpenAI跨度
+# patch(langchain=True, openai=True)patch_all
+```
+
+查看[APM Python库文档](https://ddtrace.readthedocs.io/en/stable/installation_quickstart.html)以获取更高级的用法。
+
+## 配置
+
+查看[APM Python库文档](https://ddtrace.readthedocs.io/en/stable/integrations.html#langchain)以获取所有可用的配置选项。
+
+### 日志提示和完成采样
+
+要启用日志提示和完成采样，请设置`DD_LANGCHAIN_LOGS_ENABLED=1`环境变量。默认情况下，10%的追踪请求将生成包含提示和完成的日志。
+
+要调整日志采样率，请参阅[APM库文档](https://ddtrace.readthedocs.io/en/stable/integrations.html#langchain)。
+
+**注意**：提交日志需要在运行`ddtrace-run`时指定`DD_API_KEY`。
+
+## 故障排除
+
+需要帮助吗？在[ddtrace](https://github.com/DataDog/dd-trace-py)上创建问题，或联系[Datadog支持](https://docs.datadoghq.com/help/)。

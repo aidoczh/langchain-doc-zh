@@ -1,0 +1,54 @@
+# VDMS
+
+> [VDMS](https://github.com/IntelLabs/vdms/blob/master/README.md) 是一种用于高效访问大规模“视觉”数据的存储解决方案，旨在通过将视觉元数据存储为图形并实现对视觉数据的机器友好增强，从而实现云规模的相关视觉数据搜索。
+
+## 安装和设置
+
+### 安装客户端
+
+```bash
+pip install vdms
+```
+
+### 安装数据库
+
+有两种方法可以开始使用 VDMS：
+
+#### 通过 Docker 在本地计算机上安装 VDMS
+
+```bash
+    docker run -d -p 55555:55555 intellabs/vdms:latest
+```
+
+#### 直接在本地计算机上安装 VDMS
+
+请参阅[安装说明](https://github.com/IntelLabs/vdms/blob/master/INSTALL.md)。
+
+## VectorStore
+
+向量存储是 VDMS 的一个简单封装。它提供了一个简单的接口来存储和检索数据。
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain.text_splitter import CharacterTextSplitter
+loader = TextLoader("./state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+from langchain_community.vectorstores import VDMS
+from langchain_community.vectorstores.vdms import VDMS_Client
+from langchain_huggingface import HuggingFaceEmbeddings
+client = VDMS_Client("localhost", 55555)
+vectorstore = VDMS.from_documents(
+    docs,
+    client=client,
+    collection_name="langchain-demo",
+    embedding_function=HuggingFaceEmbeddings(),
+    engine="FaissFlat"
+    distance_strategy="L2",
+)
+query = "What did the president say about Ketanji Brown Jackson"
+results = vectorstore.similarity_search(query)
+```
+
+有关 VDMS 封装的更详细介绍，请参阅[此笔记本](/docs/integrations/vectorstores/vdms)。

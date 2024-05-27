@@ -1,0 +1,37 @@
+# Anthropic
+
+[Anthropic](https://www.anthropic.com/)是一家人工智能安全和研究公司，也是`Claude`的创建者。本页面涵盖了`Anthropic`模型与`LangChain`之间的所有集成。
+
+## 安装和设置
+
+要使用`Anthropic`模型，您需要安装一个Python包：
+
+```bash
+pip install -U langchain-anthropic
+```
+
+您需要设置`ANTHROPIC_API_KEY`环境变量。您可以在[这里](https://console.anthropic.com/settings/keys)获取Anthropic的API密钥。
+
+## 语言模型
+
+### [Legacy] 人类中心语言模型
+
+**注意**：`Anthropic语言模型`仅支持旧版`Claude 2`模型。要使用最新的`Claude 3`模型，请改用`ChatAnthropic`。
+
+查看[使用示例](/docs/integrations/llms/anthropic)。
+
+```python
+from langchain_anthropic import AnthropicLLM
+model = AnthropicLLM(model='claude-2.1')
+```
+
+## 聊天模型
+
+### ChatAnthropic
+
+查看[使用示例](/docs/integrations/chat/anthropic)。
+
+```python
+from langchain_anthropic import ChatAnthropic
+model = ChatAnthropic(model='claude-3-opus-20240229')
+```

@@ -1,0 +1,349 @@
+# 概念指南
+
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+本节包含 LangChain 的关键部分介绍。
+## 架构
+LangChain 作为一个框架，由多个包组成。
+### `langchain-core`
+该包包含不同组件的基本抽象以及将它们组合在一起的方式。
+在这里定义了核心组件如 LLMs、向量存储、检索器等的接口。
+这里没有定义第三方集成。
+故意保持依赖关系非常轻量级。
+### 合作伙伴包
+虽然集成的长尾部分在 `langchain-community` 中，但我们将流行的集成拆分为它们自己的包（例如 `langchain-openai`、`langchain-anthropic` 等）。
+这样做是为了提高对这些重要集成的支持。
+### `langchain`
+主要的 `langchain` 包包含构成应用程序认知架构的链、代理和检索策略。
+这些都不是第三方集成。
+这里的所有链、代理和检索策略都不针对任何一个集成，而是跨所有集成通用的。
+### `langchain-community`
+该包包含由 LangChain 社区维护的第三方集成。
+关键合作伙伴包被分离出来（见下文）。
+这包含了各种组件（LLMs、向量存储、检索器）的所有集成。
+该包中的所有依赖都是可选的，以使包尽可能轻量级。
+### [`langgraph`](https://langchain-ai.github.io/langgraph)
+`langgraph` 是 `langchain` 的扩展，旨在通过将步骤建模为图中的边和节点，构建稳健且有状态的多参与者应用程序与 LLMs。
+LangGraph 提供了用于创建常见类型代理的高级接口，以及用于构建更多控制的低级 API。
+### [`langserve`](/docs/langserve)
+一个用于部署 LangChain 链作为 REST API 的包。可以轻松地启动并运行一个生产就绪的 API。
+### [LangSmith](https://docs.smith.langchain.com)
+一个开发者平台，让您可以调试、测试、评估和监控 LLM 应用程序。
+
+<ThemedImage
+  alt="Diagram outlining the hierarchical organization of the LangChain framework, displaying the interconnected parts across multiple layers."
+  sources={{
+    light: useBaseUrl('/svg/langchain_stack.svg'),
+    dark: useBaseUrl('/svg/langchain_stack_dark.svg'),
+  }}
+  title="LangChain Framework Overview"
+/>
+
+## LangChain 表达语言（LCEL）
+LangChain 表达语言，即 LCEL，是一种声明性的方式来链接 LangChain 组件。
+LCEL 从第一天起就被设计为**支持将原型投入生产，无需更改代码**，从最简单的“提示 + LLM”链到最复杂的链（我们已经看到有人成功地在生产中运行了包含数百步的 LCEL 链）。以下是您可能想要使用 LCEL 的一些原因的几个亮点：
+**一流的流式支持**
+当您使用 LCEL 构建链时，您将获得可能的最佳时间到第一个标记（直到输出的第一块内容出现所经过的时间）。对于某些链，这意味着我们直接从 LLM 流式传输标记到流式输出解析器，您将以与 LLM 提供程序输出原始标记的速率相同的速度获得解析的增量输出块。
+**异步支持**
+使用 LCEL 构建的任何链都可以使用同步 API（例如，在您的 Jupyter 笔记本中进行原型设计）以及异步 API（例如，在 [LangServe](/docs/langserve/) 服务器中）进行调用。这使得可以在原型和生产中使用相同的代码，具有出色的性能，并且能够在同一服务器中处理许多并发请求。
+**优化的并行执行**
+每当您的 LCEL 链具有可以并行执行的步骤时（例如，如果您从多个检索器中获取文档），我们会自动执行，无论是在同步接口还是异步接口中，以获得可能的最小延迟。
+**重试和回退**
+为 LCEL 链的任何部分配置重试和回退。这是使您的链在规模上更可靠的好方法。我们目前正在努力为重试/回退添加流式支持，这样您就可以获得额外的可靠性而无需任何延迟成本。
+**访问中间结果**
+对于更复杂的链，访问中间步骤的结果通常非常有用，即使在生成最终输出之前。这可以用于让最终用户知道正在发生的事情，甚至只是用于调试您的链。您可以流式传输中间结果，并且在每个 [LangServe](/docs/langserve) 服务器上都可以使用。
+**输入和输出模式**
+输入和输出模式为每个 LCEL 链提供了从链的结构推断出的 Pydantic 和 JSONSchema 模式。这可用于验证输入和输出，并且是 LangServe 的一个组成部分。
+[**无缝 LangSmith 追踪**](https://docs.smith.langchain.com)
+随着您的链变得越来越复杂，准确理解每一步发生的事情变得越来越重要。
+使用 LCEL，**所有**步骤都会自动记录到 [LangSmith](https://docs.smith.langchain.com/) 中，以实现最大的可观察性和可调试性。
+[**无缝 LangServe 部署**](/docs/langserve)
+使用 LCEL 创建的任何链都可以轻松地通过 [LangServe](/docs/langserve) 部署。
+### 可运行接口
+为了尽可能简化创建自定义链的过程，我们实现了一个 ["Runnable"](https://api.python.langchain.com/en/stable/runnables/langchain_core.runnables.base.Runnable.html#langchain_core.runnables.base.Runnable) 协议。许多 LangChain 组件都实现了 `Runnable` 协议，包括聊天模型、LLMs、输出解析器、检索器、提示模板等等。此外，还有一些有用的基本组件可用于处理可运行对象，您可以在下面了解更多。
+这是一个标准接口，可以轻松定义自定义链，并以标准方式调用它们。
+标准接口包括：
+- [`stream`](#stream): 返回响应的数据块
+- [`invoke`](#invoke): 对输入调用链
+- [`batch`](#batch): 对输入列表调用链
+这些还有相应的异步方法，应该与 [asyncio](https://docs.python.org/3/library/asyncio.html) 一起使用 `await` 语法以实现并发：
+- `astream`: 异步返回响应的数据块
+- `ainvoke`: 异步对输入调用链
+- `abatch`: 异步对输入列表调用链
+- `astream_log`: 异步返回中间步骤，以及最终响应
+- `astream_events`: **beta** 流式传输链中发生的事件（在 `langchain-core` 0.1.14 中引入）
+**输入类型** 和 **输出类型** 因组件而异：
+| 组件 | 输入类型 | 输出类型 || --- | --- | --- || 提示 | 字典 | 提示值 || 聊天模型 | 单个字符串、聊天消息列表或提示值 | 聊天消息 || LLM | 单个字符串、聊天消息列表或提示值 | 字符串 || 输出解析器 | LLM 或聊天模型的输出 | 取决于解析器 || 检索器 | 单个字符串 | 文档列表 || 工具 | 单个字符串或字典，取决于工具 | 取决于工具 |
+所有可运行对象都公开输入和输出 **模式** 以检查输入和输出：
+- `input_schema`: 从可运行对象结构自动生成的输入 Pydantic 模型
+- `output_schema`: 从可运行对象结构自动生成的输出 Pydantic 模型
+## 组件
+LangChain 提供了用于构建 LLM 的标准、可扩展接口和外部集成。
+LangChain 实现了一些组件，我们依赖第三方集成实现了一些组件，还有一些是混合的。
+### 聊天模型
+使用消息序列作为输入并返回聊天消息作为输出的语言模型（与使用纯文本相反）。
+这些通常是较新的模型（较旧的模型通常是 `LLMs`，见上文）。
+聊天模型支持为对话消息分配不同的角色，有助于区分来自 AI、用户和指令（如系统消息）的消息。
+尽管底层模型是消息输入、消息输出，LangChain 封装器还允许这些模型接受字符串作为输入。这意味着您可以轻松地在 LLM 的位置使用聊天模型。
+当将字符串作为输入传入时，它会被转换为 HumanMessage，然后传递给底层模型。
+LangChain 不提供任何 ChatModels，而是依赖于第三方集成。
+在构建 ChatModels 时，我们有一些标准化参数：
+- `model`: 模型名称
+ChatModels 还接受其他特定于该集成的参数。
+:::important
+**工具调用** 一些聊天模型已经经过了工具调用的微调，并提供了专门用于工具调用的 API。
+一般来说，这些模型在工具调用方面比未经微调的模型更好，并且建议用于需要工具调用的用例。
+请参阅 [工具调用部分](/docs/concepts/#functiontool-calling) 以获取更多信息。
+:::
+### LLMs
+将字符串作为输入并返回字符串的语言模型。
+这些通常是较旧的模型（较新的模型通常是 `ChatModels`，见上文）。
+尽管底层模型是字符串输入、字符串输出，LangChain 封装器还允许这些模型接受消息作为输入。
+这使它们可以与 ChatModels 互换使用。
+当消息作为输入传入时，它们将在传递给底层模型之前在内部格式化为字符串。
+LangChain 不提供任何 LLMs，而是依赖于第三方集成。
+### 消息
+一些语言模型将消息列表作为输入并返回消息。
+有几种不同类型的消息。
+所有消息都有 `role`、`content` 和 `response_metadata` 属性。
+`role` 描述了消息的发出者是谁。
+LangChain 为不同的角色设计了不同的消息类。
+`content` 属性描述了消息的内容。
+这可以是几种不同的内容：
+- 一个字符串（大多数模型处理这种类型的内容）
+- 一个字典列表（用于多模态输入，其中字典包含有关该输入类型和该输入位置的信息）
+#### HumanMessage
+这代表用户发送的消息。
+#### AIMessage
+这代表模型发送的消息。除了 `content` 属性外，这些消息还有：
+**`response_metadata`**
+`response_metadata` 属性包含有关响应的其他元数据。这里的数据通常针对每个模型提供者具体化。
+这是存储对数概率和标记使用等信息的地方。
+**`tool_calls`**
+这些表示语言模型调用工具的决定。它们作为 `AIMessage` 输出的一部分包含在内。
+可以通过 `.tool_calls` 属性从中访问。
+此属性返回一个字典列表。每个字典具有以下键：
+- `name`：应调用的工具的名称。
+- `args`：该工具的参数。
+- `id`：该工具调用的 id。
+#### SystemMessage
+这代表系统消息，告诉模型如何行为。并非每个模型提供者都支持这一点。
+#### FunctionMessage
+这代表函数调用的结果。除了 `role` 和 `content`，此消息还有一个 `name` 参数，传达了生成此结果所调用的函数的名称。
+#### ToolMessage
+这代表工具调用的结果。这与 FunctionMessage 不同，以匹配 OpenAI 的 `function` 和 `tool` 消息类型。除了 `role` 和 `content`，此消息还有一个 `tool_call_id` 参数，传达了调用生成此结果的工具的 id。
+### 提示模板
+提示模板有助于将用户输入和参数转换为语言模型的指令。
+这可用于引导模型的响应，帮助其理解上下文并生成相关和连贯的基于语言的输出。
+提示模板以字典作为输入，其中每个键代表要填充的提示模板中的变量。
+提示模板输出一个 PromptValue。这个 PromptValue 可以传递给 LLM 或 ChatModel，并且还可以转换为字符串或消息列表。
+存在 PromptValue 的原因是为了方便在字符串和消息之间切换。
+有几种不同类型的提示模板
+#### String PromptTemplates
+这些提示模板用于格式化单个字符串，通常用于更简单的输入。
+例如，构建和使用 PromptTemplate 的常见方法如下：
+```python
+from langchain_core.prompts import PromptTemplate
+prompt_template = PromptTemplate.from_template("Tell me a joke about {topic}")
+prompt_template.invoke({"topic": "cats"})
+```
+#### ChatPromptTemplates
+这些提示模板用于格式化消息列表。这些“模板”本身是模板列表。
+例如，构建和使用 ChatPromptTemplate 的常见方法如下：
+```python
+from langchain_core.prompts import ChatPromptTemplate
+prompt_template = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant"),
+    ("user", "Tell me a joke about {topic}")
+])
+prompt_template.invoke({"topic": "cats"})
+```
+在上面的示例中，当调用此 ChatPromptTemplate 时，将构建两条消息。
+第一条是系统消息，没有要格式化的变量。
+第二条是 HumanMessage，并将根据用户传入的 `topic` 变量进行格式化。
+#### MessagesPlaceholder
+这个提示模板负责在特定位置添加消息列表。
+在上面的 ChatPromptTemplate 中，我们看到了如何格式化两条消息，每条消息都是一个字符串。
+但是，如果我们希望用户传入一个消息列表，我们将其插入到特定位置，该怎么办？
+这就是您使用 MessagesPlaceholder 的方式。
+```python
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import HumanMessage
+prompt_template = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant"),
+    MessagesPlaceholder("msgs")
+])
+prompt_template.invoke({"msgs": [HumanMessage(content="hi!")]})
+```
+这将生成两条消息，第一条是系统消息，第二条是我们传入的 HumanMessage。
+如果我们传入了 5 条消息，那么总共会生成 6 条消息（系统消息加上传入的 5 条消息）。
+这对于将一系列消息插入到特定位置非常有用。
+另一种实现相同效果的替代方法是，不直接使用 `MessagesPlaceholder` 类，而是：
+```python
+prompt_template = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant"),
+    ("placeholder", "{msgs}") # <-- 这是更改的部分
+])
+```
+### 示例选择器
+为了实现更好的性能，一种常见的提示技术是将示例包含在提示中。
+这样一来，语言模型就可以得到具体的示例，了解应该如何行为。
+有时这些示例被硬编码到提示中，但对于更高级的情况，动态选择它们可能更好。
+示例选择器是负责选择并格式化示例到提示中的类。
+### 输出解析器
+:::note
+这里提到的是将模型的文本输出进行解析，转换为更结构化表示的解析器。
+越来越多的模型支持函数（或工具）调用，可以自动处理这一过程。
+建议使用函数/工具调用，而不是输出解析。
+查看此处的文档以了解更多信息：[这里](/docs/concepts/#function-tool-calling)。
+:::
+负责接收模型的输出并将其转换为更适合下游任务的格式。
+在使用LLMs生成结构化数据或规范化聊天模型和LLMs的输出时非常有用。
+LangChain有许多不同类型的输出解析器。下表列出了LangChain支持的各种输出解析器及相关信息：
+**名称**：输出解析器的名称
+**支持流式处理**：输出解析器是否支持流式处理
+**具有格式说明**：输出解析器是否具有格式说明。通常是可用的，除非在提示中未指定所需模式，而是在其他参数中指定（如OpenAI函数调用），或者当OutputParser包装另一个OutputParser时。
+**调用LLM**：此输出解析器是否调用LLM。通常只有尝试纠正格式不正确的输出的输出解析器才会这样做。
+**输入类型**：预期的输入类型。大多数输出解析器适用于字符串和消息，但有些（如OpenAI函数）需要具有特定kwargs的消息。
+**输出类型**：解析器返回的对象的输出类型。
+**描述**：我们对此输出解析器的评论以及何时使用它的说明。
+| 名称            | 支持流式处理 | 具有格式说明       | 调用LLM | 输入类型                       | 输出类型          | 描述                                                                                                                                                                                                                                              ||-----------------|--------------|-------------------|---------|----------------------------------|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|| [JSON](https://api.python.langchain.com/en/latest/output_parsers/langchain_core.output_parsers.json.JsonOutputParser.html#langchain_core.output_parsers.json.JsonOutputParser)            | ✅            | ✅                 |         | `str` \| `Message`               | JSON对象          | 返回指定的JSON对象。您可以指定一个Pydantic模型，它将返回该模型的JSON。这可能是获取结构化数据最可靠的输出解析器，不使用函数调用。                                    || [XML](https://api.python.langchain.com/en/latest/output_parsers/langchain_core.output_parsers.xml.XMLOutputParser.html#langchain_core.output_parsers.xml.XMLOutputParser)            | ✅            | ✅                 |         | `str` \| `Message`               | `dict`           | 返回一个标签字典。在需要XML输出时使用。与擅长编写XML的模型一起使用（如Anthropic的模型）。                                                                                                                            || [CSV](https://api.python.langchain.com/en/latest/output_parsers/langchain_core.output_parsers.list.CommaSeparatedListOutputParser.html#langchain_core.output_parsers.list.CommaSeparatedListOutputParser)           | ✅                  | ✅                             |           | `str` \| `Message`                 | `List[str]`          | 返回逗号分隔值的列表。                                                                                                                                                                                                                || [OutputFixing](https://api.python.langchain.com/en/latest/output_parsers/langchain.output_parsers.fix.OutputFixingParser.html#langchain.output_parsers.fix.OutputFixingParser)    |                    |                               | ✅         | `str` \| `Message`                 |                      | 包装另一个输出解析器。如果该输出解析器出错，那么这将传递错误消息和错误输出给 LLM，并要求它修复输出。                                                                                              || [RetryWithError](https://api.python.langchain.com/en/latest/output_parsers/langchain.output_parsers.retry.RetryWithErrorOutputParser.html#langchain.output_parsers.retry.RetryWithErrorOutputParser)  |                    |                               | ✅         | `str` \| `Message`                 |                      | 包装另一个输出解析器。如果该输出解析器出错，那么这将传递原始输入、错误输出和错误消息给 LLM，并要求它修复。与 OutputFixingParser 相比，这个还会发送原始指令。 || [Pydantic](https://api.python.langchain.com/en/latest/output_parsers/langchain_core.output_parsers.pydantic.PydanticOutputParser.html#langchain_core.output_parsers.pydantic.PydanticOutputParser)        |                    | ✅                             |           | `str` \| `Message`                 | `pydantic.BaseModel` | 接受用户定义的 Pydantic 模型，并以该格式返回数据。                                                                                                                                                                                     || [YAML](https://api.python.langchain.com/en/latest/output_parsers/langchain.output_parsers.yaml.YamlOutputParser.html#langchain.output_parsers.yaml.YamlOutputParser)        |                    | ✅                             |           | `str` \| `Message`                 | `pydantic.BaseModel` | 接受用户定义的 Pydantic 模型，并以该格式返回数据。使用 YAML 进行编码。                                                                                                                                                                                    || [PandasDataFrame](https://api.python.langchain.com/en/latest/output_parsers/langchain.output_parsers.pandas_dataframe.PandasDataFrameOutputParser.html#langchain.output_parsers.pandas_dataframe.PandasDataFrameOutputParser) |                    | ✅                             |           | `str` \| `Message`                 | `dict`               | 用于对 pandas 数据框执行操作。                                                                                                                                                                                                      || [Enum](https://api.python.langchain.com/en/latest/output_parsers/langchain.output_parsers.enum.EnumOutputParser.html#langchain.output_parsers.enum.EnumOutputParser)            |                    | ✅                             |           | `str` \| `Message`                 | `Enum`               | 将响应解析为提供的枚举值之一。                                                                                                                                                                                                    || [Datetime](https://api.python.langchain.com/en/latest/output_parsers/langchain.output_parsers.datetime.DatetimeOutputParser.html#langchain.output_parsers.datetime.DatetimeOutputParser)        |                    | ✅                             |           | `str` \| `Message`                 | `datetime.datetime`  | 将响应解析为日期时间字符串。                                                                                                                                                                                                                  || [结构化](https://api.python.langchain.com/en/latest/output_parsers/langchain.output_parsers.structured.StructuredOutputParser.html#langchain.output_parsers.structured.StructuredOutputParser)      |                    | ✅                             |           | `str` \| `Message`                 | `Dict[str, str]`     | 一个返回结构化信息的输出解析器。与其他输出解析器相比，它的功能较弱，因为它只允许字段为字符串。当您使用较小的LLM时，这可能很有用。                                            |
+### 聊天历史
+大多数LLM应用都有对话界面。
+对话的一个重要组成部分是能够引用先前在对话中引入的信息。
+至少，对话系统应该能够直接访问一些过去消息的窗口。
+`ChatHistory`的概念指的是LangChain中的一个类，可以用来包装任意的链。
+这个`ChatHistory`将跟踪底层链的输入和输出，并将它们作为消息附加到消息数据库中。
+将来的交互将加载这些消息，并将它们作为输入的一部分传递给链。
+### 文档
+LangChain中的文档对象包含有关某些数据的信息。它有两个属性：
+- `page_content: str`：此文档的内容。目前只是一个字符串。
+- `metadata: dict`：与此文档相关的任意元数据。可以跟踪文档ID、文件名等。
+### 文档加载器
+这些类加载文档对象。LangChain与各种数据源有数百个集成，可以从中加载数据：Slack、Notion、Google Drive等。
+每个文档加载器都有自己特定的参数，但它们可以通过相同的方式使用`.load`方法调用。
+以下是一个示例用法：
+```python
+from langchain_community.document_loaders.csv_loader import CSVLoader
+loader = CSVLoader(
+    ...  # <-- 在这里添加特定于集成的参数
+)
+data = loader.load()
+```
+### 文本分割器
+一旦加载了文档，通常希望将其转换为更适合应用程序的形式。最简单的例子是可能希望将长文档拆分成适合模型上下文窗口的较小块。LangChain提供了许多内置的文档转换器，使拆分、合并、过滤和其他操作文档变得容易。
+当您想处理长文本时，有必要将文本分割成块。尽管听起来很简单，但这里存在很多潜在的复杂性。理想情况下，您希望将语义相关的文本片段保持在一起。什么是“语义相关”可能取决于文本的类型。本文展示了几种实现这一目标的方法。
+从高层次上看，文本分割器的工作方式如下：
+1. 将文本分割成小的、语义上有意义的块（通常是句子）。
+2. 将这些小块组合成一个较大的块，直到达到某个大小（由某个函数测量）。
+3. 一旦达到该大小，将该块作为自己的文本片段，然后开始创建一个新的文本块，其中包含一些重叠（以保持块之间的上下文）。
+这意味着有两个不同的方面可以定制文本分割器：
+1. 文本如何分割
+2. 块大小如何测量
+### 嵌入模型
+嵌入类是一个用于与文本嵌入模型进行交互的类。有许多嵌入模型提供者（OpenAI、Cohere、Hugging Face等）- 这个类旨在为所有这些提供一个标准接口。
+嵌入模型会创建文本片段的向量表示。这很有用，因为这意味着我们可以在向量空间中思考文本，并进行语义搜索，查找在向量空间中最相似的文本片段。
+LangChain中的基本嵌入类提供了两种方法：一种用于嵌入文档，一种用于嵌入查询。前者接受多个文本作为输入，而后者接受单个文本。之所以将它们作为两种单独的方法，是因为某些嵌入提供者对文档（用于搜索）和查询（搜索查询本身）有不同的嵌入方法。
+### 向量存储
+存储和搜索非结构化数据的最常见方法之一是将其嵌入并存储生成的嵌入向量，
+然后在查询时将非结构化查询嵌入并检索与嵌入查询“最相似”的嵌入向量。
+向量存储会处理存储嵌入数据并为您执行向量搜索。
+可以通过以下方式将向量存储转换为检索器接口：
+```python
+vectorstore = MyVectorStore()
+retriever = vectorstore.as_retriever()
+```
+### 检索器
+检索器是一个接口，根据非结构化查询返回文档。
+它比向量存储更通用。
+检索器不需要能够存储文档，只需要能够返回（或检索）它们。
+检索器可以从向量存储器创建，但也足够广泛，包括[Wikipedia搜索](/docs/integrations/retrievers/wikipedia/)和[Amazon Kendra](/docs/integrations/retrievers/amazon_kendra_retriever/)。
+检索器接受字符串查询作为输入，并返回文档列表作为输出。
+### 工具
+工具是代理、链或聊天模型/LLM用来与世界交互的接口。
+一个工具由以下组件组成：
+1. 工具的名称
+2. 工具的功能描述
+3. 工具输入的JSON模式
+4. 要调用的函数
+5. 工具的结果是否应直接返回给用户（仅对代理相关）
+名称、描述和JSON模式作为上下文提供给LLM，允许LLM适当地确定如何使用工具。
+给定一组可用工具和提示，LLM可以请求调用一个或多个工具，并提供适当的参数。
+通常，在设计供聊天模型或LLM使用的工具时，重要的是要牢记以下几点：
+- 经过微调以进行工具调用的聊天模型将比未经微调的模型更擅长进行工具调用。
+- 未经微调的模型可能根本无法使用工具，特别是如果工具复杂或需要多次调用工具。
+- 如果工具具有精心选择的名称、描述和JSON模式，则模型的性能将更好。
+- 简单的工具通常比更复杂的工具更容易让模型使用。
+### 工具包
+工具包是为特定任务而设计的一组工具集合。它们具有方便的加载方法。
+所有工具包都公开了一个`get_tools`方法，该方法返回一个工具列表。
+因此，您可以这样做：
+```python
+# 初始化一个工具包
+toolkit = ExampleTookit(...)
+# 获取工具列表
+tools = toolkit.get_tools()
+```
+### 代理
+单独的语言模型无法采取行动，它们只能输出文本。LangChain的一个重要用例是创建**代理**。
+代理是使用LLM作为推理引擎来确定应采取哪些行动以及这些行动的输入应该是什么的系统。
+然后，这些行动的结果可以被馈送回代理，并确定是否需要更多的行动，或者是否可以结束。
+[LangGraph](https://github.com/langchain-ai/langgraph)是LangChain的一个扩展，专门用于创建高度可控和可定制的代理。
+请查看该文档，以获取有关代理概念的更深入概述。
+LangChain中有一个旧的代理概念，我们正在逐步淘汰：`AgentExecutor`。
+AgentExecutor本质上是代理的运行时。
+它是一个很好的起点，但是当您开始拥有更多定制化的代理时，它就不够灵活了。
+为了解决这个问题，我们构建了LangGraph，使其成为这种灵活、高度可控的运行时。
+如果您仍在使用AgentExecutor，请不用担心：我们仍然有一份关于[如何使用AgentExecutor](/docs/how_to/agent_executor)的指南。
+但是，建议您开始过渡到LangGraph。
+为了帮助您做到这一点，我们已经准备了一份[过渡指南](/docs/how_to/migrate_agent)。
+### 回调
+LangChain提供了一个回调系统，允许您连接到LLM应用程序的各个阶段。这对于日志记录、监控、流式处理和其他任务非常有用。
+您可以通过使用API中的`callbacks`参数订阅这些事件。这个参数是处理程序对象的列表，这些处理程序对象应该实现下面更详细描述的一个或多个方法。
+#### 回调处理程序
+`CallbackHandlers`是实现了[`CallbackHandler`](https://api.python.langchain.com/en/latest/callbacks/langchain_core.callbacks.base.BaseCallbackHandler.html#langchain-core-callbacks-base-basecallbackhandler)接口的对象，该接口对应于可以订阅的每个事件都有一个方法。
+当事件触发时，`CallbackManager`将在每个处理程序上调用适当的方法。
+```python
+class BaseCallbackHandler:
+    """可以用来处理langchain回调的基本回调处理程序。"""
+    def on_llm_start(
+        self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
+    ) -> Any:
+        """LLM开始运行时运行。"""
+    def on_chat_model_start(
+        self, serialized: Dict[str, Any], messages: List[List[BaseMessage]], **kwargs: Any
+    ) -> Any:
+        """聊天模型开始运行时运行。"""
+    # 其他方法省略...
+```
+#### 传递回调函数
+`callbacks` 属性在 API 的大多数对象（模型、工具、代理等）中都可用，在两个不同的位置上：
+- **构造函数回调**：在构造函数中定义，例如 `ChatAnthropic(callbacks=[handler], tags=['a-tag'])`。在这种情况下，回调函数将用于该对象上的所有调用，并且仅限于该对象。
+  例如，如果你使用构造函数回调初始化了一个聊天模型，然后在链式调用中使用它，那么回调函数只会在对该模型的调用中被调用。
+- **请求回调**：传递给用于发出请求的 `invoke` 方法。在这种情况下，回调函数仅用于该特定请求，以及它包含的所有子请求（例如，调用触发对模型的调用的序列的调用，该模型使用在 `invoke()` 方法中传递的相同处理程序）。
+  在 `invoke()` 方法中，通过 `config` 参数传递回调函数。
+## 技术
+### 函数/工具调用
+:::info
+我们将工具调用与函数调用互换使用。尽管函数调用有时指的是对单个函数的调用，但我们将所有模型都视为可以在每个消息中返回多个工具或函数调用。
+:::
+工具调用允许模型通过生成符合用户定义模式的输出来响应给定的提示。虽然名称暗示模型正在执行某个操作，但实际情况并非如此！模型正在为工具提供参数，而实际运行工具（或不运行）取决于用户 - 例如，如果您想从非结构化文本中提取与某个模式匹配的输出，可以给模型一个“提取”工具，该工具接受与所需模式匹配的参数，然后将生成的输出视为最终结果。
+工具调用包括名称、参数字典和可选标识符。参数字典的结构为 `{argument_name: argument_value}`。
+许多 LLM 提供商，包括 [Anthropic](https://www.anthropic.com/)、[Cohere](https://cohere.com/)、[Google](https://cloud.google.com/vertex-ai)、[Mistral](https://mistral.ai/)、[OpenAI](https://openai.com/) 等，都支持工具调用功能的变体。这些功能通常允许 LLM 的请求包括可用工具及其模式，并且响应包括对这些工具的调用。例如，给定一个搜索引擎工具，LLM 可以通过首先发出对搜索引擎的调用来处理查询。调用 LLM 的系统可以接收工具调用，执行它，并将输出返回给 LLM 以通知其响应。LangChain 包括一套[内置工具](/docs/integrations/tools/)，并支持几种定义[自定义工具](/docs/how_to/custom_tools)的方法。
+LangChain 提供了一种标准化的工具调用接口，该接口在不同的模型之间保持一致。
+标准接口包括：
+- `ChatModel.bind_tools()`：用于指定模型可以调用的工具的方法。
+- `AIMessage.tool_calls`：从模型返回的 `AIMessage` 上的属性，用于访问模型请求的工具调用。
+函数/工具调用有两个主要用例：
+- [如何从 LLM 返回结构化数据](/docs/how_to/structured_output/)
+- [如何使用模型调用工具](/docs/how_to/tool_calling/)
+### 检索
+LangChain 提供了几种高级检索类型。下面是完整列表，以及以下信息：
+**名称**：检索算法的名称。
+**索引类型**：它依赖于哪种索引类型（如果有）。
+**使用 LLM**：此检索方法是否使用 LLM。
+**何时使用**：我们对何时应该考虑使用此检索方法的评论。
+**描述**：此检索算法的描述。
+| 名称                      | 索引类型                   | 使用 LLM               | 何时使用                                                                                                                                   | 描述                                                                                                                                                                                                                                                                                      ||---------------------------|------------------------------|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|| [Vectorstore](/docs/how_to/vectorstore_retriever/)               | Vectorstore                  | 否                        | 如果您刚开始并且正在寻找快速简单的方法。                                                                     | 这是最简单的方法，也是最容易入门的方法。它涉及为每个文本片段创建嵌入。                                                                                                                                                             || [ParentDocument](/docs/how_to/parent_document_retriever/)            | Vectorstore + 文档存储 | 否                        | 如果您的页面有许多较小的独立信息片段，最好单独索引它们，但最好一起检索。       | 这涉及为每个文档索引多个块。然后，您找到在嵌入空间中最相似的块，但检索整个父文档并返回它（而不是单个块）。                                                                         || [Multi Vector](/docs/how_to/multi_vector/)              | Vectorstore + 文档存储 | 有时在索引过程中 | 如果您能够从文档中提取信息，并且认为这些信息与文本本身相比更相关，则可以使用此方法。                          | 这涉及为每个文档创建多个向量。每个向量可以以多种方式创建 - 例如，文本摘要和假设性问题的示例。                                                                                                                 |
+| [Self Query](/docs/how_to/self_query/)               | Vectorstore                  | 是                       | 如果用户提出的问题最好通过基

@@ -1,0 +1,19 @@
+# Apache Doris
+
+[Apache Doris](https://doris.apache.org/) 是一款用于实时分析的现代化数据仓库。它能够在大规模实时数据上实现快速的分析。
+
+通常情况下，`Apache Doris` 被归类为 OLAP，它在 [ClickBench — a Benchmark For Analytical DBMS](https://benchmark.clickhouse.com/) 中表现出色。由于它拥有超快的矢量化执行引擎，因此也可以被用作快速的矢量数据库。
+
+## 安装和设置
+
+```bash
+pip install pymysql
+```
+
+## 矢量存储
+
+查看 [使用示例](/docs/integrations/vectorstores/apache_doris)。
+
+```python
+from langchain_community.vectorstores import ApacheDoris
+```

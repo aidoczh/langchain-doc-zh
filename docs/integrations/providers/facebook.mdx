@@ -1,0 +1,80 @@
+# Facebook - Meta
+
+[Meta Platforms, Inc.](https://www.facebook.com/)，即 `Meta`，前身为 `Facebook, Inc.` 和 `TheFacebook, Inc.`，是一家美国跨国科技集团。该公司拥有并运营着 `Facebook`、`Instagram`、`Threads` 和 `WhatsApp` 等产品和服务。
+
+## 嵌入模型
+
+### LASER
+
+[LASER](https://github.com/facebookresearch/LASER) 是由 `Meta AI Research` 团队开发的 Python 库，用于为[截至 2024 年 2 月 25 日已覆盖 147 多种语言](https://github.com/facebookresearch/flores/blob/main/flores200/README.md#languages-in-flores-200)创建多语言句子嵌入。
+
+```bash
+pip install laser_encoders
+```
+
+查看[使用示例](/docs/integrations/text_embedding/laser)。
+
+```python
+from langchain_community.embeddings.laser import LaserEmbeddings
+```
+
+## 文档加载器
+
+### Facebook Messenger
+
+[Messenger](https://en.wikipedia.org/wiki/Messenger_(software)) 是由 `Meta Platforms` 开发的即时通讯应用和平台。最初于 2008 年开发为 `Facebook Chat`，公司于 2010 年改进了其消息服务。
+
+查看[使用示例](/docs/integrations/document_loaders/facebook_chat)。
+
+```python
+from langchain_community.document_loaders import FacebookChatLoader
+```
+
+## 向量存储
+
+### Facebook Faiss
+
+[Facebook AI Similarity Search (Faiss)](https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/) 是用于高效相似性搜索和密集向量聚类的库。它包含可搜索任何大小的向量集的算法，甚至包括可能不适合内存的向量。它还包含用于评估和参数调整的支持代码。
+
+[Faiss 文档](https://faiss.ai/)。
+
+我们需要安装 `faiss` Python 包。
+
+```bash
+pip install faiss-gpu # 适用于支持 CUDA 7.5+ 的 GPU。
+```
+
+或者
+
+```bash
+pip install faiss-cpu # 适用于 CPU 安装
+```
+
+查看[使用示例](/docs/integrations/vectorstores/faiss)。
+
+```python
+from langchain_community.vectorstores import FAISS
+```
+
+## 聊天加载器
+
+### Facebook Messenger
+
+[Messenger](https://en.wikipedia.org/wiki/Messenger_(software)) 是由 `Meta Platforms` 开发的即时通讯应用和平台。最初于 2008 年开发为 `Facebook Chat`，公司于 2010 年改进了其消息服务。
+
+查看[使用示例](/docs/integrations/chat_loaders/facebook)。
+
+```python
+from langchain_community.chat_loaders.facebook_messenger import (
+    FolderFacebookMessengerChatLoader,
+    SingleFileFacebookMessengerChatLoader,
+)
+```
+
+### Facebook WhatsApp
+
+查看[使用示例](/docs/integrations/chat_loaders/whatsapp)。
+
+```python
+from langchain_community.chat_loaders.whatsapp import WhatsAppChatLoader
+```

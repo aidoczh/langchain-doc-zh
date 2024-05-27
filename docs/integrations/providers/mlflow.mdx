@@ -1,0 +1,106 @@
+# 用于 LLM 的 MLflow 部署
+
+>[MLflow 部署用于 LLM 的](https://www.mlflow.org/docs/latest/llms/deployments/index.html) 是一个强大的工具，旨在简化组织内各种大型语言模型（LLM）提供商（如 OpenAI 和 Anthropic）的使用和管理。它提供了一个高级接口，通过提供一个统一的端点来处理特定的 LLM 相关请求，从而简化与这些服务的交互。
+
+## 安装和设置
+
+使用以下命令安装带有 MLflow 部署依赖项的 `mlflow`：
+
+```sh
+pip install 'mlflow[genai]'
+```
+
+将 OpenAI API 密钥设置为环境变量：
+
+```sh
+export OPENAI_API_KEY=...
+```
+
+创建一个配置文件：
+
+```yaml
+endpoints:
+  - name: completions
+    endpoint_type: llm/v1/completions
+    model:
+      provider: openai
+      name: text-davinci-003
+      config:
+        openai_api_key: $OPENAI_API_KEY
+  - name: embeddings
+    endpoint_type: llm/v1/embeddings
+    model:
+      provider: openai
+      name: text-embedding-ada-002
+      config:
+        openai_api_key: $OPENAI_API_KEY
+```
+
+启动部署服务器：
+
+```sh
+mlflow deployments start-server --config-path /path/to/config.yaml
+```
+
+## `MLflow` 提供的示例
+
+`mlflow.langchain` 模块提供了用于记录和加载 `LangChain` 模型的 API。该模块以 langchain flavor 导出多变量 LangChain 模型，以 pyfunc flavor 导出单变量 LangChain 模型。
+
+有关更多信息，请参阅 [API 文档和示例](https://www.mlflow.org/docs/latest/llms/langchain/index.html)。
+
+## 完成示例
+
+```python
+import mlflow
+from langchain.chains import LLMChain, PromptTemplate
+from langchain_community.llms import Mlflow
+llm = Mlflow(
+    target_uri="http://127.0.0.1:5000",
+    endpoint="completions",
+)
+llm_chain = LLMChain(
+    llm=Mlflow,
+    prompt=PromptTemplate(
+        input_variables=["adjective"],
+        template="Tell me a {adjective} joke",
+    ),
+)
+result = llm_chain.run(adjective="funny")
+print(result)
+with mlflow.start_run():
+    model_info = mlflow.langchain.log_model(chain, "model")
+model = mlflow.pyfunc.load_model(model_info.model_uri)
+print(model.predict([{"adjective": "funny"}]))
+```
+
+## 嵌入示例
+
+```python
+from langchain_community.embeddings import MlflowEmbeddings
+embeddings = MlflowEmbeddings(
+    target_uri="http://127.0.0.1:5000",
+    endpoint="embeddings",
+)
+print(embeddings.embed_query("hello"))
+print(embeddings.embed_documents(["hello"]))
+```
+
+## 聊天示例
+
+```python
+from langchain_community.chat_models import ChatMlflow
+from langchain_core.messages import HumanMessage, SystemMessage
+chat = ChatMlflow(
+    target_uri="http://127.0.0.1:5000",
+    endpoint="chat",
+)
+messages = [
+    SystemMessage(
+        content="You are a helpful assistant that translates English to French."
+    ),
+    HumanMessage(
+        content="Translate this sentence from English to French: I love programming."
+    ),
+]
+print(chat(messages))
+```

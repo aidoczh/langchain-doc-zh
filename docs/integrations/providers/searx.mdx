@@ -1,0 +1,86 @@
+# SearxNG 搜索 API
+
+本页面介绍了如何在 LangChain 中使用 SearxNG 搜索 API。内容分为两部分：安装和设置，以及特定 SearxNG API 包装器的参考。
+
+## 安装和设置
+
+虽然可以与 [公共 searx 实例](https://searx.space/) 结合使用该包装器，但这些实例经常不允许 API 访问（请参阅下面的输出格式说明），并且对请求的频率有限制。建议选择自托管实例。
+
+### 自托管实例：
+
+请参阅 [此页面](https://searxng.github.io/searxng/admin/installation.html) 获取安装说明。
+
+安装 SearxNG 时，默认情况下唯一激活的输出格式是 HTML 格式。您需要激活 `json` 格式以使用 API。可以通过向 `settings.yml` 文件添加以下行来实现：
+
+```yaml
+search:
+    formats:
+        - html
+        - json
+```
+
+您可以通过向 API 端点发出 curl 请求来确保 API 正常工作：
+
+`curl -kLX GET --data-urlencode q='langchain' -d format=json http://localhost:8888`
+
+这应该返回一个带有结果的 JSON 对象。
+
+## 包装器
+
+### 实用工具
+
+要使用包装器，我们需要在创建实例时传递 SearxNG 实例的主机名：
+
+    1. 使用命名参数 `searx_host`。
+
+    2. 导出环境变量 `SEARXNG_HOST`。
+
+您可以使用包装器从 SearxNG 实例获取结果。
+
+```python
+from langchain_community.utilities import SearxSearchWrapper
+s = SearxSearchWrapper(searx_host="http://localhost:8888")
+s.run("what is a large language model?")
+```
+
+### 工具
+
+您还可以将此包装器加载为工具（用于与代理一起使用）。
+
+可以这样做：
+
+```python
+from langchain.agents import load_tools
+tools = load_tools(["searx-search"],
+                    searx_host="http://localhost:8888",
+                    engines=["github"])
+```
+
+请注意，我们可以 _可选地_ 传递自定义引擎以使用。
+
+如果要以 *json* 格式获取带有元数据的结果，可以使用：
+
+```python
+tools = load_tools(["searx-search-results-json"],
+                    searx_host="http://localhost:8888",
+                    num_results=5)
+```
+
+#### 快速创建工具
+
+此示例展示了从同一包装器快速创建多个工具的方法。
+
+```python
+from langchain_community.tools.searx_search.tool import SearxSearchResults
+wrapper = SearxSearchWrapper(searx_host="**")
+github_tool = SearxSearchResults(name="Github", wrapper=wrapper,
+                            kwargs = {
+                                "engines": ["github"],
+                                })
+arxiv_tool = SearxSearchResults(name="Arxiv", wrapper=wrapper,
+                            kwargs = {
+                                "engines": ["arxiv"]
+                                })
+```
+
+有关工具的更多信息，请参阅 [此页面](/docs/how_to/tools_builtin)。

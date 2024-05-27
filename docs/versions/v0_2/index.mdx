@@ -1,0 +1,65 @@
+---
+sidebar_position: 1
+---
+# LangChain v0.2
+LangChain v0.2于2024年5月发布。此版本包括一系列[重大变更和废弃功能](/docs/versions/v0_2/deprecations)。本文档包含了升级到0.2.x版本的指南。
+:::note 参考资料
+- [重大变更和废弃功能](/docs/versions/v0_2/deprecations)
+:::
+# 迁移
+本文档将帮助您将您的代码升级到LangChain `0.2.x.`版本。为了进行迁移，我们首先建议您采取以下步骤：
+1. 安装langchain-core、langchain的0.2.x版本，并升级您可能使用的其他软件包的最新版本（例如langgraph、langchain-community、langchain-openai等）。
+2. 验证您的代码是否能够正常运行新软件包（例如，单元测试是否通过）。
+3. 安装最新版本的`langchain-cli`，并使用该工具将您的代码中的旧导入替换为新导入（请参阅下文的说明）。
+4. 手动解决任何剩余的废弃警告。
+5. 重新运行单元测试。
+## 升级到新的导入
+我们创建了一个工具来帮助迁移您的代码。该工具目前仍处于**测试版**，可能无法覆盖所有情况，但我们希望它能帮助您更快地迁移您的代码。
+迁移脚本有以下限制：
+1. 它仅限于帮助用户从旧导入迁移到新导入。它无法处理其他废弃功能。
+
+2. 它无法处理涉及`as`的导入。
+
+3. 新导入始终放置在全局范围内，即使被替换的旧导入位于某些局部范围内（例如函数体）。
+
+4. 它可能会错过一些已废弃的导入。
+  以下是迁移脚本可以帮助自动应用的导入更改的示例：
+
+  
+| 从软件包             | 到软件包                 | 废弃导入                                                         | 新导入                                                             |
+|---------------------|--------------------------|--------------------------------------------------------------------|---------------------------------------------------------------------|
+| langchain           | langchain-community      | from langchain.vectorstores import InMemoryVectorStore             | from langchain_community.vectorstores import InMemoryVectorStore    |
+| langchain-community | langchain_openai         | from langchain_community.chat_models import ChatOpenAI             | from langchain_openai import ChatOpenAI                             |
+| langchain-community | langchain-core           | from langchain_community.document_loaders import Blob              | from langchain_core.document_loaders import Blob                    |
+| langchain           | langchain-core           | from langchain.schema.document import Document                     | from langchain_core.documents import Document                       |
+| langchain           | langchain-text-splitters | from langchain.text_splitter import RecursiveCharacterTextSplitter | from langchain_text_splitters import RecursiveCharacterTextSplitter |
+## 安装
+```bash
+pip install langchain-cli
+langchain-cli --version # <-- 确保版本至少为0.0.22
+```
+## 使用
+鉴于迁移脚本并非完美无缺，您应确保首先备份您的代码（例如，使用`git`等版本控制工具）。
+您需要运行迁移脚本**两次**，因为它每次只应用一个导入替换。
+例如，假设您的代码仍然使用`from langchain.chat_models import ChatOpenAI`：
+第一次运行后，您将得到：`from langchain_community.chat_models import ChatOpenAI`
+第二次运行后，您将得到：`from langchain_openai import ChatOpenAI`
+```bash
+# 第一次运行
+# 将替换 from langchain.chat_models import ChatOpenAI
+langchain-cli migrate --diff [代码路径] # 预览
+langchain-cli migrate [代码路径] # 应用
+# 第二次运行以应用更多的导入替换
+langchain-cli migrate --diff [代码路径] # 预览
+langchain-cli migrate [代码路径] # 应用
+```
+### 其他选项
+```bash
+# 查看帮助菜单
+langchain-cli migrate --help
+# 预览更改但不应用
+langchain-cli migrate --diff [代码路径]
+# 在包括ipython笔记本在内的代码上运行
+# 应用除了从langchain到langchain-core的所有导入更新
+langchain-cli migrate --disable langchain_to_core --include-ipynb [代码路径]
+```

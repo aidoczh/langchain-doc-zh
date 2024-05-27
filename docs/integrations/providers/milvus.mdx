@@ -1,0 +1,23 @@
+# Milvus
+
+>[Milvus](https://milvus.io/docs/overview.md) 是一个存储、索引和管理由深度神经网络和其他机器学习（ML）模型生成的大规模嵌入向量的数据库。
+
+## 安装和设置
+
+安装 Python SDK：
+
+```bash
+pip install pymilvus
+```
+
+## 向量存储
+
+存在一个围绕 `Milvus` 索引的包装器，允许您将其用作向量存储，无论是用于语义搜索还是示例选择。
+
+要导入此向量存储：
+
+```python
+from langchain_community.vectorstores import Milvus
+```
+
+有关 `Milvus` 包装器的更详细说明，请参见[此笔记本](/docs/integrations/vectorstores/milvus)。

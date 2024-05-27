@@ -1,0 +1,21 @@
+# DingoDB
+
+本页面介绍了如何在 LangChain 中使用 DingoDB 生态系统。
+
+内容分为两部分：安装和设置，以及特定 DingoDB 包装器的参考。
+
+## 安装和设置
+
+- 使用 `pip install dingodb` 安装 Python SDK
+
+## VectorStore
+
+存在一个围绕 DingoDB 索引的包装器，允许您将其用作向量存储，用于语义搜索或示例选择。
+
+要导入此 vectorstore：
+
+```python
+from langchain_community.vectorstores import Dingo
+```
+
+要了解有关 DingoDB 包装器的更详细步骤，请参阅[此笔记本](/docs/integrations/vectorstores/dingo)

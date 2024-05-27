@@ -1,0 +1,26 @@
+# Snowflake
+
+> [Snowflake](https://www.snowflake.com/) 是一个基于云的数据仓库平台，允许您存储和查询大量数据。
+
+本页面介绍如何在 `LangChain` 中使用 `Snowflake` 生态系统。
+
+## 嵌入模型
+
+Snowflake 提供了他们的开放权重 `arctic` 系列嵌入模型，可在 [Hugging Face](https://huggingface.co/Snowflake/snowflake-arctic-embed-l) 上免费使用。您可以通过 [HuggingFaceEmbeddings](/docs/integrations/text_embedding/huggingfacehub) 连接器使用这些模型：
+
+```shell
+pip install langchain-community sentence-transformers
+```
+
+```python
+from langchain_huggingface import HuggingFaceEmbeddings
+model = HuggingFaceEmbeddings(model_name="snowflake/arctic-embed-l")
+```
+
+## 文档加载器
+
+您可以使用 [`SnowflakeLoader`](/docs/integrations/document_loaders/snowflake) 从 Snowflake 加载数据：
+
+```python
+from langchain_community.document_loaders import SnowflakeLoader
+```

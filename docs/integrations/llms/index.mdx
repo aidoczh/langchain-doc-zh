@@ -1,0 +1,50 @@
+---
+sidebar_position: 1
+sidebar_class_name: hidden
+keywords: [兼容性]
+---
+# 大型语言模型
+## 特性（原生支持）
+所有大型语言模型都实现了Runnable接口，该接口带有所有方法的默认实现，即`ainvoke`、`batch`、`abatch`、`stream`、`astream`。这使得所有大型语言模型都基本支持异步、流式和批处理，其默认实现如下：
+- *异步*支持默认调用asyncio的默认线程池执行器中的相应同步方法。这使得在执行大型语言模型时，将此调用移至后台线程，从而使应用程序中的其他异步函数可以继续执行。
+
+- *流式*支持默认返回一个`Iterator`（或在异步流式情况下返回`AsyncIterator`）的单个值，即底层大型语言模型提供的最终结果。这显然不能提供逐标记的流式处理，这需要大型语言模型提供原生支持，但确保您的代码可以处理任何我们的大型语言模型集成所需的标记迭代器。
+
+- *批处理*支持默认通过使用线程池执行器（在同步批处理情况下）或`asyncio.gather`（在异步批处理情况下）并行调用底层大型语言模型来处理每个输入。并发性可以通过`RunnableConfig`中的`max_concurrency`键进行控制。
+  每个大型语言模型集成可以选择为异步、流式或批处理提供原生实现，对于支持的提供者来说，这可能更有效。下表显示了每个集成中已实现原生支持的特性。
+
+  
+模型|调用|异步调用|流式|异步流式|批处理|异步批处理
+:-|:-:|:-:|:-:|:-:|:-:|:-:
+AI21|✅|❌|❌|❌|❌|❌
+AlephAlpha|✅|❌|❌|❌|❌|❌
+AmazonAPIGateway|✅|❌|❌|❌|❌|❌
+Anthropic|✅|✅|✅|✅|❌|❌
+Anyscale|✅|✅|✅|✅|✅|✅
+Aphrodite|✅|❌|❌|❌|✅|❌
+Arcee|✅|❌|❌|❌|❌|❌
+Aviary|✅|❌|❌|❌|❌|❌
+AzureMLOnlineEndpoint|✅|❌|❌|❌|✅|❌
+AzureOpenAI|✅|✅|✅|✅|✅|✅
+BaichuanLLM|✅|❌|❌|❌|❌|❌
+Banana|✅|❌|❌|❌|❌|❌
+Baseten|✅|❌|❌|❌|❌|❌
+Beam|✅|❌|❌|❌|❌|❌
+Bedrock|✅|✅|✅|✅|❌|❌
+CTransformers|✅|✅|❌|❌|❌|❌
+CTranslate2|✅|❌|❌|❌|✅|❌
+CerebriumAI|✅|❌|❌|❌|❌|❌
+ChatGLM|✅|❌|❌|❌|❌|❌
+Clarifai|✅|❌|❌|❌|❌|❌
+Cohere|✅|✅|❌|❌|❌|❌
+Databricks|✅|❌|❌|❌|❌|❌
+DeepInfra|✅|✅|✅|✅|❌|❌
+DeepSparse|✅|✅|✅|✅|❌|❌
+EdenAI|✅|✅|❌|❌|❌|❌
+Fireworks|✅|✅|✅|✅|✅|✅
+ForefrontAI|✅|❌|❌|❌|❌|❌
+Friendli|✅|✅|✅|✅|❌|❌
+GPT4All|✅|❌|❌|❌|❌|❌
+GigaChat|✅|✅|✅|✅|✅|✅
+GooglePalm|✅|❌|✅|❌|✅|❌
+GooseAI|✅|❌|❌|

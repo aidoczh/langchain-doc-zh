@@ -1,0 +1,68 @@
+# Dataherald
+
+[Dataherald](https://www.dataherald.com) 是一种自然语言转SQL的工具。
+
+本页面介绍了如何在 LangChain 中使用 `Dataherald API`。
+
+## 安装和设置
+
+- 使用以下命令安装所需的库
+
+```bash
+pip install dataherald
+```
+
+- 前往 dataherald 并注册 [这里](https://www.dataherald.com)
+
+- 创建一个应用并获取你的 `API KEY`
+
+- 将你的 `API KEY` 设置为环境变量 `DATAHERALD_API_KEY`
+
+## 封装器
+
+### 实用工具
+
+存在一个 DataheraldAPIWrapper 实用工具，用于封装这个 API。要导入这个实用工具：
+
+```python
+from langchain_community.utilities.dataherald import DataheraldAPIWrapper
+```
+
+有关此封装器的更详细的步骤，请参见[此笔记本](/docs/integrations/tools/dataherald)。
+
+### 工具
+
+你可以在代理中使用该工具，如下所示：
+
+```python
+from langchain_community.utilities.dataherald import DataheraldAPIWrapper
+from langchain_community.tools.dataherald.tool import DataheraldTextToSQL
+from langchain_openai import ChatOpenAI
+from langchain import hub
+from langchain.agents import AgentExecutor, create_react_agent, load_tools
+api_wrapper = DataheraldAPIWrapper(db_connection_id="<db_connection_id>")
+tool = DataheraldTextToSQL(api_wrapper=api_wrapper)
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+prompt = hub.pull("hwchase17/react")
+agent = create_react_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+agent_executor.invoke({"input":"Return the sql for this question: How many employees are in the company?"})
+```
+
+输出
+
+```shell
+> 进入新的 AgentExecutor 链...
+我需要使用一个能够将这个问题转换为 SQL 的工具。
+操作：dataherald
+操作输入：How many employees are in the company?Answer: SELECT
+    COUNT(*) FROM employees我现在知道了最终答案
+最终答案：SELECT
+    COUNT(*)
+FROM
+    employees
+> 链结束。
+{'input': 'Return the sql for this question: How many employees are in the company?', 'output': "SELECT \n    COUNT(*)\nFROM \n    employees"}
+```
+
+有关工具的更多信息，请参见[此页面](/docs/how_to/tools_builtin)。

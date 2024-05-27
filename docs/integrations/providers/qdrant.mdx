@@ -1,0 +1,25 @@
+# Qdrant
+
+>[Qdrant](https://qdrant.tech/documentation/)（读作：quadrant）是一个向量相似性搜索引擎。
+
+> 它提供了一个可用于存储、搜索和管理点（带有附加有效载荷的向量）的生产就绪服务和方便的 API。`Qdrant`专为扩展过滤支持而设计。
+
+## 安装和设置
+
+安装 Python 合作伙伴包：
+
+```bash
+pip install langchain-qdrant
+```
+
+## 向量存储
+
+存在一个围绕`Qdrant`索引的包装器，允许您将其用作向量存储，无论是用于语义搜索还是示例选择。
+
+要导入此向量存储：
+
+```python
+from langchain_qdrant import Qdrant
+```
+
+有关 Qdrant 包装器的更详细说明，请参见[此笔记本](/docs/integrations/vectorstores/qdrant)。

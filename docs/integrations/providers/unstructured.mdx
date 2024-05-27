@@ -1,0 +1,237 @@
+# 非结构化
+
+`unstructured` 包来自 [Unstructured.IO](https://www.unstructured.io/)，可以从 PDF 和 Word 文档等原始文档中提取干净的文本。
+
+本页面介绍如何在 LangChain 中使用 [`unstructured`](https://github.com/Unstructured-IO/unstructured) 生态系统。
+
+## 安装和设置
+
+如果您正在使用本地运行的加载程序，请按照以下步骤在本地运行 `unstructured` 及其依赖项。
+
+- 使用 `pip install unstructured` 安装 Python SDK。
+
+    - 您可以使用额外的方式安装特定于文档的依赖项，例如 `pip install "unstructured[docx]"`。
+
+    - 要安装所有文档类型的依赖项，请使用 `pip install "unstructured[all-docs]"`。
+
+- 如果系统上尚未安装以下系统依赖项，请安装以下系统依赖项。
+
+  根据您要解析的文档类型，您可能不需要全部这些依赖项。
+
+    - `libmagic-dev`（文件类型检测）
+
+    - `poppler-utils`（图像和 PDF）
+
+    - `tesseract-ocr`（图像和 PDF）
+
+    - `libreoffice`（MS Office 文档）
+
+    - `pandoc`（EPUB）
+
+如果您想要更少的设置就能运行起来，您可以简单地运行 `pip install unstructured` 并使用 `UnstructuredAPIFileLoader` 或 `UnstructuredAPIFileIOLoader`。这将使用托管的 Unstructured API 处理您的文档。
+
+`Unstructured API` 需要 API 密钥来发出请求。
+
+您可以在 [这里](https://unstructured.io/api-key-hosted) 请求 API 密钥，并立即开始使用它！
+
+查看 README [这里](https://github.com/Unstructured-IO/unstructured-api) 以开始发出 API 调用。
+
+我们很乐意听取您的反馈，请让我们知道进展如何在我们的 [社区 Slack](https://join.slack.com/t/unstructuredw-kbe4326/shared_invite/zt-1x7cgo0pg-PTptXWylzPQF9xZolzCnwQ) 中。
+
+请继续关注对质量和性能的改进！
+
+如果您想要自行托管 Unstructured API 或在本地运行它，请查看 [这里](https://github.com/Unstructured-IO/unstructured-api#dizzy-instructions-for-using-the-docker-image) 的说明。
+
+## 数据加载器
+
+`Unstructured` 的主要用途是数据加载器。
+
+### UnstructuredAPIFileIOLoader
+
+查看 [使用示例](/docs/integrations/document_loaders/unstructured_file#unstructured-api)。
+
+```python
+from langchain_community.document_loaders import UnstructuredAPIFileIOLoader
+```
+
+### UnstructuredAPIFileLoader
+
+查看 [使用示例](/docs/integrations/document_loaders/unstructured_file#unstructured-api)。
+
+```python
+from langchain_community.document_loaders import UnstructuredAPIFileLoader
+```
+
+### UnstructuredCHMLoader
+
+`CHM` 意为 `Microsoft Compiled HTML Help`。
+
+在 API 文档中查看使用示例。
+
+```python
+from langchain_community.document_loaders import UnstructuredCHMLoader
+```
+
+### UnstructuredCSVLoader
+
+`逗号分隔值`（`CSV`）文件是一个使用逗号分隔值的分隔文本文件。文件的每一行都是一个数据记录。每个记录由一个或多个字段组成，字段之间用逗号分隔。
+
+查看 [使用示例](/docs/integrations/document_loaders/csv#unstructuredcsvloader)。
+
+```python
+from langchain_community.document_loaders import UnstructuredCSVLoader
+```
+
+### UnstructuredEmailLoader
+
+查看 [使用示例](/docs/integrations/document_loaders/email)。
+
+```python
+from langchain_community.document_loaders import UnstructuredEmailLoader
+```
+
+### UnstructuredEPubLoader
+
+[EPUB](https://en.wikipedia.org/wiki/EPUB) 是一种使用“.epub”文件扩展名的 `电子书文件格式`。该术语缩写为电子出版物，有时被称为 `ePub`。`EPUB` 受许多电子阅读器支持，并且大多数智能手机、平板电脑和计算机都有兼容软件。
+
+查看 [使用示例](/docs/integrations/document_loaders/epub)。
+
+```python
+from langchain_community.document_loaders import UnstructuredEPubLoader
+```
+
+### UnstructuredExcelLoader
+
+查看 [使用示例](/docs/integrations/document_loaders/microsoft_excel)。
+
+```python
+from langchain_community.document_loaders import UnstructuredExcelLoader
+```
+
+### UnstructuredFileIOLoader
+
+查看 [使用示例](/docs/integrations/document_loaders/google_drive#passing-in-optional-file-loaders)。
+
+```python
+from langchain_community.document_loaders import UnstructuredFileIOLoader
+```
+
+### UnstructuredFileLoader
+
+查看 [使用示例](/docs/integrations/document_loaders/unstructured_file)。
+
+```python
+from langchain_community.document_loaders import UnstructuredFileLoader
+```
+
+### UnstructuredHTMLLoader
+
+查看 [使用示例](/docs/how_to/document_loader_html)。
+
+```python
+from langchain_community.document_loaders import UnstructuredHTMLLoader
+```
+
+### UnstructuredImageLoader
+
+查看 [使用示例](/docs/integrations/document_loaders/image)。
+
+```python
+from langchain_community.document_loaders import UnstructuredImageLoader
+```
+
+### UnstructuredMarkdownLoader
+
+查看[使用示例](/docs/integrations/vectorstores/starrocks)。
+
+```python
+from langchain_community.document_loaders import UnstructuredMarkdownLoader
+```
+
+### UnstructuredODTLoader
+
+`Open Document Format for Office Applications (ODF)`，也称为`OpenDocument`，是一种用于处理文档、电子表格、演示文稿和图形的开放文件格式，使用ZIP压缩的XML文件。它的开发目的是为办公应用提供基于开放式、基于XML的文件格式规范。
+
+查看[使用示例](/docs/integrations/document_loaders/odt)。
+
+```python
+from langchain_community.document_loaders import UnstructuredODTLoader
+```
+
+### UnstructuredOrgModeLoader
+
+[Org Mode](https://en.wikipedia.org/wiki/Org-mode)文档是一种用于在自由软件文本编辑器Emacs中进行笔记、规划和撰写的文档编辑、格式化和组织模式。
+
+查看[使用示例](/docs/integrations/document_loaders/org_mode)。
+
+```python
+from langchain_community.document_loaders import UnstructuredOrgModeLoader
+```
+
+### UnstructuredPDFLoader
+
+查看[使用示例](/docs/how_to/document_loader_pdf#using-unstructured)。
+
+```python
+from langchain_community.document_loaders import UnstructuredPDFLoader
+```
+
+### UnstructuredPowerPointLoader
+
+查看[使用示例](/docs/integrations/document_loaders/microsoft_powerpoint)。
+
+```python
+from langchain_community.document_loaders import UnstructuredPowerPointLoader
+```
+
+### UnstructuredRSTLoader
+
+`reStructured Text`（`RST`）文件是主要用于Python编程语言社区的技术文档的文本数据文件格式。
+
+查看[使用示例](/docs/integrations/document_loaders/rst)。
+
+```python
+from langchain_community.document_loaders import UnstructuredRSTLoader
+```
+
+### UnstructuredRTFLoader
+
+在API文档中查看使用示例。
+
+```python
+from langchain_community.document_loaders import UnstructuredRTFLoader
+```
+
+### UnstructuredTSVLoader
+
+`tab-separated values`（`TSV`）文件是一种用于存储表格数据的简单的基于文本的文件格式。记录由换行符分隔，记录内的值由制表符分隔。
+
+查看[使用示例](/docs/integrations/document_loaders/tsv)。
+
+```python
+from langchain_community.document_loaders import UnstructuredTSVLoader
+```
+
+### UnstructuredURLLoader
+
+查看[使用示例](/docs/integrations/document_loaders/url)。
+
+```python
+from langchain_community.document_loaders import UnstructuredURLLoader
+```
+
+### UnstructuredWordDocumentLoader
+
+查看[使用示例](/docs/integrations/document_loaders/microsoft_word#using-unstructured)。
+
+```python
+from langchain_community.document_loaders import UnstructuredWordDocumentLoader
+```
+
+### UnstructuredXMLLoader
+
+查看[使用示例](/docs/integrations/document_loaders/xml)。
+
+```python
+from langchain_community.document_loaders import UnstructuredXMLLoader
+```

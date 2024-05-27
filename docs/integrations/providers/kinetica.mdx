@@ -1,0 +1,39 @@
+# Kinetica
+
+[Kinetica](https://www.kinetica.com/) 是一个专为在时序和空间数据上进行分析和生成式人工智能而构建的实时数据库。
+
+## 聊天模型
+
+Kinetica LLM 包装器使用 [Kinetica SqlAssist LLM](https://docs.kinetica.com/7.2/sql-gpt/concepts/) 将自然语言转换为 SQL，以简化数据检索过程。
+
+查看 [Kinetica SqlAssist LLM 演示](/docs/integrations/chat/kinetica) 以了解用法。
+
+```python
+from langchain_community.chat_models.kinetica import ChatKinetica
+```
+
+## 向量存储
+
+Kinetica 向量存储包装器利用 Kinetica 对 [向量相似性搜索](https://docs.kinetica.com/7.2/vector_search/) 的本机支持。
+
+查看 [Kinetica 向量存储 API](/docs/integrations/vectorstores/kinetica) 以了解用法。
+
+```python
+from langchain_community.vectorstores import Kinetica
+```
+
+## 文档加载器
+
+Kinetica 文档加载器可用于从 Kinetica 数据库加载 LangChain 文档。
+
+查看 [Kinetica 文档加载器](/docs/integrations/document_loaders/kinetica) 以了解用法。
+
+```python
+from langchain_community.document_loaders.kinetica_loader import KineticaLoader
+```
+
+## 检索器
+
+Kinetica 检索器可以根据非结构化查询返回文档。
+
+查看 [Kinetica 基于向量存储的检索器](/docs/integrations/retrievers/kinetica) 以了解用法。

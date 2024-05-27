@@ -1,0 +1,293 @@
+# 亚马逊云服务
+
+与 [Amazon AWS](https://aws.amazon.com/) 平台相关的 `LangChain` 集成。
+
+第一方 AWS 集成可在 `langchain_aws` 包中找到。
+
+```bash
+pip install langchain-aws
+```
+
+还有一些社区集成可在 `langchain_community` 包中找到，其中包括可选依赖 `boto3`。
+
+```bash
+pip install langchain-community boto3
+```
+
+## 聊天模型
+
+### Bedrock Chat
+
+查看 [使用示例](/docs/integrations/chat/bedrock)。
+
+```python
+from langchain_aws import ChatBedrock
+```
+
+## 语言模型
+
+### Bedrock
+
+>[Amazon Bedrock](https://aws.amazon.com/bedrock/) 是一个全面托管的服务，提供了来自领先人工智能公司如 `AI21 Labs`、`Anthropic`、`Cohere`、`Meta`、`Stability AI` 和 `Amazon` 的高性能基础模型（FMs），通过单一 API 提供了构建生成式人工智能应用所需的广泛功能，包括安全性、隐私和负责任的人工智能。使用 `Amazon Bedrock`，您可以轻松地尝试和评估适用于您用例的顶级 FMs，使用诸如微调和 `Retrieval Augmented Generation` (`RAG`) 等技术私密定制它们，并构建使用企业系统和数据源执行任务的代理。由于 `Amazon Bedrock` 是无服务器的，您无需管理任何基础设施，可以安全地集成和部署生成式人工智能能力到您已经熟悉的 AWS 服务中。
+
+查看 [使用示例](/docs/integrations/llms/bedrock)。
+
+```python
+from langchain_aws import BedrockLLM
+```
+
+### Amazon API Gateway
+
+>[Amazon API Gateway](https://aws.amazon.com/api-gateway/) 是一个全面托管的服务，使开发人员能够轻松创建、发布、维护、监控和保护任何规模的 API。API 作为应用程序访问后端服务的“前门”。使用 `API Gateway`，您可以创建支持实时双向通信应用程序的 RESTful API 和 WebSocket API。`API Gateway` 支持容器化和无服务器工作负载，以及 Web 应用程序。
+
+>`API Gateway` 处理接受和处理高达数十万个并发 API 调用的所有任务，包括流量管理、CORS 支持、授权和访问控制、限流、监控和 API 版本管理。`API Gateway` 没有最低费用或启动成本。您支付收到的 API 调用和传输的数据量，通过 `API Gateway` 分层定价模型，您可以随着 API 使用量的扩展而降低成本。
+
+查看 [使用示例](/docs/integrations/llms/amazon_api_gateway)。
+
+```python
+from langchain_community.llms import AmazonAPIGateway
+```
+
+### SageMaker Endpoint
+
+>[Amazon SageMaker](https://aws.amazon.com/sagemaker/) 是一个可以构建、训练和部署机器学习（ML）模型的系统，具有完全托管的基础设施、工具和工作流程。
+
+我们使用 `SageMaker` 托管我们的模型，并将其公开为 `SageMaker Endpoint`。
+
+查看 [使用示例](/docs/integrations/llms/sagemaker)。
+
+```python
+from langchain_aws import SagemakerEndpoint
+```
+
+## 嵌入模型
+
+### Bedrock
+
+查看 [使用示例](/docs/integrations/text_embedding/bedrock)。
+
+```python
+from langchain_community.embeddings import BedrockEmbeddings
+```
+
+### SageMaker Endpoint
+
+查看 [使用示例](/docs/integrations/text_embedding/sagemaker-endpoint)。
+
+```python
+from langchain_community.embeddings import SagemakerEndpointEmbeddings
+from langchain_community.llms.sagemaker_endpoint import ContentHandlerBase
+```
+
+## 文档加载器
+
+### AWS S3 目录和文件
+
+>[Amazon Simple Storage Service (Amazon S3)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.html) 是一个对象存储服务。
+
+>[AWS S3 目录](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.html)
+
+>[AWS S3 存储桶](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html)
+
+查看 [S3DirectoryLoader 使用示例](/docs/integrations/document_loaders/aws_s3_directory)。
+
+查看 [S3FileLoader 使用示例](/docs/integrations/document_loaders/aws_s3_file)。
+
+```python
+from langchain_community.document_loaders import S3DirectoryLoader, S3FileLoader
+```
+
+### Amazon Textract
+
+>[Amazon Textract](https://docs.aws.amazon.com/managedservices/latest/userguide/textract.html) 是一个机器学习（ML）服务，可以自动从扫描文档中提取文本、手写和数据。
+
+查看 [使用示例](/docs/integrations/document_loaders/amazon_textract)。
+
+```python
+from langchain_community.document_loaders import AmazonTextractPDFLoader
+```
+
+### Amazon Athena
+
+>[Amazon Athena](https://aws.amazon.com/athena/) 是一个无服务器的交互式分析服务。
+
+>在开源框架上，支持开放表格和文件格式。
+
+查看[使用示例](/docs/integrations/document_loaders/athena)。
+
+```python
+from langchain_community.document_loaders.athena import AthenaLoader
+```
+
+## 向量存储
+
+### 亚马逊 OpenSearch 服务
+
+>[亚马逊 OpenSearch 服务](https://aws.amazon.com/opensearch-service/)执行交互式日志分析、实时应用程序监控、网站搜索等功能。`OpenSearch`是一个源自`Elasticsearch`的开源、分布式搜索和分析套件。`亚马逊 OpenSearch 服务`提供`OpenSearch`的最新版本，支持多个版本的`Elasticsearch`，以及由`OpenSearch Dashboards`和`Kibana`提供支持的可视化功能。
+
+我们需要安装几个 Python 库。
+
+```bash
+pip install boto3 requests requests-aws4auth
+```
+
+查看[使用示例](/docs/integrations/vectorstores/opensearch#using-aos-amazon-opensearch-service)。
+
+```python
+from langchain_community.vectorstores import OpenSearchVectorSearch
+```
+
+### 亚马逊 DocumentDB 向量搜索
+
+>[Amazon DocumentDB（与 MongoDB 兼容）](https://docs.aws.amazon.com/documentdb/)使得在云中设置、操作和扩展与 MongoDB 兼容的数据库变得简单。通过 Amazon DocumentDB，您可以运行与 MongoDB 相同的应用程序代码，并使用与 MongoDB 相同的驱动程序和工具。Amazon DocumentDB 的向量搜索结合了基于 JSON 的文档数据库的灵活性和丰富的查询能力与向量搜索的强大功能。
+
+#### 安装和设置
+
+查看[详细配置说明](/docs/integrations/vectorstores/documentdb)。
+
+我们需要安装 `pymongo` Python 包。
+
+```bash
+pip install pymongo
+```
+
+#### 在 AWS 上部署 DocumentDB
+
+[Amazon DocumentDB（与 MongoDB 兼容）](https://docs.aws.amazon.com/documentdb/)是一个快速、可靠且完全托管的数据库服务。Amazon DocumentDB 使得在云中设置、操作和扩展与 MongoDB 兼容的数据库变得简单。
+
+AWS 提供计算、数据库、存储、分析和其他功能的服务。有关所有 AWS 服务的概述，请参阅[使用亚马逊网络服务进行云计算](https://aws.amazon.com/what-is-aws/)。
+
+查看[使用示例](/docs/integrations/vectorstores/documentdb)。
+
+```python
+from langchain.vectorstores import DocumentDBVectorSearch
+```
+
+## 检索器
+
+### 亚马逊 Kendra
+
+>[亚马逊 Kendra](https://docs.aws.amazon.com/kendra/latest/dg/what-is-kendra.html)是由`亚马逊网络服务`（`AWS`）提供的智能搜索服务。它利用先进的自然语言处理（NLP）和机器学习算法，实现跨组织内各种数据源的强大搜索功能。`Kendra`旨在帮助用户快速准确地找到所需信息，提高生产力和决策能力。
+
+>通过`Kendra`，我们可以搜索各种内容类型，包括文档、常见问题、知识库、手册和网站。它支持多种语言，能够理解复杂查询、同义词和上下文含义，以提供高度相关的搜索结果。
+
+我们需要安装 `langchain-aws` 库。
+
+```bash
+pip install langchain-aws
+```
+
+查看[使用示例](/docs/integrations/retrievers/amazon_kendra_retriever)。
+
+```python
+from langchain_aws import AmazonKendraRetriever
+```
+
+### 亚马逊 Bedrock（知识库）
+
+>[Amazon Bedrock 的知识库](https://aws.amazon.com/bedrock/knowledge-bases/)是`亚马逊网络服务`（`AWS`）提供的一项服务，让您可以通过使用私有数据来定制基础模型响应，快速构建 RAG 应用程序。
+
+我们需要安装 `langchain-aws` 库。
+
+```bash
+pip install langchain-aws
+```
+
+查看[使用示例](/docs/integrations/retrievers/bedrock)。
+
+```python
+from langchain_aws import AmazonKnowledgeBasesRetriever
+```
+
+## 工具
+
+### AWS Lambda
+
+>[`亚马逊 AWS Lambda`](https://aws.amazon.com/pm/lambda/)是由`亚马逊网络服务`（`AWS`）提供的无服务器计算服务。它帮助开发人员构建和运行应用程序和服务，无需预配或管理服务器。这种无服务器架构使您可以专注于编写和部署代码，而 AWS 会自动处理运行应用程序所需的基础设施的扩展、打补丁和管理。
+
+我们需要安装 `boto3` Python 库。
+
+```bash
+pip install boto3
+```
+
+查看[使用示例](/docs/integrations/tools/awslambda)。
+
+## 存储
+
+### AWS DynamoDB
+
+>[AWS DynamoDB](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/dynamodb/index.html)是一个完全托管的`NoSQL`数据库服务，提供快速且可预测的性能以及无缝扩展性。
+
+我们需要配置 [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)。
+
+我们需要安装 `boto3` 库。
+
+```bash
+pip install boto3
+```
+
+查看[使用示例](/docs/integrations/memory/aws_dynamodb)。
+
+```python
+from langchain.memory import DynamoDBChatMessageHistory
+```
+
+## 图表
+
+### 使用 Cypher 的 Amazon Neptune
+
+查看[使用示例](/docs/integrations/graphs/amazon_neptune_open_cypher)。
+
+```python
+from langchain_community.graphs import NeptuneGraph
+from langchain_community.graphs import NeptuneAnalyticsGraph
+from langchain.chains import NeptuneOpenCypherQAChain
+```
+
+### 使用 SPARQL 的 Amazon Neptune
+
+查看[使用示例](/docs/integrations/graphs/amazon_neptune_sparql)。
+
+```python
+from langchain_community.graphs import NeptuneRdfGraph
+from langchain.chains.graph_qa.neptune_sparql import NeptuneSparqlQAChain
+```
+
+## 回调
+
+### SageMaker 跟踪
+
+>[Amazon SageMaker](https://aws.amazon.com/sagemaker/) 是一个完全托管的服务，用于快速轻松地构建、训练和部署机器学习（ML）模型。
+
+>[Amazon SageMaker Experiments](https://docs.aws.amazon.com/sagemaker/latest/dg/experiments.html) 是 `Amazon SageMaker` 的一个功能，可让您组织、跟踪、比较和评估 ML 实验和模型版本。
+
+我们需要安装几个 Python 库。
+
+```bash
+pip install google-search-results sagemaker
+```
+
+查看[使用示例](/docs/integrations/callbacks/sagemaker_tracking)。
+
+```python
+from langchain.callbacks import SageMakerCallbackHandler
+```
+
+## 链
+
+### Amazon Comprehend 审查链
+
+>[Amazon Comprehend](https://aws.amazon.com/comprehend/) 是一项自然语言处理（NLP）服务，利用机器学习来发现文本中的有价值的见解和联系。
+
+我们需要安装 `boto3` 和 `nltk` 库。
+
+```bash
+pip install boto3 nltk
+```
+
+查看[使用示例](https://python.langchain.com/v0.1/docs/guides/productionization/safety/amazon_comprehend_chain/)。
+
+```python
+from langchain_experimental.comprehend_moderation import AmazonComprehendModerationChain
+```

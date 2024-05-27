@@ -1,0 +1,31 @@
+# Streamlit
+
+[Streamlit](https://streamlit.io/) 是一种更快速的构建和分享数据应用程序的方式。
+
+`Streamlit` 可以在几分钟内将数据脚本转换为可共享的 Web 应用程序。而且全部使用纯 Python 编写，无需前端经验。
+
+在 [streamlit.io/generative-ai](https://streamlit.io/generative-ai) 上可以查看更多示例。
+
+## 安装和设置
+
+我们需要安装 `streamlit` Python 包：
+
+```bash
+pip install streamlit
+```
+
+## 内存
+
+查看 [使用示例](/docs/integrations/memory/streamlit_chat_message_history)。
+
+```python
+from langchain_community.chat_message_histories import StreamlitChatMessageHistory
+```
+
+## 回调
+
+查看 [使用示例](/docs/integrations/callbacks/streamlit)。
+
+```python
+from langchain_community.callbacks import StreamlitCallbackHandler
+```

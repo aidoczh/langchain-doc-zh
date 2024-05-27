@@ -1,0 +1,72 @@
+# Cohere
+[Cohere](https://cohere.ai/about) 是一家加拿大初创公司，提供自然语言处理模型，帮助公司改善人机交互。
+## 安装和设置
+- 安装 Python SDK：
+```bash
+pip install langchain-cohere
+```
+获取[Cohere API密钥](https://dashboard.cohere.ai/)，并将其设置为环境变量 (`COHERE_API_KEY`)
+## Cohere langchain 集成
+|API|描述|端点文档|导入|示例用法|
+|---|---|---|---|---|
+|Chat|构建聊天机器人|[chat](https://docs.cohere.com/reference/chat)|`from langchain_cohere import ChatCohere`|[cohere.ipynb](/docs/integrations/chat/cohere)|
+|LLM|生成文本|[generate](https://docs.cohere.com/reference/generate)|`from langchain_cohere.llms import Cohere`|[cohere.ipynb](/docs/integrations/llms/cohere)|
+|RAG Retriever|连接到外部数据源|[chat + rag](https://docs.cohere.com/reference/chat)|`from langchain.retrievers import CohereRagRetriever`|[cohere.ipynb](/docs/integrations/retrievers/cohere)|
+|Text Embedding|将字符串嵌入向量中|[embed](https://docs.cohere.com/reference/embed)|`from langchain_cohere import CohereEmbeddings`|[cohere.ipynb](/docs/integrations/text_embedding/cohere)|
+|Rerank Retriever|根据相关性对字符串进行排名|[rerank](https://docs.cohere.com/reference/rerank)|`from langchain.retrievers.document_compressors import CohereRerank`|[cohere.ipynb](/docs/integrations/retrievers/cohere-reranker)|
+## 快速复制示例
+### Chat
+```python
+from langchain_cohere import ChatCohere
+from langchain_core.messages import HumanMessage
+chat = ChatCohere()
+messages = [HumanMessage(content="knock knock")]
+print(chat.invoke(messages))
+```
+使用Cohere [chat 模型](/docs/integrations/chat/cohere)
+### LLM
+```python
+from langchain_cohere.llms import Cohere
+llm = Cohere()
+print(llm.invoke("Come up with a pet name"))
+```
+使用Cohere（旧版）[LLM 模型](/docs/integrations/llms/cohere)
+### ReAct Agent
+```python
+from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_cohere import ChatCohere, create_cohere_react_agent
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.agents import AgentExecutor
+llm = ChatCohere()
+internet_search = TavilySearchResults(max_results=4)
+internet_search.name = "internet_search"
+internet_search.description = "将用户查询路由到互联网"
+prompt = ChatPromptTemplate.from_template("{input}")
+agent = create_cohere_react_agent(
+    llm,
+    [internet_search],
+    prompt
+)
+agent_executor = AgentExecutor(agent=agent, tools=[internet_search], verbose=True)
+agent_executor.invoke({
+    "input": "In what year was the company that was founded as Sound of Music added to the S&P 500?",
+})
+```
+### RAG Retriever
+```python
+from langchain_cohere import ChatCohere
+from langchain.retrievers import CohereRagRetriever
+from langchain_core.documents import Document
+rag = CohereRagRetriever(llm=ChatCohere())
+print(rag.invoke("What is cohere ai?"))
+```
+使用Cohere [RAG Retriever](/docs/integrations/retrievers/cohere)
+### Text Embedding
+```python
+from langchain_cohere import CohereEmbeddings
+embeddings = CohereEmbeddings(model="embed-english-light-v3.0")
+print(embeddings.embed_documents(["This is a test document."]))
+```
+使用Cohere [Text Embeddings 模型](/docs/integrations/text_embedding/cohere)
+### Reranker
+使用Cohere [Reranker](/docs/integrations/retrievers/cohere-reranker)

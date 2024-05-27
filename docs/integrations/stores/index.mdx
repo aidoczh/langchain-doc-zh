@@ -1,0 +1,31 @@
+---
+
+sidebar_position: 1
+
+sidebar_class_name: hidden
+
+---
+
+# 存储
+
+在许多不同的应用中，拥有一种键值存储是很有帮助的。
+
+在本节中，我们将介绍使用 `ByteStore` 接口的几种不同方式来存储键值对。
+
+## 特性（本地支持）
+
+所有的 `ByteStore` 都支持以下函数，用于同时修改**多个**键值对：
+
+- `mget(key: Sequence[str]) -> List[Optional[bytes]]`：获取多个键的内容，如果键不存在则返回 `None`
+
+- `mset(key_value_pairs: Sequence[Tuple[str, bytes]]) -> None`：设置多个键的内容
+
+- `mdelete(key: Sequence[str]) -> None`：删除多个键
+
+- `yield_keys(prefix: Optional[str] = None) -> Iterator[str]`：返回存储中的所有键，可选择按前缀进行筛选
+
+## 如何选择
+
+`ByteStore` 的设计目标是可以互换的。默认情况下，大多数依赖集成使用的是 `InMemoryByteStore`，它是一个简单的内存键值存储。
+
+然而，如果您开始有其他需求，比如巨大的可扩展性或持久性，您可以将 `ByteStore` 实现替换为本节中记录的其他实现之一。

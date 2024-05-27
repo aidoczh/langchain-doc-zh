@@ -1,0 +1,83 @@
+# Xorbits 推理（Xinference）
+
+本页面演示了如何在 LangChain 中使用 [Xinference](https://github.com/xorbitsai/inference)。
+
+`Xinference` 是一个功能强大且多才多艺的库，旨在为 LLMs、语音识别模型和多模态模型提供服务，甚至可以在您的笔记本电脑上运行。有了 Xorbits 推理，您可以轻松地部署和服务您的或内置的最先进模型，只需一个命令。
+
+## 安装和设置
+
+可以通过 PyPI 使用 pip 安装 Xinference：
+
+```bash
+pip install "xinference[all]"
+```
+
+## LLM
+
+Xinference 支持与 GGML 兼容的各种模型，包括 chatglm、baichuan、whisper、vicuna 和 orca。要查看内置模型，运行以下命令：
+
+```bash
+xinference list --all
+```
+
+### Xinference 的包装器
+
+您可以通过运行以下命令启动 Xinference 的本地实例：
+
+```bash
+xinference
+```
+
+您还可以在分布式集群中部署 Xinference。要这样做，首先在要在其上运行 Xinference 的服务器上启动 Xinference 主管：
+
+```bash
+xinference-supervisor -H "${supervisor_host}"
+```
+
+然后，在您想要在其上运行 Xinference 的其他服务器上启动 Xinference 工作进程：
+
+```bash
+xinference-worker -e "http://${supervisor_host}:9997"
+```
+
+您还可以通过运行以下命令启动 Xinference 的本地实例：
+
+```bash
+xinference
+```
+
+一旦 Xinference 运行起来，就可以通过 CLI 或 Xinference 客户端访问一个用于模型管理的端点。
+
+对于本地部署，端点将是 http://localhost:9997。
+
+对于集群部署，端点将是 http://${supervisor_host}:9997。
+
+然后，您需要启动一个模型。您可以指定模型名称和其他属性，包括 model_size_in_billions 和 quantization。您可以使用命令行界面（CLI）来执行。例如，
+
+```bash
+xinference launch -n orca -s 3 -q q4_0
+```
+
+将返回一个模型 uid。
+
+示例用法：
+
+```python
+from langchain_community.llms import Xinference
+llm = Xinference(
+    server_url="http://0.0.0.0:9997",
+    model_uid = {model_uid} # 用从启动模型返回的模型 UID 替换 model_uid
+)
+llm(
+    prompt="Q: where can we visit in the capital of France? A:",
+    generate_config={"max_tokens": 1024, "stream": True},
+)
+```
+
+### 用法
+
+有关更多信息和详细示例，请参阅 [xinference LLMs 的示例](/docs/integrations/llms/xinference)。
+
+### 嵌入
+
+Xinference 还支持嵌入查询和文档。请参阅 [xinference embeddings 的示例](/docs/integrations/text_embedding/xinference) 以获取更详细的演示。

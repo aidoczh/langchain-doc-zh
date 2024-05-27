@@ -1,0 +1,75 @@
+# Javelin AI 网关
+
+[Javelin AI 网关](https://www.getjavelin.io) 服务是一个高性能的企业级 AI 应用程序 API 网关。它旨在通过整合强大的访问安全性，简化组织内部对各种大型语言模型（LLM）提供商（如 OpenAI、Cohere、Anthropic 和自定义大型语言模型）的使用和访问。
+
+Javelin 提供了一个高级接口，通过提供统一的端点来简化与 LLM 的交互，以处理特定的 LLM 相关请求。
+
+有关更多详细信息，请参阅 Javelin AI 网关 [文档](https://docs.getjavelin.io)。[Javelin Python SDK](https://www.github.com/getjavelin/javelin-python) 是一个易于使用的客户端库，旨在嵌入到 AI 应用程序中。
+
+## 安装和设置
+
+安装 `javelin_sdk` 以与 Javelin AI 网关进行交互：
+
+```sh
+pip install 'javelin_sdk'
+```
+
+将 Javelin 的 API 密钥设置为环境变量：
+
+```sh
+export JAVELIN_API_KEY=...
+```
+
+## 完成示例
+
+```python
+from langchain.chains import LLMChain
+from langchain_community.llms import JavelinAIGateway
+from langchain_core.prompts import PromptTemplate
+route_completions = "eng_dept03"
+gateway = JavelinAIGateway(
+    gateway_uri="http://localhost:8000",
+    route=route_completions,
+    model_name="text-davinci-003",
+)
+llmchain = LLMChain(llm=gateway, prompt=prompt)
+result = llmchain.run("podcast player")
+print(result)
+```
+
+## 嵌入示例
+
+```python
+from langchain_community.embeddings import JavelinAIGatewayEmbeddings
+from langchain_openai import OpenAIEmbeddings
+embeddings = JavelinAIGatewayEmbeddings(
+    gateway_uri="http://localhost:8000",
+    route="embeddings",
+)
+print(embeddings.embed_query("hello"))
+print(embeddings.embed_documents(["hello"]))
+```
+
+## 聊天示例
+
+```python
+from langchain_community.chat_models import ChatJavelinAIGateway
+from langchain_core.messages import HumanMessage, SystemMessage
+messages = [
+    SystemMessage(
+        content="You are a helpful assistant that translates English to French."
+    ),
+    HumanMessage(
+        content="Artificial Intelligence has the power to transform humanity and make the world a better place"
+    ),
+]
+chat = ChatJavelinAIGateway(
+    gateway_uri="http://localhost:8000",
+    route="mychatbot_route",
+    model_name="gpt-3.5-turbo"
+    params={
+        "temperature": 0.1
+    }
+)
+print(chat(messages))
+```

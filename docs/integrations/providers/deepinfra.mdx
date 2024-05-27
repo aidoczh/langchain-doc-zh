@@ -1,0 +1,51 @@
+# DeepInfra
+
+[DeepInfra](https://deepinfra.com/docs) 让我们能够轻松运行[最新的机器学习模型](https://deepinfra.com/models)。DeepInfra负责处理所有与运行、扩展和监控模型相关的繁重工作。用户可以专注于应用程序，并通过简单的REST API调用集成模型。
+
+DeepInfra提供了与LangChain集成的[示例](https://deepinfra.com/docs/advanced/langchain)。
+
+本页面介绍了如何在LangChain中使用`DeepInfra`生态系统。它分为两部分：安装和设置，以及特定DeepInfra包装器的参考。
+
+## 安装和设置
+
+- 从这个链接[获取](https://deepinfra.com/)你的DeepInfra API密钥。
+
+- 获取DeepInfra API密钥并将其设置为环境变量 (`DEEPINFRA_API_TOKEN`)。
+
+## 可用模型
+
+DeepInfra提供了一系列准备部署的开源LLM。
+
+您可以查看支持的模型，包括
+
+[文本生成](https://deepinfra.com/models?type=text-generation) 和
+
+[嵌入](https://deepinfra.com/models?type=embeddings)。
+
+您可以查看[请求和响应参数列表](https://deepinfra.com/meta-llama/Llama-2-70b-chat-hf/api)。
+
+聊天模型[遵循OpenAI API](https://deepinfra.com/meta-llama/Llama-2-70b-chat-hf/api?example=openai-http)。
+
+## LLM
+
+查看[使用示例](/docs/integrations/llms/deepinfra)。
+
+```python
+from langchain_community.llms import DeepInfra
+```
+
+## 嵌入
+
+查看[使用示例](/docs/integrations/text_embedding/deepinfra)。
+
+```python
+from langchain_community.embeddings import DeepInfraEmbeddings
+```
+
+## 聊天模型
+
+查看[使用示例](/docs/integrations/chat/deepinfra)。
+
+```python
+from langchain_community.chat_models import ChatDeepInfra
+```

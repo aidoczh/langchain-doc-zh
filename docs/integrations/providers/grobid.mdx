@@ -1,0 +1,44 @@
+# Grobid
+
+GROBID 是一个用于提取、解析和重构原始文档的机器学习库。
+
+它的设计初衷是用于解析学术论文，在这方面表现特别出色。
+
+*注意*：如果提供给 GROBID 的文章是大型文档（例如论文），超过一定数量的元素，可能无法处理。
+
+本页面介绍了如何使用 GROBID 解析 LangChain 的文章。
+
+## 安装
+
+grobid 的安装在 https://grobid.readthedocs.io/en/latest/Install-Grobid/ 中有详细描述。
+
+然而，通过 docker 容器运行 grobid 可能更容易，也更少麻烦，具体操作可参考[这里](https://grobid.readthedocs.io/en/latest/Grobid-docker/)。
+
+## 使用 GROBID 与 LangChain
+
+一旦安装并运行 grobid（可以通过访问 http://localhost:8070 进行检查），你就可以开始了。
+
+现在可以使用 GrobidParser 生成文档
+
+```python
+from langchain_community.document_loaders.parsers import GrobidParser
+from langchain_community.document_loaders.generic import GenericLoader
+# 从文章段落生成块
+loader = GenericLoader.from_filesystem(
+    "/Users/31treehaus/Desktop/Papers/",
+    glob="*",
+    suffixes=[".pdf"],
+    parser= GrobidParser(segment_sentences=False)
+)
+docs = loader.load()
+# 从文章句子生成块
+loader = GenericLoader.from_filesystem(
+    "/Users/31treehaus/Desktop/Papers/",
+    glob="*",
+    suffixes=[".pdf"],
+    parser= GrobidParser(segment_sentences=True)
+)
+docs = loader.load()
+```
+
+块的元数据将包括边界框。虽然这些边界框有点复杂，但在 https://grobid.readthedocs.io/en/latest/Coordinates-in-PDF/ 中有解释。

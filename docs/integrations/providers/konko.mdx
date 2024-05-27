@@ -1,0 +1,69 @@
+# Konko
+
+与 Konko 相关的所有功能
+
+>[Konko AI](https://www.konko.ai/) 提供了一个完全托管的 API，以帮助应用程序开发人员
+
+>1. **选择**合适的开源或专有 LLMs 用于他们的应用程序
+
+>2. 通过与主要应用程序框架的集成和完全托管的 API，**更快地构建**应用程序
+
+>3. **微调**较小的开源 LLMs，以在成本的一小部分下实现行业领先的性能
+
+>4. 使用 Konko AI 的符合 SOC 2 标准的多云基础设施，**部署符合安全性、隐私性、吞吐量和延迟 SLA** 的生产规模 API，无需进行基础设施设置或管理
+
+## 安装和设置
+
+1. 登录我们的 Web 应用程序，[创建 API 密钥](https://platform.konko.ai/settings/api-keys) 以通过我们的端点访问模型，用于 [聊天完成](https://docs.konko.ai/reference/post-chat-completions) 和 [完成](https://docs.konko.ai/reference/post-completions)。
+
+2. 启用 Python3.8+ 环境
+
+3. 安装 SDK
+
+```bash
+pip install konko
+```
+
+4. 将 API 密钥设置为环境变量(`KONKO_API_KEY`,`OPENAI_API_KEY`)
+
+```bash
+export KONKO_API_KEY={your_KONKO_API_KEY_here}
+export OPENAI_API_KEY={your_OPENAI_API_KEY_here} #可选
+```
+
+请参阅 [Konko 文档](https://docs.konko.ai/docs/getting-started) 以获取更多详细信息。
+
+## LLM
+
+**浏览可用模型：** 从 Konko 上浏览 [可用模型](https://docs.konko.ai/docs/list-of-models) 开始。每个模型都适用于不同的用例和功能。
+
+另一种查找运行在 Konko 实例上的模型列表的方法是通过这个 [端点](https://docs.konko.ai/reference/get-models)。
+
+查看一个使用 [示例](/docs/integrations/llms/konko)。
+
+### 端点使用示例
+
+- **使用 mistralai/Mistral-7B-v0.1 进行完成：**
+
+  ```python
+  from langchain.llms import Konko
+  llm = Konko(max_tokens=800, model='mistralai/Mistral-7B-v0.1')
+  prompt = "为 Apple Iphone 15 生成产品描述"
+  response = llm.invoke(prompt)
+  ```
+
+## 聊天模型
+
+查看一个使用 [示例](/docs/integrations/chat/konko)。
+
+- **使用 Mistral-7B 进行聊天完成：**
+
+  ```python
+  from langchain_core.messages import HumanMessage
+  from langchain_community.chat_models import ChatKonko
+  chat_instance = ChatKonko(max_tokens=10, model = 'mistralai/mistral-7b-instruct-v0.1')
+  msg = HumanMessage(content="你好")
+  chat_response = chat_instance([msg])
+  ```
+
+如需进一步协助，请联系 [support@konko.ai](mailto:support@konko.ai) 或加入我们的 [Discord](https://discord.gg/TXV2s3z7RZ)。

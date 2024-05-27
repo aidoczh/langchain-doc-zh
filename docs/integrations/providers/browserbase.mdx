@@ -1,0 +1,39 @@
+# Browserbase
+
+[Browserbase](https://browserbase.com) 是一个开发者平台，可可靠地运行、管理和监控无头浏览器。
+
+通过以下功能来提升您的 AI 数据检索能力：
+
+- [无服务器基础设施](https://docs.browserbase.com/under-the-hood) 提供可靠的浏览器，用于从复杂的用户界面中提取数据
+
+- [隐身模式](https://docs.browserbase.com/features/stealth-mode) 包含指纹识别策略和自动解决验证码
+
+- [会话调试器](https://docs.browserbase.com/features/sessions) 可以检查浏览器会话的网络时间线和日志
+
+- [实时调试](https://docs.browserbase.com/guides/session-debug-connection/browser-remote-control) 可以快速调试您的自动化程序
+
+## 安装和设置
+
+- 从 [browserbase.com](https://browserbase.com) 获取 API 密钥和项目 ID，并将其设置为环境变量 (`BROWSERBASE_API_KEY`, `BROWSERBASE_PROJECT_ID`)。
+
+- 安装 [Browserbase SDK](http://github.com/browserbase/python-sdk)：
+
+```python
+pip install browserbase
+```
+
+## 文档加载器
+
+查看一个 [使用示例](/docs/integrations/document_loaders/browserbase)。
+
+```python
+from langchain_community.document_loaders import BrowserbaseLoader
+```
+
+## 多模态
+
+查看一个 [使用示例](/docs/integrations/document_loaders/browserbase)。
+
+```python
+from browserbase.helpers.gpt4 import GPT4VImage, GPT4VImageDetail
+```

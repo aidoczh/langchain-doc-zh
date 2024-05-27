@@ -1,0 +1,21 @@
+# ModelScope
+
+>[ModelScope](https://www.modelscope.cn/home) 是一个包含模型和数据集的大型仓库。
+
+本页面介绍如何在LangChain中使用ModelScope生态系统。它分为两个部分：安装和设置，以及对特定ModelScope包装器的引用。
+
+## 安装和设置
+
+安装`modelscope`包。
+
+```bash
+pip install modelscope
+```
+
+## 文本嵌入模型
+
+```python
+from langchain_community.embeddings import ModelScopeEmbeddings
+```
+
+有关更详细的步骤，请参阅[此笔记本](/docs/integrations/text_embedding/modelscope_hub)。

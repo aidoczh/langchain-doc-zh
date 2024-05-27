@@ -1,0 +1,45 @@
+# Ollama
+
+[Ollama](https://ollama.ai/) 是一个 Python 库。它允许你在本地运行开源的大型语言模型，比如 LLaMA2。
+
+`Ollama` 将模型权重、配置和数据捆绑成一个单一的包，由 Modelfile 定义。它优化了设置和配置细节，包括 GPU 使用。要查看支持的模型和模型变体的完整列表，请参阅[Ollama 模型库](https://ollama.ai/library)。
+
+有关如何在 LangChain 中使用 `Ollama` 的更多详细信息，请参阅[此指南](/docs/how_to/local_llms)。
+
+## 安装和设置
+
+按照[这些说明](https://github.com/jmorganca/ollama?tab=readme-ov-file#ollama)设置和运行本地 Ollama 实例。要使用，你应该设置环境变量 `ANYSCALE_API_BASE` 和 `ANYSCALE_API_KEY`。
+
+## LLM
+
+```python
+from langchain_community.llms import Ollama
+```
+
+在[这里](/docs/integrations/llms/ollama)查看笔记本示例。
+
+## 聊天模型
+
+### 聊天 Ollama
+
+```python
+from langchain_community.chat_models import ChatOllama
+```
+
+在[这里](/docs/integrations/chat/ollama)查看笔记本示例。
+
+### Ollama 函数
+
+```python
+from langchain_experimental.llms.ollama_functions import OllamaFunctions
+```
+
+在[这里](/docs/integrations/chat/ollama_functions)查看笔记本示例。
+
+## 嵌入模型
+
+```python
+from langchain_community.embeddings import OllamaEmbeddings
+```
+
+在[这里](/docs/integrations/text_embedding/ollama)查看笔记本示例。

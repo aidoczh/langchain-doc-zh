@@ -1,0 +1,19 @@
+# ClickHouse
+
+> [ClickHouse](https://clickhouse.com/) 是一款快速且资源高效的开源数据库，适用于实时应用程序和分析，具有完整的 SQL 支持和广泛的功能，可帮助用户编写分析查询。它具有数据结构和距离搜索功能（如 `L2Distance`），以及[近似最近邻搜索索引](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/annindexes)，使 ClickHouse 能够作为高性能和可扩展的向量数据库，用于存储和搜索带有 SQL 的向量。
+
+## 安装和设置
+
+我们需要安装 `clickhouse-connect` Python 包。
+
+```bash
+pip install clickhouse-connect
+```
+
+## 向量存储
+
+查看[使用示例](/docs/integrations/vectorstores/clickhouse)。
+
+```python
+from langchain_community.vectorstores import Clickhouse, ClickhouseSettings
+```

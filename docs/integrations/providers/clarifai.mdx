@@ -1,0 +1,56 @@
+# Clarifai
+
+[Clarifai](https://clarifai.com) 是最早成立于2013年的深度学习平台之一。Clarifai提供了一个人工智能平台，涵盖了围绕图像、视频、文本和音频数据的数据探索、数据标记、模型训练、评估和推理等完整的人工智能生命周期。在LangChain生态系统中，据我们所知，Clarifai是唯一支持LLMs、嵌入和向量存储的生产规模平台，使其成为您LangChain实施的优秀选择。
+
+## 安装和设置
+
+- 安装Python SDK：
+
+```bash
+pip install clarifai
+```
+
+[注册](https://clarifai.com/signup)一个Clarifai账户，然后从您的[安全设置](https://clarifai.com/settings/security)获取个人访问令牌以访问Clarifai API，并将其设置为环境变量 (`CLARIFAI_PAT`)。
+
+## 模型
+
+Clarifai提供了数千个用于许多不同用例的人工智能模型。您可以在[这里探索](https://clarifai.com/explore)这些模型，找到最适合您用例的模型。这些模型包括由其他提供商（如OpenAI、Anthropic、Cohere、AI21等）创建的模型，以及来自开源社区的最先进模型，如Falcon、InstructorXL等，让您将最佳的人工智能集成到您的产品中。这些模型按创建者的user_id组织，并分为我们称之为应用程序的项目，由其app_id表示。一旦找到最适合您用例的最佳模型，您将需要这些ID，还有可能需要model_id和version_id，所以请记下所有这些ID！
+
+另外请注意，由于有许多用于图像、视频、文本和音频理解的模型，您可以构建一些利用各种人工智能模型作为专家来理解这些数据类型的有趣的人工智能代理。
+
+### LLMs
+
+要在Clarifai平台中找到LLMs的选择，您可以在这里选择文本到文本模型类型 [here](https://clarifai.com/explore/models?filterData=%5B%7B%22field%22%3A%22model_type_id%22%2C%22value%22%3A%5B%22text-to-text%22%5D%7D%5D&page=1&perPage=24)。
+
+```python
+from langchain_community.llms import Clarifai
+llm = Clarifai(pat=CLARIFAI_PAT, user_id=USER_ID, app_id=APP_ID, model_id=MODEL_ID)
+```
+
+有关更多详细信息，请参阅Clarifai LLM包装器的[详细步骤](/docs/integrations/llms/clarifai)。
+
+### 文本嵌入模型
+
+要在Clarifai平台中找到文本嵌入模型的选择，您可以在这里选择文本到嵌入模型类型 [here](https://clarifai.com/explore/models?page=1&perPage=24&filterData=%5B%7B%22field%22%3A%22model_type_id%22%2C%22value%22%3A%5B%22text-embedder%22%5D%7D%5D)。
+
+LangChain中有一个Clarifai嵌入模型，您可以通过以下方式访问：
+
+```python
+from langchain_community.embeddings import ClarifaiEmbeddings
+embeddings = ClarifaiEmbeddings(pat=CLARIFAI_PAT, user_id=USER_ID, app_id=APP_ID, model_id=MODEL_ID)
+```
+
+有关更多详细信息，请参阅Clarifai嵌入包装器的[详细步骤](/docs/integrations/text_embedding/clarifai)。
+
+## 向量存储
+
+Clarifai的向量数据库于2016年推出，并经过优化以支持实时搜索查询。通过Clarifai平台中的工作流程，您的数据会自动由嵌入模型和可能的其他模型索引，以将信息索引到数据库以供搜索。您不仅可以通过向量查询数据库，还可以通过元数据匹配、其他人工智能预测概念甚至进行地理坐标搜索进行过滤。只需创建一个应用程序，选择适合您数据类型的适当基础工作流程，并将其上传（通过API，如[此处所述](https://docs.clarifai.com/api-guide/data/create-get-update-delete)或clarifai.com上的UI）。
+
+您还可以直接从LangChain添加数据，自动索引将为您进行。您会注意到这与其他向量存储有所不同，其他向量存储需要在其构造函数中提供一个嵌入模型，并让LangChain协调从文本获取嵌入并将其写入索引。使用Clarifai的分布式云进行所有后台索引不仅更方便，而且更具可扩展性。
+
+```python
+from langchain_community.vectorstores import Clarifai
+clarifai_vector_db = Clarifai.from_texts(user_id=USER_ID, app_id=APP_ID, texts=texts, pat=CLARIFAI_PAT, number_of_docs=NUMBER_OF_DOCS, metadatas = metadatas)
+```
+
+有关更多详细信息，请参阅Clarifai向量存储的[详细步骤](/docs/integrations/vectorstores/clarifai)。

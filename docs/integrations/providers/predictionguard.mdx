@@ -1,0 +1,90 @@
+# 预测守卫
+
+本页面介绍如何在 LangChain 中使用预测守卫生态系统。内容分为两部分：安装和设置，以及特定预测守卫包装器的参考。
+
+## 安装和设置
+
+- 使用 `pip install predictionguard` 安装 Python SDK
+
+- 获取一个预测守卫访问令牌（如[此处](https://docs.predictionguard.com/)所述），并将其设置为环境变量 (`PREDICTIONGUARD_TOKEN`)
+
+## LLM 包装器
+
+存在一个预测守卫 LLM 包装器，您可以通过以下方式访问：
+
+```python
+from langchain_community.llms import PredictionGuard
+```
+
+您可以在初始化 LLM 时将预测守卫模型的名称作为参数提供：
+
+```python
+pgllm = PredictionGuard(model="MPT-7B-Instruct")
+```
+
+您也可以直接提供您的访问令牌作为参数：
+
+```python
+pgllm = PredictionGuard(model="MPT-7B-Instruct", token="<your access token>")
+```
+
+最后，您可以提供一个“output”参数，用于结构化/控制 LLM 的输出：
+
+```python
+pgllm = PredictionGuard(model="MPT-7B-Instruct", output={"type": "boolean"})
+```
+
+## 示例用法
+
+对受控或受守卫的 LLM 包装器的基本用法：
+
+```python
+import os
+import predictionguard as pg
+from langchain_community.llms import PredictionGuard
+from langchain_core.prompts import PromptTemplate
+from langchain.chains import LLMChain
+# 您的预测守卫 API 密钥。在 predictionguard.com 获取一个
+os.environ["PREDICTIONGUARD_TOKEN"] = "<your Prediction Guard access token>"
+# 定义一个提示模板
+template = """根据上下文回答以下查询。
+上下文：每条评论、私信和电子邮件建议都引领我们做出了这一令人兴奋的公告！🎉 我们正式添加了两个新的蜡烛订阅盒选项！📦
+独家蜡烛盒 - $80
+月度蜡烛盒 - $45（全新！）
+本月之香盒 - $28（全新！）
+前往动态故事了解每个盒子的所有详情！👆 额外福利：使用代码 50OFF 可以节省首个盒子的50%！🎉
+查询：{query}
+结果："""
+prompt = PromptTemplate.from_template(template)
+# 通过“守卫”或控制 LLM 的输出进行使用。查看预测守卫文档（https://docs.predictionguard.com）以了解如何使用整数、浮点数、布尔值、JSON 和其他类型和结构来控制输出。
+pgllm = PredictionGuard(model="MPT-7B-Instruct", 
+                        output={
+                                "type": "categorical",
+                                "categories": [
+                                    "产品公告", 
+                                    "道歉", 
+                                    "关系型"
+                                    ]
+                                })
+pgllm(prompt.format(query="这是什么类型的帖子？"))
+```
+
+使用预测守卫包装器进行基本的 LLM 链接：
+
+```python
+import os
+from langchain_core.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain_community.llms import PredictionGuard
+# 可选，添加您的 OpenAI API 密钥。这是可选的，因为预测守卫允许您访问所有最新的开放访问模型（请参阅 https://docs.predictionguard.com）
+os.environ["OPENAI_API_KEY"] = "<your OpenAI api key>"
+# 您的预测守卫 API 密钥。在 predictionguard.com 获取一个
+os.environ["PREDICTIONGUARD_TOKEN"] = "<your Prediction Guard access token>"
+pgllm = PredictionGuard(model="OpenAI-gpt-3.5-turbo-instruct")
+template = """问题：{question}
+答案：让我们逐步思考。"""
+prompt = PromptTemplate.from_template(template)
+llm_chain = LLMChain(prompt=prompt, llm=pgllm, verbose=True)
+question = "贾斯汀·比伯出生年份的超级碗冠军是哪支 NFL 球队？"
+llm_chain.predict(question=question)
+```

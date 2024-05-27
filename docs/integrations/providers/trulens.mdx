@@ -1,0 +1,78 @@
+# TruLens
+
+[TruLens](https://trulens.org) 是一个开源软件包，为基于大型语言模型（LLM）的应用程序提供仪器化和评估工具。
+
+本页介绍如何使用 [TruLens](https://trulens.org) 来评估和跟踪基于 langchain 构建的 LLM 应用程序。
+
+## 安装和设置
+
+安装 `trulens-eval` Python 软件包。
+
+```bash
+pip install trulens-eval
+```
+
+## 快速入门
+
+查看 [TruLens 文档](https://www.trulens.org/trulens_eval/getting_started/quickstarts/langchain_quickstart/) 中的集成细节。
+
+### 跟踪
+
+一旦您创建了您的 LLM 链，您可以使用 TruLens 进行评估和跟踪。
+
+TruLens 具有多种[开箱即用的反馈函数](https://www.trulens.org/trulens_eval/evaluation/feedback_functions/)，
+
+也是一个可扩展的 LLM 评估框架。
+
+创建反馈函数：
+
+```python
+from trulens_eval.feedback import Feedback, Huggingface, 
+# 初始化基于 HuggingFace 的反馈函数集合类：
+hugs = Huggingface()
+openai = OpenAI()
+# 使用 HuggingFace 定义语言匹配反馈函数。
+lang_match = Feedback(hugs.language_match).on_input_output()
+# 默认情况下，这将检查主应用程序输入和主应用程序输出的语言匹配。
+# 整体问题/答案的相关性。
+qa_relevance = Feedback(openai.relevance).on_input_output()
+# 默认情况下，这将在主应用程序输入和主应用程序输出上评估反馈。
+# 输入的毒性
+toxicity = Feedback(openai.toxicity).on_input()
+```
+
+### 链
+
+设置了用于评估您的 LLM 的反馈函数后，您可以使用 TruChain 封装您的应用程序，
+
+以获得详细的跟踪、日志记录和评估您的 LLM 应用程序。
+
+注意：查看 [TruLens 文档](https://www.trulens.org/trulens_eval/getting_started/quickstarts/langchain_quickstart/) 中的 `chain` 创建代码。
+
+```python
+from trulens_eval import TruChain
+# 使用 TruChain 封装您的链
+truchain = TruChain(
+    chain,
+    app_id='Chain1_ChatApplication',
+    feedbacks=[lang_match, qa_relevance, toxicity]
+)
+# 注意：在这里指定的任何 `feedbacks` 将在使用链时进行评估和记录。
+truchain("que hora es?")
+```
+
+### 评估
+
+现在您可以探索基于 LLM 的应用程序了！
+
+这样做将帮助您一目了然地了解您的 LLM 应用程序的表现。当您迭代新版本的 LLM 应用程序时，
+
+您可以比较它们在您设置的所有不同质量指标上的表现。您还可以查看每个记录的评估，并探索每个记录的链元数据。
+
+```python
+from trulens_eval import Tru
+tru = Tru()
+tru.run_dashboard() # 打开一个 Streamlit 应用程序进行探索
+```
+
+有关 TruLens 的更多信息，请访问 [trulens.org](https://www.trulens.org/)

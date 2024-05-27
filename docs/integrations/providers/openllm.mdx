@@ -1,0 +1,57 @@
+# OpenLLM
+
+本页面演示了如何在 LangChain 中使用 [OpenLLM](https://github.com/bentoml/OpenLLM)。
+
+`OpenLLM` 是一个用于在生产环境中操作大型语言模型（LLMs）的开放平台。它使开发人员能够轻松地运行任何开源 LLM 的推理，部署到云端或本地，并构建强大的人工智能应用程序。
+
+## 安装和设置
+
+通过 PyPI 安装 OpenLLM 包：
+
+```bash
+pip install openllm
+```
+
+## LLM
+
+OpenLLM 支持各种开源 LLM，同时也支持用户自己微调的 LLM。使用 `openllm model` 命令查看所有为 OpenLLM 预优化的可用模型。
+
+## 包装器
+
+有一个 OpenLLM 包装器，支持在进程中加载 LLM 或访问远程 OpenLLM 服务器：
+
+```python
+from langchain_community.llms import OpenLLM
+```
+
+### 用于 OpenLLM 服务器的包装器
+
+该包装器支持通过 HTTP 或 gRPC 连接到 OpenLLM 服务器。OpenLLM 服务器可以在本地或云端运行。
+
+要在本地尝试，启动一个 OpenLLM 服务器：
+
+```bash
+openllm start flan-t5
+```
+
+包装器用法：
+
+```python
+from langchain_community.llms import OpenLLM
+llm = OpenLLM(server_url='http://localhost:3000')
+llm("What is the difference between a duck and a goose? And why there are so many Goose in Canada?")
+```
+
+### 用于本地推理的包装器
+
+您还可以使用 OpenLLM 包装器在当前 Python 进程中加载 LLM 进行推理。
+
+```python
+from langchain_community.llms import OpenLLM
+llm = OpenLLM(model_name="dolly-v2", model_id='databricks/dolly-v2-7b')
+llm("What is the difference between a duck and a goose? And why there are so many Goose in Canada?")
+```
+
+### 用法
+
+有关 OpenLLM 包装器的更详细演示，请参阅[示例笔记本](/docs/integrations/llms/openllm)。

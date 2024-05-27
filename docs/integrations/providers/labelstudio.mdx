@@ -1,0 +1,21 @@
+# 标签工作室
+
+[标签工作室](https://labelstud.io/guide/get_started) 是一个开源的数据标注平台，为 LangChain 提供了灵活性，用于为大型语言模型（LLMs）标记数据。它还可以帮助准备自定义训练数据，并通过人类反馈收集和评估响应。
+
+## 安装和设置
+
+请查看 [标签工作室安装指南](https://labelstud.io/guide/install) 以获取安装选项。
+
+我们需要安装 `label-studio` 和 `label-studio-sdk-python` Python 包：
+
+```bash
+pip install label-studio label-studio-sdk
+```
+
+## 回调
+
+查看一个[使用示例](/docs/integrations/callbacks/labelstudio)。
+
+```python
+from langchain.callbacks import LabelStudioCallbackHandler
+```

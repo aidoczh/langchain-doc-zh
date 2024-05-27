@@ -1,0 +1,27 @@
+# 如何加载 Microsoft Office 文件
+
+[Microsoft Office](https://www.office.com/) 是一套办公软件套件，包括 Microsoft Word、Microsoft Excel、Microsoft PowerPoint、Microsoft Outlook 和 Microsoft OneNote。它适用于 Microsoft Windows 和 macOS 操作系统。它也可在 Android 和 iOS 上使用。
+
+本文介绍如何将常用的文件格式，包括 `DOCX`、`XLSX` 和 `PPTX` 文档加载到 LangChain 的 [Document](https://api.python.langchain.com/en/latest/documents/langchain_core.documents.base.Document.html#langchain_core.documents.base.Document) 对象中，以便我们在下游使用。
+
+## 使用 AzureAIDocumentIntelligenceLoader 加载 DOCX、XLSX、PPTX 文件
+
+[Azure AI Document Intelligence](https://aka.ms/doc-intelligence)（以前称为 `Azure Form Recognizer`）是一种基于机器学习的服务，可以从数字或扫描的 PDF、图像、Office 和 HTML 文件中提取文本（包括手写文字）、表格、文档结构（例如标题、章节标题等）和键值对。Document Intelligence 支持 `PDF`、`JPEG/JPG`、`PNG`、`BMP`、`TIFF`、`HEIF`、`DOCX`、`XLSX`、`PPTX` 和 `HTML`。
+
+这个 [当前实现](https://aka.ms/di-langchain) 使用 `Document Intelligence` 的加载器可以将内容逐页地合并，并将其转换为 LangChain 文档。默认的输出格式是 markdown，可以与 `MarkdownHeaderTextSplitter` 轻松地进行语义化文档分块。您还可以使用 `mode="single"` 或 `mode="page"` 来返回单个页面中的纯文本，或者按页面拆分的文档。
+
+### 先决条件
+
+在以下 3 个预览区域之一拥有 Azure AI Document Intelligence 资源：**East US**、**West US2**、**West Europe** - 如果没有，请按照 [此文档](https://learn.microsoft.com/azure/ai-services/document-intelligence/create-document-intelligence-resource?view=doc-intel-4.0.0) 创建一个。您将把 `<endpoint>` 和 `<key>` 作为参数传递给加载器。
+
+```python
+%pip install --upgrade --quiet  langchain langchain-community azure-ai-documentintelligence
+from langchain_community.document_loaders import AzureAIDocumentIntelligenceLoader
+file_path = "<filepath>"
+endpoint = "<endpoint>"
+key = "<key>"
+loader = AzureAIDocumentIntelligenceLoader(
+    api_endpoint=endpoint, api_key=key, file_path=file_path, api_model="prebuilt-layout"
+)
+documents = loader.load()
+```

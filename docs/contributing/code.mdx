@@ -1,0 +1,256 @@
+# 贡献代码
+
+要为这个项目做贡献，请遵循["fork and pull request"](https://docs.github.com/en/get-started/quickstart/contributing-to-projects)工作流程。
+
+除非你是维护者，否则请不要直接推送到这个仓库。
+
+在提交 pull request 时，请遵循已检查的 pull request 模板。注意相关问题并标记相关的维护者。
+
+在通过格式、linting 和测试检查之前，无法合并 pull request。请参阅[Testing](#testing)和[Formatting and Linting](#formatting-and-linting)以了解如何在本地运行这些检查。
+
+我们必须保持良好的文档和测试。如果你：
+
+- 修复了一个 bug
+
+  - 尽可能添加相关的单元测试或集成测试。这些位于 `tests/unit_tests` 和 `tests/integration_tests`。
+
+- 进行了改进
+
+  - 更新任何受影响的示例笔记本和文档。这些位于 `docs`。
+
+  - 在相关时更新单元测试和集成测试。
+
+- 添加了一个功能
+
+  - 在 `docs/docs/` 中添加一个演示笔记本。
+
+  - 添加单元测试和集成测试。
+
+我们是一个小而进取的团队。如果有什么你想要添加或更改的，提交 pull request 是获得我们关注的最佳方式。
+
+## 🚀 快速开始
+
+这个快速开始指南解释了如何在本地运行这个仓库。
+
+对于[开发容器](https://containers.dev/)，请参阅[.devcontainer 文件夹](https://github.com/langchain-ai/langchain/tree/master/.devcontainer)。
+
+### 依赖管理：Poetry 和其他环境/依赖管理器
+
+这个项目使用 [Poetry](https://python-poetry.org/) v1.7.1+ 作为依赖管理器。
+
+❗注意：*在安装 Poetry 之前*，如果你使用 `Conda`，请创建并激活一个新的 Conda 环境（例如 `conda create -n langchain python=3.9`）。
+
+安装 Poetry：**[如何安装的文档](https://python-poetry.org/docs/#installation)**。
+
+❗注意：如果你使用 `Conda` 或 `Pyenv` 作为你的环境/包管理器，在安装 Poetry 后，告诉 Poetry 使用虚拟环境的 Python 环境（`poetry config virtualenvs.prefer-active-python true`）。
+
+### 不同的包
+
+这个仓库包含多个包：
+
+- `langchain-core`：关键抽象的基本接口以及将它们组合成链式结构的逻辑（LangChain 表达语言）。
+
+- `langchain-community`：各种组件的第三方集成。
+
+- `langchain`：组成应用程序认知架构的链、代理和检索逻辑。
+
+- `langchain-experimental`：实验性的组件和链，要么是因为技术是新颖的并且仍在测试中，要么是因为它们需要比大多数生产系统中可能的更多的 LLM 访问权限。
+
+- 合作伙伴集成：独立版本控制的 `libs/partners` 中的合作伙伴包。
+
+每个包都有自己的开发环境。文档是从顶层 makefile 运行的，但开发分为单独的测试和发布流程。
+
+对于这个快速开始，从 langchain-community 开始：
+
+```bash
+cd libs/community
+```
+
+### 本地开发依赖
+
+安装 langchain-community 的开发要求（用于运行 langchain、运行示例、linting、格式化、测试和覆盖）：
+
+```bash
+poetry install --with lint,typing,test,test_integration
+```
+
+然后验证依赖项的安装：
+
+```bash
+make test
+```
+
+如果在安装过程中收到 `debugpy` 的 `WheelFileValidationError`，请确保你正在运行 Poetry v1.6.1+。这个 bug 存在于较旧版本的 Poetry 中（例如 1.4.1），并且已在更新的版本中解决。如果你在 v1.6.1+ 上仍然看到这个 bug，你也可以尝试禁用 "modern installation"（`poetry config installer.modern-installation false`）并重新安装要求。请参阅[这个 `debugpy` 问题](https://github.com/microsoft/debugpy/issues/1246)以获取更多详细信息。
+
+### 测试
+
+_在 `langchain`、`langchain-community` 和 `langchain-experimental` 中，一些测试依赖是可选的；请参阅关于可选依赖项的部分_。
+
+单元测试涵盖了不需要调用外部 API 的模块化逻辑。如果你添加了新的逻辑，请添加一个单元测试。
+
+运行单元测试：
+
+```bash
+make test
+```
+
+在 Docker 中运行单元测试：
+
+```bash
+make docker_tests
+```
+
+还有[集成测试和代码覆盖率](/docs/contributing/testing/)可用。
+
+### 只开发 langchain_core 或 langchain_experimental
+
+如果你只开发 `langchain_core` 或 `langchain_experimental`，你可以简单地安装各自项目的依赖项并运行测试：
+
+```bash
+cd libs/core
+poetry install --with test
+make test
+```
+
+或者：
+
+```bash
+cd libs/experimental
+poetry install --with test
+make test
+```
+
+### 格式化和 linting
+
+在提交 PR 之前在本地运行这些。
+
+#### 代码格式化
+
+这个项目的格式化工作是通过 [ruff](https://docs.astral.sh/ruff/rules/) 完成的。
+
+要对文档、食谱和模板进行格式化，请运行以下命令：
+
+```bash
+make format
+```
+
+要对库进行格式化，请从相关库目录运行相同的命令：
+
+```bash
+cd libs/{LIBRARY}
+make format
+```
+
+此外，您可以使用 `format_diff` 命令仅对与主分支相比在当前分支中已修改的文件运行格式化工具：
+
+```bash
+make format_diff
+```
+
+这在您只对项目的一部分进行了更改并希望确保更改的格式正确而不影响其余代码库时非常有用。
+
+#### 代码检查
+
+这个项目的代码检查是通过 [ruff](https://docs.astral.sh/ruff/rules/) 和 [mypy](http://mypy-lang.org/) 的组合完成的。
+
+要对文档、食谱和模板进行代码检查，请运行以下命令：
+
+```bash
+make lint
+```
+
+要对库进行代码检查，请从相关库目录运行相同的命令：
+
+```bash
+cd libs/{LIBRARY}
+make lint
+```
+
+此外，您可以使用 `lint_diff` 命令仅对与主分支相比在当前分支中已修改的文件运行代码检查工具：
+
+```bash
+make lint_diff
+```
+
+当您只对项目的某些部分进行了更改并希望确保更改符合代码检查标准而无需检查整个代码库时，这非常有用。
+
+我们知道代码检查可能很烦人 - 如果您不想这样做，请联系项目维护人员，他们可以帮助您。我们不希望这成为阻碍好代码贡献的障碍。
+
+#### 拼写检查
+
+这个项目的拼写检查是通过 [codespell](https://github.com/codespell-project/codespell) 完成的。
+
+请注意，`codespell` 会找出常见的拼写错误，因此可能会有误报（正确拼写但很少使用）和漏报（未发现拼写错误）的单词。
+
+要检查此项目的拼写，请运行以下命令：
+
+```bash
+make spell_check
+```
+
+要在原地修复拼写错误，请运行以下命令：
+
+```bash
+make spell_fix
+```
+
+如果 `codespell` 错误地标记了一个单词，您可以将其添加到 `pyproject.toml` 文件的 `codespell` 配置中以跳过该单词的拼写检查。
+
+```python
+[tool.codespell]
+...
+# 在这里添加：
+ignore-words-list = 'momento,collison,ned,foor,reworkd,parth,whats,aapply,mysogyny,unsecure'
+```
+
+## 使用可选依赖项
+
+`langchain`、`langchain-community` 和 `langchain-experimental` 依赖于可选依赖项，以保持这些软件包的轻量级。
+
+`langchain-core` 和合作伙伴软件包**不使用**这种方式的可选依赖项。
+
+只有当**单元测试**依赖于该软件包时，您才需要添加新的依赖项。
+
+如果您的软件包仅用于**集成测试**，则可以跳过这些步骤，不要修改任何 `pyproject.toml` 和 `poetry.lock` 文件。
+
+如果您要向 Langchain 添加新的依赖项，请假设它将是一个可选依赖项，并且大多数用户不会安装它。
+
+没有安装该依赖项的用户应该能够**导入**您的代码而不会产生任何副作用（无警告、无错误、无异常）。
+
+要正确将依赖项添加到 `pyproject.toml` 文件，请按照以下步骤进行操作：
+
+1. 将依赖项作为可选依赖项添加到主组中
+
+   ```bash
+   poetry add --optional [package_name]
+   ```
+
+2. 打开 `pyproject.toml` 文件，并将依赖项添加到 `extended_testing` 额外部分
+
+3. 重新锁定 poetry 文件以更新额外部分
+
+   ```bash
+   poetry lock --no-update
+   ```
+
+4. 添加一个至少尝试导入新代码的单元测试。理想情况下，该单元测试使用轻量级的固定装置来测试代码的逻辑。
+
+5. 对于需要该依赖项的任何测试，请使用 `@pytest.mark.requires(package_name)` 装饰器。
+
+## 添加 Jupyter Notebook
+
+如果要添加 Jupyter Notebook 示例，您需要安装可选的 `dev` 依赖项。
+
+要安装开发依赖项，请运行以下命令：
+
+```bash
+poetry install --with dev
+```
+
+启动一个 notebook：
+
+```bash
+poetry run jupyter notebook
+```
+
+当您运行 `poetry install` 时，`langchain` 包将作为可编辑包安装在虚拟环境中，因此您的新逻辑可以在 notebook 中导入。

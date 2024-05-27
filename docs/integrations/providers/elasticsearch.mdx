@@ -1,0 +1,52 @@
+# Elasticsearch
+
+> [Elasticsearch](https://www.elastic.co/elasticsearch/) 是一个分布式的、基于 REST 的搜索和分析引擎。
+
+> 它提供了一个分布式、多租户的全文搜索引擎，具有 HTTP 网络接口和无模式的 JSON 文档。
+
+## 安装和设置
+
+有两种方法可以开始使用 Elasticsearch：
+
+#### 通过 Docker 在本地机器上安装 Elasticsearch
+
+示例：在单节点上运行 Elasticsearch 实例，关闭安全性。不建议用于生产环境。
+
+```bash
+    docker run -p 9200:9200 -e "discovery.type=single-node" -e "xpack.security.enabled=false" -e "xpack.security.http.ssl.enabled=false" docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+```
+
+#### 在 Elastic Cloud 上部署 Elasticsearch
+
+Elastic Cloud 是一个托管的 Elasticsearch 服务。注册获取 [免费试用](https://cloud.elastic.co/registration?utm_source=langchain&utm_content=documentation)。
+
+### 安装客户端
+
+```bash
+pip install elasticsearch
+pip install langchain-elasticsearch
+```
+
+## 嵌入模型
+
+查看[使用示例](/docs/integrations/text_embedding/elasticsearch)。
+
+```python
+from langchain_elasticsearch.embeddings import ElasticsearchEmbeddings
+```
+
+## 向量存储
+
+查看[使用示例](/docs/integrations/vectorstores/elasticsearch)。
+
+```python
+from langchain_elasticsearch.vectorstores import ElasticsearchStore
+```
+
+## 存储器
+
+查看[使用示例](/docs/integrations/memory/elasticsearch_chat_message_history)。
+
+```python
+from langchain_elasticsearch.chat_history import ElasticsearchChatMessageHistory
+```

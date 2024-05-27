@@ -1,0 +1,66 @@
+# Momento
+
+> [Momento 缓存](https://docs.momentohq.com/) 是全球第一个真正无服务器的缓存服务，提供即时弹性、零缩放能力和极快的性能。
+
+>
+
+> [Momento 向量索引](https://docs.momentohq.com/vector-index) 是最高效、最易于使用的全无服务器向量索引。
+
+>
+
+> 对于这两项服务，只需获取 SDK，获取 API 密钥，将几行代码输入到您的代码中，您就可以开始使用了。它们共同为您的 LLM 数据需求提供了全面的解决方案。
+
+本页面介绍了如何在 LangChain 中使用 [Momento](https://gomomento.com) 生态系统。
+
+## 安装和设置
+
+- 在[此处](https://console.gomomento.com/)免费注册账户以获取 API 密钥
+
+- 使用 `pip install momento` 安装 Momento Python SDK
+
+## 缓存
+
+使用 Momento 作为无服务器、分布式、低延迟的缓存，用于 LLM 提示和响应。标准缓存是任何环境中 Momento 用户的主要用例。
+
+将 Momento 缓存集成到您的应用程序中：
+
+```python
+from langchain.cache import MomentoCache
+```
+
+然后，使用以下代码进行设置：
+
+```python
+from datetime import timedelta
+from momento import CacheClient, Configurations, CredentialProvider
+from langchain.globals import set_llm_cache
+# 实例化 Momento 客户端
+cache_client = CacheClient(
+    Configurations.Laptop.v1(),
+    CredentialProvider.from_environment_variable("MOMENTO_API_KEY"),
+    default_ttl=timedelta(days=1))
+# 选择您喜欢的 Momento 缓存名称
+cache_name = "langchain"
+# 实例化 LLM 缓存
+set_llm_cache(MomentoCache(cache_client, cache_name))
+```
+
+## 内存
+
+Momento 可用作分布式内存存储 LLM。
+
+参见[此笔记本](/docs/integrations/memory/momento_chat_message_history)，了解如何将 Momento 用作聊天消息历史的内存存储的操作步骤。
+
+```python
+from langchain.memory import MomentoChatMessageHistory
+```
+
+## 向量存储
+
+Momento 向量索引（MVI）可用作向量存储。
+
+参见[此笔记本](/docs/integrations/vectorstores/momento_vector_index)，了解如何将 MVI 用作向量存储的操作步骤。
+
+```python
+from langchain_community.vectorstores import MomentoVectorIndex
+```

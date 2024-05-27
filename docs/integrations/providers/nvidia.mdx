@@ -1,0 +1,54 @@
+# NVIDIA
+
+> NVIDIA为LangChain提供了一个集成包：`langchain-nvidia-ai-endpoints`。
+
+## NVIDIA AI基础模型端点
+
+> [NVIDIA AI基础模型端点](https://www.nvidia.com/en-us/ai-data-science/foundation-models/)为用户提供了访问NVIDIA托管的API端点的便利，用于NVIDIA AI基础模型，如`Mixtral 8x7B`、`Llama 2`、`Stable Diffusion`等。这些模型托管在[NVIDIA API目录](https://build.nvidia.com/)上，经过优化、测试并托管在NVIDIA AI平台上，使其快速且易于评估，进一步定制，并在任何加速堆栈上以最佳性能无缝运行。
+
+> 使用[NVIDIA AI基础模型端点](https://www.nvidia.com/en-us/ai-data-science/foundation-models/)，您可以从在[NVIDIA DGX Cloud](https://www.nvidia.com/en-us/data-center/dgx-cloud/)上运行的完全加速堆栈中快速获得结果。一旦定制完成，这些模型可以在具有企业级安全性、稳定性和支持的任何地方部署，使用[NVIDIA AI Enterprise](https://www.nvidia.com/en-us/data-center/products/ai-enterprise/)。
+
+一些NVIDIA AI基础模型直接在LangChain中得到支持，并具有熟悉的API。
+
+支持的模型可以在[build.nvidia.com](https://build.nvidia.com/)中找到。
+
+这些模型可以通过[`langchain-nvidia-ai-endpoints`](https://pypi.org/project/langchain-nvidia-ai-endpoints/)包访问，如下所示。
+
+### 设置
+
+1. 在[NVIDIA](https://build.nvidia.com/)创建一个免费账户，该账户托管NVIDIA AI基础模型
+
+2. 点击您选择的模型
+
+3. 在`Input`下选择`Python`选项卡，然后点击`Get API Key`。接着点击`Generate Key`。
+
+4. 复制并保存生成的密钥为`NVIDIA_API_KEY`。从那里，您应该可以访问端点。
+
+```bash
+export NVIDIA_API_KEY=nvapi-XXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+- 安装一个包：
+
+```bash
+pip install -U langchain-nvidia-ai-endpoints
+```
+
+### 聊天模型
+
+查看一个[使用示例](/docs/integrations/chat/nvidia_ai_endpoints)。
+
+```python
+from langchain_nvidia_ai_endpoints import ChatNVIDIA
+llm = ChatNVIDIA(model="mixtral_8x7b")
+result = llm.invoke("Write a ballad about LangChain.")
+print(result.content)
+```
+
+### 嵌入模型
+
+查看一个[使用示例](/docs/integrations/text_embedding/nvidia_ai_endpoints)。
+
+```python
+from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
+```

@@ -1,0 +1,51 @@
+# GPT4All
+
+本页面介绍如何在 LangChain 中使用 `GPT4All` 包装器。本教程分为两部分：安装和设置，以及使用示例。
+
+## 安装和设置
+
+- 使用 `pip install gpt4all` 安装 Python 包
+
+- 下载 [GPT4All 模型](https://gpt4all.io/index.html) 并将其放置在所需的目录中
+
+在本示例中，我们使用 `mistral-7b-openorca.Q4_0.gguf`（最佳整体快速聊天模型）：
+
+```bash
+mkdir models
+wget https://gpt4all.io/models/gguf/mistral-7b-openorca.Q4_0.gguf -O models/mistral-7b-openorca.Q4_0.gguf
+```
+
+## 使用
+
+### GPT4All
+
+要使用 GPT4All 包装器，您需要提供预训练模型文件的路径和模型的配置。
+
+```python
+from langchain_community.llms import GPT4All
+# 实例化模型。回调支持逐标记流式处理
+model = GPT4All(model="./models/mistral-7b-openorca.Q4_0.gguf", n_threads=8)
+# 生成文本
+response = model.invoke("Once upon a time, ")
+```
+
+您还可以自定义生成参数，例如 n_predict、temp、top_p、top_k 等。
+
+要流式传输模型的预测结果，请添加 CallbackManager。
+
+```python
+from langchain_community.llms import GPT4All
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+# 支持许多 CallbackHandlers，例如
+# from langchain.callbacks.streamlit import StreamlitCallbackHandler
+callbacks = [StreamingStdOutCallbackHandler()]
+model = GPT4All(model="./models/mistral-7b-openorca.Q4_0.gguf", n_threads=8)
+# 生成文本。标记通过回调管理器进行流式传输。
+model("Once upon a time, ", callbacks=callbacks)
+```
+
+## 模型文件
+
+您可以在 [https://gpt4all.io/](https://gpt4all.io/index.html) 找到模型文件下载链接。
+
+有关更详细的操作步骤，请参阅[此笔记本](/docs/integrations/llms/gpt4all)。

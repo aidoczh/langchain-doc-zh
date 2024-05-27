@@ -1,0 +1,25 @@
+# TiDB
+
+> [TiDB Cloud](https://tidbcloud.com/) 是一款全面的数据库即服务（DBaaS）解决方案，提供了专用和无服务器选项。`TiDB Serverless` 现在正在将内置的向量搜索集成到 MySQL 环境中。通过这一增强功能，您可以无缝开发使用 `TiDB Serverless` 的人工智能应用程序，无需新建数据库或额外的技术堆栈。成为第一批体验者，加入[私人测试版的等待列表](https://tidb.cloud/ai)。
+
+## 安装与设置
+
+您需要获取 TiDB 数据库的连接详细信息。请访问[TiDB Cloud](https://tidbcloud.com/)获取连接详细信息。
+
+```bash
+## 文档加载器
+```python
+from langchain_community.document_loaders import TiDBLoader
+```
+请参阅详细信息[这里](/docs/integrations/document_loaders/tidb)。
+## 向量存储
+```python
+from langchain_community.vectorstores import TiDBVectorStore
+```
+请参阅详细信息[这里](/docs/integrations/vectorstores/tidb_vector)。
+## 内存
+```python
+from langchain_community.chat_message_histories import TiDBChatMessageHistory
+```
+
+请参阅详细信息[这里](/docs/integrations/memory/tidb_chat_message_history)。

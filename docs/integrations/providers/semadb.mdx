@@ -1,0 +1,19 @@
+# SemaDB
+
+[SemaDB](https://semafind.com/) 是一个简单易用的向量相似度搜索引擎。它提供了低成本的云托管版本，帮助您轻松构建人工智能应用程序。
+
+通过 SemaDB 云端版本，无需进行 pod 大小计算，无需模式定义，无需分区设置，无需参数调整，无需搜索算法调整，无需复杂的安装，无需复杂的 API。它集成了 [RapidAPI](https://rapidapi.com/semafind-semadb/api/semadb)，提供透明的计费、自动分片和交互式 API 沙盒。
+
+## 安装
+
+无需安装，直接在 [RapidAPI](https://rapidapi.com/semafind-semadb/api/semadb) 上开始使用 SemaDB 云端版本。
+
+## 向量存储
+
+有一个围绕 `SemaDB` 集合的基本包装器，允许您将其用作向量存储。
+
+```python
+from langchain_community.vectorstores import SemaDB
+```
+
+您可以在 [这个笔记本](/docs/integrations/vectorstores/semadb) 中找到如何使用这个包装器的教程。

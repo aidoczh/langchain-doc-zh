@@ -1,0 +1,33 @@
+# 渐变
+
+[Gradient](https://gradient.ai/) 允许使用简单的网络 API 对 LLM 进行微调并完成。
+
+## 安装和设置
+
+- 安装 Python SDK：
+
+```bash
+pip install gradientai
+```
+
+获取 [Gradient 访问令牌和工作区](https://gradient.ai/)，并将其设置为环境变量 (`Gradient_ACCESS_TOKEN`) 和 (`GRADIENT_WORKSPACE_ID`)
+
+## LLM
+
+存在一个 Gradient LLM 包装器，您可以通过以下方式访问
+
+查看[使用示例](/docs/integrations/llms/gradient)。
+
+```python
+from langchain_community.llms import GradientLLM
+```
+
+## 文本嵌入模型
+
+存在一个 Gradient 嵌入模型，您可以通过以下方式访问
+
+```python
+from langchain_community.embeddings import GradientEmbeddings
+```
+
+有关更详细的步骤，请参阅[此笔记本](/docs/integrations/text_embedding/gradient)

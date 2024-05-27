@@ -1,0 +1,781 @@
+# SQL 数据库链
+
+这个例子演示了使用 `SQLDatabaseChain` 来查询 SQL 数据库的问题。
+
+在内部，LangChain 使用 SQLAlchemy 来连接 SQL 数据库。因此 `SQLDatabaseChain` 可以与任何 SQLAlchemy 支持的 SQL 方言一起使用，比如 MS SQL、MySQL、MariaDB、PostgreSQL、Oracle SQL、[Databricks](/docs/ecosystem/integrations/databricks.html) 和 SQLite。有关连接到数据库的要求的更多信息，请参阅 SQLAlchemy 文档。例如，连接到 MySQL 需要一个适当的连接器，比如 PyMySQL。MySQL 连接的 URI 可能如下所示：`mysql+pymysql://user:pass@some_mysql_db_address/db_name`。
+
+这个演示使用了 SQLite 和示例 Chinook 数据库。
+要设置它，请按照 https://database.guide/2-sample-databases-sqlite/ 上的说明进行操作，将 `.db` 文件放在此存储库根目录下的 notebooks 文件夹中。
+
+```python
+from langchain_openai import OpenAI
+from langchain_community.utilities import SQLDatabase
+from langchain_experimental.sql import SQLDatabaseChain
+```
+
+```python
+db = SQLDatabase.from_uri("sqlite:///../../../../notebooks/Chinook.db")
+llm = OpenAI(temperature=0, verbose=True)
+```
+
+**注意：** 对于数据敏感的项目，您可以在 `SQLDatabaseChain` 初始化中指定 `return_direct=True`，以直接返回 SQL 查询的输出，而无需进行任何额外的格式化。这可以防止 LLM 查看数据库中的任何内容。但是请注意，默认情况下 LLM 仍然可以访问数据库模式（即方言、表和键名称）。
+
+```python
+db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True)
+```
+
+```python
+db_chain.run("有多少名员工？")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+> 进入新的 SQLDatabaseChain 链...
+有多少名员工？
+SQLQuery:
+
+/workspace/langchain/langchain/sql_database.py:191: SAWarning: Dialect sqlite+pysqlite does *not* support Decimal objects natively, and SQLAlchemy must convert from floating point - rounding errors and other issues may occur. Please consider storing Decimal numbers as strings or integers on this platform for lossless storage.
+  sample_rows = connection.execute(command)
+
+SELECT COUNT(*) FROM "Employee";
+SQLResult: [(8,)]
+答案：有 8 名员工。
+> 链结束。
+
+'There are 8 employees.'
+```
+
+</CodeOutputBlock>
+
+## 使用查询检查器
+
+有时语言模型会生成带有小错误的无效 SQL，可以使用与 SQL 数据库代理相同的技术来自我修正 SQL。您可以在创建链时简单地指定此选项：
+
+```python
+db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True, use_query_checker=True)
+```
+
+```python
+db_chain.run("Aerosmith 有多少张专辑？")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+> 进入新的 SQLDatabaseChain 链...
+Aerosmith 有多少张专辑？
+SQLQuery:SELECT COUNT(*) FROM Album WHERE ArtistId = 3;
+SQLResult: [(1,)]
+答案：Aerosmith 有 1 张专辑。
+> 链结束。
+
+'There is 1 album by Aerosmith.'
+```
+
+</CodeOutputBlock>
+
+## 自定义提示
+
+您还可以自定义要使用的提示。以下是一个示例，提示它理解 foobar 是 Employee 表的同义词。
+
+```python
+from langchain.prompts.prompt import PromptTemplate
+
+_DEFAULT_TEMPLATE = """给定一个输入问题，首先创建一个语法正确的 {dialect} 查询，然后查看查询的结果并返回答案。
+使用以下格式：
+
+问题："问题在这里"
+SQLQuery："要运行的 SQL 查询"
+SQLResult："SQLQuery 的结果"
+答案："最终答案在这里"
+
+只使用以下表格：
+
+{table_info}
+
+如果有人要求 foobar 表，实际上他们是指 Employee 表。
+
+问题：{input}"""
+PROMPT = PromptTemplate(
+    input_variables=["input", "table_info", "dialect"], template=_DEFAULT_TEMPLATE
+)
+```
+
+```python
+db_chain = SQLDatabaseChain.from_llm(llm, db, prompt=PROMPT, verbose=True)
+```
+
+```python
+db_chain.run("foobar 表中有多少名员工？")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+> 进入新的 SQLDatabaseChain 链...
+foobar 表中有多少名员工？
+SQLQuery:SELECT COUNT(*) FROM Employee;
+SQLResult: [(8,)]
+答案：在 foobar 表中有 8 名员工。
+> 链结束。
+
+'There are 8 employees in the foobar table.'
+```
+
+</CodeOutputBlock>
+
+## 返回中间步骤
+
+您还可以返回 SQLDatabaseChain 的中间步骤。这允许您访问生成的 SQL 语句以及针对 SQL 数据库运行该语句的结果。
+
+```python
+db_chain = SQLDatabaseChain.from_llm(llm, db, prompt=PROMPT, verbose=True, use_query_checker=True, return_intermediate_steps=True)
+```
+```python
+result = db_chain("foobar表中有多少名员工？")
+result["intermediate_steps"]
+```
+<CodeOutputBlock lang="python">
+```
+
+
+    > 进入新的 SQLDatabaseChain 链...
+    foobar 表中有多少名员工？
+    SQLQuery:SELECT COUNT(*) FROM Employee;
+    SQLResult: [(8,)]
+    答案：foobar 表中有 8 名员工。
+    > 链结束。
+
+
+
+
+    [{'input': 'How many employees are there in the foobar table?\nSQLQuery:SELECT COUNT(*) FROM Employee;\nSQLResult: [(8,)]\nAnswer:',
+      'top_k': '5',
+      'dialect': 'sqlite',
+      'table_info': '\nCREATE TABLE "Artist" (\n\t"ArtistId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(120), \n\tPRIMARY KEY ("ArtistId")\n)\n\n/*\n3 rows from Artist table:\nArtistId\tName\n1\tAC/DC\n2\tAccept\n3\tAerosmith\n*/\n\n\nCREATE TABLE "Employee" (\n\t"EmployeeId" INTEGER NOT NULL, \n\t"LastName" NVARCHAR(20) NOT NULL, \n\t"FirstName" NVARCHAR(20) NOT NULL, \n\t"Title" NVARCHAR(30), \n\t"ReportsTo" INTEGER, \n\t"BirthDate" DATETIME, \n\t"HireDate" DATETIME, \n\t"Address" NVARCHAR(70), \n\t"City" NVARCHAR(40), \n\t"State" NVARCHAR(40), \n\t"Country" NVARCHAR(40), \n\t"PostalCode" NVARCHAR(10), \n\t"Phone" NVARCHAR(24), \n\t"Fax" NVARCHAR(24), \n\t"Email" NVARCHAR(60), \n\tPRIMARY KEY ("EmployeeId"), \n\tFOREIGN KEY("ReportsTo") REFERENCES "Employee" ("EmployeeId")\n)\n\n/*\n3 rows from Employee table:\nEmployeeId\tLastName\tFirstName\tTitle\tReportsTo\tBirthDate\tHireDate\tAddress\tCity\tState\tCountry\tPostalCode\tPhone\tFax\tEmail\n1\tAdams\tAndrew\tGeneral Manager\tNone\t1962-02-18 00:00:00\t2002-08-14 00:00:00\t11120 Jasper Ave NW\tEdmonton\tAB\tCanada\tT5K 2N1\t+1 (780) 428-9482\t+1 (780) 428-3457\tandrew@chinookcorp.com\n2\tEdwards\tNancy\tSales Manager\t1\t1958-12-08 00:00:00\t2002-05-01 00:00:00\t825 8 Ave SW\tCalgary\tAB\tCanada\tT2P 2T3\t+1 (403) 262-3443\t+1 (403) 262-3322\tnancy@chinookcorp.com\n3\tPeacock\tJane\tSales Support Agent\t2\t1973-08-29 00:00:00\t2002-04-01 00:00:00\t1111 6 Ave SW\tCalgary\tAB\tCanada\tT2P 5M5\t+1 (403) 262-3443\t+1 (403) 262-6712\tjane@chinookcorp.com\n*/\n\n\nCREATE TABLE "Genre" (\n\t"GenreId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(120), \n\tPRIMARY KEY ("GenreId")\n)\n\n/*\n3 rows from Genre table:\nGenreId\tName\n1\tRock\n2\tJazz\n3\tMetal\n*/\n\n\nCREATE TABLE "MediaType" (\n\t"MediaTypeId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(120), \n\tPRIMARY KEY ("MediaTypeId")\n)\n\n/*\n3 rows from MediaType table:\nMediaTypeId\tName\n1\tMPEG audio file\n2\tProtected AAC audio file\n3\tProtected MPEG-4 video file\n*/\n\n\nCREATE TABLE "Playlist" (\n\t"PlaylistId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(120), \n\tPRIMARY KEY ("PlaylistId")\n)\n\n/*\n3 rows from Playlist table:\nPlaylistId\tName\n1\tMusic\n2\tMovies\n3\tTV Shows\n*/\n\n\nCREATE TABLE "Album" (\n\t"AlbumId" INTEGER NOT NULL, \n\t"Title" NVARCHAR(160) NOT NULL, \n\t"ArtistId" INTEGER NOT NULL, \n\tPRIMARY KEY ("AlbumId"), \n\tFOREIGN KEY("ArtistId") REFERENCES "Artist" ("ArtistId")\n)\n\n/*\n3 rows from Album table:\nAlbumId\tTitle\tArtistId\n1\tFor Those About To Rock We Salute You\t1\n2\tBalls to the Wall\t2\n3\tRestless and Wild\t2\n*/\n\n\nCREATE TABLE "Customer" (\n\t"CustomerId" INTEGER NOT NULL, \n\t"FirstName" NVARCHAR(40) NOT NULL, \n\t"LastName" NVARCHAR(20) NOT NULL, \n\t"Company" NVARCHAR(80), \n\t"Address" NVARCHAR(70), \n\t"City" NVARCHAR(40), \n\t"State" NVARCHAR(40), \n\t"Country" NVARCHAR(40), \n\t"PostalCode" NVARCHAR(10), \n\t"Phone" NVARCHAR(24), \n\t"Fax" NVARCHAR(24), \n\t"Email" NVARCHAR(60) NOT NULL, \n\t"SupportRepId" INTEGER, \n\tPRIMARY KEY ("CustomerId"), \n\tFOREIGN KEY("SupportRepId") REFERENCES "Employee" ("EmployeeId")\n)\n\n/*\n3 rows from Customer table:\nCustomerId\tFirstName\tLastName\tCompany\tAddress\tCity\tState\tCountry\tPostalCode\tPhone\tFax\tEmail\tSupportRepId\n1\tLuís\tGonçalves\tEmbraer - Empresa Brasileira de Aeronáutica S.A.\tAv. Brigadeiro Faria Lima, 2170\tSão José dos Campos\tSP\tBrazil\t12227-000\t+55 (12) 3923-5555\t+55 (12) 3923-5566\tluisg@embraer.com.br\t3\n2\tLeonie\tKöhler\tNone\tTheodor-Heuss-Straße 34\tStuttgart\tNone\tGermany\t70174\t+49 0711 2842222\tNone\tleonekohler@surfeu.de\t5\n3\tFrançois\tTremblay\tNone\t1498 rue Bélanger\tMontréal\tQC\tCanada\tH2G 1A7\t+1 (514) 721-4711\tNone\tftremblay@gmail.com\t3\n*/\n\n\nCREATE TABLE "Invoice" (\n\t"InvoiceId" INTEGER NOT NULL, \n\t"CustomerId" INTEGER NOT NULL, \n\t"InvoiceDate" DATETIME NOT NULL, \n\t"BillingAddress" NVARCHAR(70), \n\t"BillingCity" NVARCHAR(40), \n\t"BillingState" NVARCHAR(40), \n\t"BillingCountry" NVARCHAR(40), \n\t"BillingPostalCode" NVARCHAR(10), \n\t"Total" NUMERIC(10, 2) NOT NULL, \n\tPRIMARY KEY ("InvoiceId"), \n\tFOREIGN KEY("CustomerId") REFERENCES "Customer" ("CustomerId")\n)\n\n/*\n3 rows from Invoice table:\nInvoiceId\tCustomerId\tInvoiceDate\tBillingAddress\tBillingCity\tBillingState\tBillingCountry\tBillingPostalCode\tTotal\n1\t2\t2009-01-01 00:00:00\tTheodor-Heuss-Straße 34\tStuttgart\tNone\tGermany\t70174\t1.98\n2\t4\t2009-01-02 00:00:00\tUllevålsveien 14\tOslo\tNone\tNorway\t0171\t3.96\n3\t8\t2009-01-03 00:00:00\tGrétrystraat 63\tBrussels\tNone\tBelgium\t1000\t5.94\n*/\n\n\nCREATE TABLE "Track" (\n\t"TrackId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(200) NOT NULL, \n\t"AlbumId" INTEGER, \n\t"MediaTypeId" INTEGER NOT NULL, \n\t"GenreId" INTEGER, \n\t"Composer" NVARCHAR(220), \n\t"Milliseconds" INTEGER NOT NULL, \n\t"Bytes" INTEGER, \n\t"UnitPrice" NUMERIC(10, 2) NOT NULL, \n\tPRIMARY KEY ("TrackId"), \n\tFOREIGN KEY("MediaTypeId") REFERENCES "MediaType" ("MediaTypeId"), \n\tFOREIGN KEY("GenreId") REFERENCES "Genre" ("GenreId"), \n\tFOREIGN KEY("AlbumId") REFERENCES "Album" ("AlbumId")\n)\n\n/*\n3 rows from Track table:\nTrackId\tName\tAlbumId\tMediaTypeId\tGenreId\tComposer\tMilliseconds\tBytes\tUnitPrice\n1\tFor Those About To Rock (We Salute You)\t1\t1\t1\tAngus Young, Malcolm Young, Brian Johnson\t343719\t11170334\t0.99\n2\tBalls to the Wall\t2\t2\t1\tNone\t342562\t5510424\t0.99\n3\tFast As a Shark\t3\t2\t1\tF. Baltes, S. Kaufman, U. Dirkscneider & W. Hoffman\t230619\t3990994\t0.99\n*/\n\n\nCREATE TABLE "InvoiceLine" (\n\t"InvoiceLineId" INTEGER NOT NULL, \n\t"InvoiceId" INTEGER NOT NULL, \n\t"TrackId" INTEGER NOT NULL, \n\t"UnitPrice" NUMERIC(10, 2) NOT NULL, \n\t"Quantity" INTEGER NOT NULL, \n\tPRIMARY KEY ("InvoiceLineId"), \n\tFOREIGN KEY("TrackId") REFERENCES "Track" ("TrackId"), \n\tFOREIGN KEY("InvoiceId") REFERENCES "Invoice" ("InvoiceId")\n)\n\n/*\n3 rows from InvoiceLine table:\nInvoiceLineId\tInvoiceId\tTrackId\tUnitPrice\tQuantity\n1\t1\t2\t0.99\t1\n2\t1\t4\t0.99\t1\n3\t2\t6\t0.99\t1\n*/\n\n\nCREATE TABLE "PlaylistTrack" (\n\t"PlaylistId" INTEGER NOT NULL, \n\t"TrackId" INTEGER NOT NULL, \n\tPRIMARY KEY ("PlaylistId", "TrackId"), \n\tFOREIGN KEY("TrackId") REFERENCES "Track" ("TrackId"), \n\tFOREIGN KEY("PlaylistId") REFERENCES "Playlist" ("PlaylistId")\n)\n\n/*\n3 rows from PlaylistTrack table:\nPlaylistId\tTrackId\n1\t3402\n1\t3389\n1\t3390\n*/',
+      'stop': ['\nSQLResult:']},
+     'SELECT COUNT(*) FROM Employee;',
+     {'query': 'SELECT COUNT(*) FROM Employee;', 'dialect': 'sqlite'},
+     'SELECT COUNT(*) FROM Employee;',
+     '[(8,)]']
+```
+```python
+print(db.table_info)
+```
+
+<CodeOutputBlock lang="python">
+```
+Track (2 rows)
+TrackId | Name | AlbumId | MediaTypeId | GenreId | Composer | Milliseconds | Bytes | UnitPrice
+1 | For Those About To Rock We Salute You | 1 | 1 | 1 | Angus Young, Malcolm Young, Brian Johnson | 343719 | 11170334 | 0.99
+2 | Balls to the Wall | 2 | 2 | 1 | Udo Dirkschneider, Wolf Hoffmann, Peter Baltes | 342562 | 5510424 | 0.99
+```
+```markdown
+```sql
+CREATE TABLE "Track" (
+"TrackId" INTEGER NOT NULL,
+"Name" NVARCHAR(200) NOT NULL,
+"AlbumId" INTEGER,
+"MediaTypeId" INTEGER NOT NULL,
+"GenreId" INTEGER,
+"Composer" NVARCHAR(220),
+"Milliseconds" INTEGER NOT NULL,
+"Bytes" INTEGER,
+"UnitPrice" NUMERIC(10, 2) NOT NULL,
+PRIMARY KEY ("TrackId"),
+FOREIGN KEY("MediaTypeId") REFERENCES "MediaType" ("MediaTypeId"),
+FOREIGN KEY("GenreId") REFERENCES "Genre" ("GenreId"),
+FOREIGN KEY("AlbumId") REFERENCES "Album" ("AlbumId")
+)
+
+/*
+2 rows from Track table:
+TrackIdNameAlbumIdMediaTypeIdGenreIdComposerMillisecondsBytesUnitPrice
+1For Those About To Rock (We Salute You)111Angus Young, Malcolm Young, Brian Johnson343719111703340.99
+2Balls to the Wall221None34256255104240.99
+*/
+```
+```python
+db_chain = SQLDatabaseChain.from_llm(llm, db, use_query_checker=True, verbose=True)
+```
+
+
+```python
+db_chain.run("巴赫有哪些例曲？")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+
+
+    > 进入新的 SQLDatabaseChain 链...
+    巴赫有哪些例曲？
+    SQLQuery:SELECT "Name", "Composer" FROM "Track" WHERE "Composer" LIKE '%Bach%' LIMIT 5
+    SQLResult: [('American Woman', 'B. Cummings/G. Peterson/M.J. Kale/R. Bachman'), ('Concerto for 2 Violins in D Minor, BWV 1043: I. Vivace', 'Johann Sebastian Bach'), ('Aria Mit 30 Veränderungen, BWV 988 "Goldberg Variations": Aria', 'Johann Sebastian Bach'), ('Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude', 'Johann Sebastian Bach'), ('Toccata and Fugue in D Minor, BWV 565: I. Toccata', 'Johann Sebastian Bach')]
+    Answer:巴赫的例曲包括 'American Woman', 'Concerto for 2 Violins in D Minor, BWV 1043: I. Vivace', 'Aria Mit 30 Veränderungen, BWV 988 "Goldberg Variations": Aria', 'Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude', 和 'Toccata and Fugue in D Minor, BWV 565: I. Toccata'。
+    > 链结束。
+
+
+
+
+
+    '巴赫的例曲包括 \'American Woman\', \'Concerto for 2 Violins in D Minor, BWV 1043: I. Vivace\', \'Aria Mit 30 Veränderungen, BWV 988 "Goldberg Variations": Aria\', \'Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude\', 和 \'Toccata and Fugue in D Minor, BWV 565: I. Toccata\'。'
+```
+
+</CodeOutputBlock>
+
+### 自定义表信息
+在某些情况下，提供自定义表信息而不是使用自动生成的表定义和第一个 `sample_rows_in_table_info` 个示例行可能会很有用。例如，如果您知道表的前几行没有信息，手动提供更多样化或更多信息的示例行可能会帮助模型。如果存在不必要的列，还可以限制模型可见的列。
+
+可以将此信息提供为以表名为键、表信息为值的字典。例如，让我们为 Track 表提供自定义定义和示例行，只包括几列：
+
+
+```python
+custom_table_info = {
+    "Track": """CREATE TABLE Track (
+"TrackId" INTEGER NOT NULL,
+"Name" NVARCHAR(200) NOT NULL,
+"Composer" NVARCHAR(220),
+PRIMARY KEY ("TrackId")
+)
+/*
+3 rows from Track table:
+TrackIdNameComposer
+1For Those About To Rock (We Salute You)Angus Young, Malcolm Young, Brian Johnson
+2Balls to the WallNone
+3My favorite song everThe coolest composer of all time
+*/"""
+}
+```
+
+
+```python
+db = SQLDatabase.from_uri(
+    "sqlite:///../../../../notebooks/Chinook.db",
+    include_tables=['Track', 'Playlist'],
+    sample_rows_in_table_info=2,
+    custom_table_info=custom_table_info)
+
+print(db.table_info)
+```
+
+<CodeOutputBlock lang="python">
+
+```
+
+    CREATE TABLE "Playlist" (
+    "PlaylistId" INTEGER NOT NULL,
+    "Name" NVARCHAR(120),
+    PRIMARY KEY ("PlaylistId")
+    )
+
+    /*
+    2 rows from Playlist table:
+    PlaylistIdName
+    1Music
+    2Movies
+    */
+
+    CREATE TABLE Track (
+    "TrackId" INTEGER NOT NULL,
+    "Name" NVARCHAR(200) NOT NULL,
+    "Composer" NVARCHAR(220),
+    PRIMARY KEY ("TrackId")
+    )
+    /*
+    3 rows from Track table:
+    TrackIdNameComposer
+    1For Those About To Rock (We Salute You)Angus Young, Malcolm Young, Brian Johnson
+    2Balls to the WallNone
+    3My favorite song everThe coolest composer of all time
+    */
+```
+
+</CodeOutputBlock>
+
+请注意，我们为 `Track` 提供的自定义表定义和示例行覆盖了 `sample_rows_in_table_info` 参数。在此示例中未被 `custom_table_info` 覆盖的表（例如 `Playlist`）将像往常一样自动收集其表信息。
+
+
+```python
+db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True)
+db_chain.run("巴赫有哪些例曲？")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+
+
+    > 进入新的 SQLDatabaseChain 链...
+    巴赫有哪些例曲？
+    SQL查询：SELECT "Name" FROM Track WHERE "Composer" LIKE '%Bach%' LIMIT 5;
+    SQL结果：[('American Woman',), ('Concerto for 2 Violins in D Minor, BWV 1043: I. Vivace',), ('Aria Mit 30 Veränderungen, BWV 988 "Goldberg Variations": Aria',), ('Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude',), ('Toccata and Fugue in D Minor, BWV 565: I. Toccata',)]
+    答案：text='您是一个 SQLite 专家。给定一个输入问题，首先创建一个语法正确的 SQLite 查询来运行，然后查看查询的结果并返回输入问题的答案。\n除非用户在问题中指定获取特定数量的例子，否则按照 SQLite 的规定，最多查询 5 个结果使用 LIMIT 子句。您可以对结果进行排序，以返回数据库中最有信息的数据。\n永远不要查询表中的所有列。您必须只查询需要回答问题的列。用双引号（"）将每个列名括起来，以将它们标记为分隔符标识符。\n注意只使用下面的表中可以看到的列名。小心不要查询不存在的列。还要注意哪个列在哪个表中。\n\n使用以下格式：\n\n问题："问题在这里"\nSQL查询："要运行的 SQL 查询"\nSQL结果："SQL查询的结果"\n答案："最终答案在这里"\n\n只使用以下表：\n\nCREATE TABLE "Playlist" (\n\t"PlaylistId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(120), \n\tPRIMARY KEY ("PlaylistId")\n)\n\n/*\n来自 Playlist 表的 2 行：\nPlaylistId\tName\n1\tMusic\n2\tMovies\n*/\n\nCREATE TABLE Track (\n\t"TrackId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(200) NOT NULL,\n\t"Composer" NVARCHAR(220),\n\tPRIMARY KEY ("TrackId")\n)\n/*\n来自 Track 表的 3 行：\nTrackId\tName\tComposer\n1\tFor Those About To Rock (We Salute You)\tAngus Young, Malcolm Young, Brian Johnson\n2\tBalls to the Wall\tNone\n3\tMy favorite song ever\tThe coolest composer of all time\n*/\n\n问题：巴赫有哪些例曲？\nSQL查询：SELECT "Name" FROM Track WHERE "Composer" LIKE \'%Bach%\' LIMIT 5;\nSQL结果：[(\'American Woman\',), (\'Concerto for 2 Violins in D Minor, BWV 1043: I. Vivace\',), (\'Aria Mit 30 Veränderungen, BWV 988 "Goldberg Variations": Aria\',), (\'Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude\',), (\'Toccata and Fugue in D Minor, BWV 565: I. Toccata\',)]\n答案：\n{'input': '巴赫有哪些例曲？\nSQL查询:SELECT "Name" FROM Track WHERE "Composer" LIKE \'%Bach%\' LIMIT 5;\nSQL结果: [(\'American Woman\',), (\'Concerto for 2 Violins in D Minor, BWV 1043: I. Vivace\',), (\'Aria Mit 30 Veränderungen, BWV 988 "Goldberg Variations": Aria\',), (\'Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude\',), (\'Toccata and Fugue in D Minor, BWV 565: I. Toccata\',)]\n答案:', 'top_k': '5', 'dialect': 'sqlite', 'table_info': '\nCREATE TABLE "Playlist" (\n\t"PlaylistId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(120), \n\tPRIMARY KEY ("PlaylistId")\n)\n\n/*\n来自 Playlist 表的 2 行：\nPlaylistId\tName\n1\tMusic\n2\tMovies\n*/\n\nCREATE TABLE Track (\n\t"TrackId" INTEGER NOT NULL, \n\t"Name" NVARCHAR(200) NOT NULL,\n\t"Composer" NVARCHAR(220),\n\tPRIMARY KEY ("TrackId")\n)\n/*\n来自 Track 表的 3 行：\nTrackId\tName\tComposer\n1\tFor Those About To Rock (We Salute You)\tAngus Young, Malcolm Young, Brian Johnson\n2\tBalls to the Wall\tNone\n3\tMy favorite song ever\tThe coolest composer of all time\n*/', 'stop': ['\nSQLResult:']}
+    巴赫的例曲包括"American Woman"、"Concerto for 2 Violins in D Minor, BWV 1043: I. Vivace"、"Aria Mit 30 Veränderungen, BWV 988 'Goldberg Variations': Aria"、"Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude"和"Toccata and Fugue in D Minor, BWV 565: I. Toccata"。
+    > 链结束。
+
+
+
+
+    '巴赫的例曲包括"American Woman"、"Concerto for 2 Violins in D Minor, BWV 1043: I. Vivace"、"Aria Mit 30 Veränderungen, BWV 988 \'Goldberg Variations\': Aria"、"Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude"和"Toccata and Fugue in D Minor, BWV 565: I. Toccata"。'
+```
+### SQL 视图
+
+在某些情况下，表模式可能被隐藏在一个 JSON 或 JSONB 列后面。将行样本添加到提示中可能有助于描述数据，但并不总是完美的。
+
+因此，自定义的 SQL 视图可以帮助解决这个问题。
+
+```sql
+CREATE VIEW accounts_v AS
+    select id, firstname, lastname, email, created_at, updated_at,
+        cast(stats->>'total_post' as int) as total_post,
+        cast(stats->>'total_comments' as int) as total_comments,
+        cast(stats->>'ltv' as int) as ltv
+
+        FROM accounts;
+```
+
+然后限制从 SQLDatabase 可见的表到创建的视图。
+
+```python
+db = SQLDatabase.from_uri(
+    "sqlite:///../../../../notebooks/Chinook.db",
+    include_tables=['accounts_v']) # 我们只包括视图
+```
+
+## SQLDatabaseSequentialChain
+
+用于查询 SQL 数据库的顺序链。
+
+链条如下：
+
+    1. 根据查询确定要使用哪些表。
+    2. 基于这些表，调用正常的 SQL 数据库链。
+
+这在数据库中表的数量很大的情况下非常有用。
+
+```python
+from langchain_experimental.sql import SQLDatabaseSequentialChain
+db = SQLDatabase.from_uri("sqlite:///../../../../notebooks/Chinook.db")
+```
+
+```python
+chain = SQLDatabaseSequentialChain.from_llm(llm, db, verbose=True)
+```
+
+```python
+chain.run("有多少员工也是顾客？")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+    > 进入新的 SQLDatabaseSequentialChain 链...
+    要使用的表名：
+    ['Employee', 'Customer']
+
+    > 进入新的 SQLDatabaseChain 链...
+    有多少员工也是顾客？
+    SQLQuery:SELECT COUNT(*) FROM Employee e INNER JOIN Customer c ON e.EmployeeId = c.SupportRepId;
+    SQLResult: [(59,)]
+    答案:59 名员工也是顾客。
+    > 完成链。
+
+    > 完成链。
+
+    '59 名员工也是顾客。'
+```
+
+</CodeOutputBlock>
+
+## 使用本地语言模型
+
+有时您可能没有使用 OpenAI 或其他服务托管的大型语言模型的便利。当然，您可以尝试使用带有本地模型的 `SQLDatabaseChain`，但很快就会意识到，即使是在拥有大型 GPU 的情况下，大多数可以在本地运行的模型也很难生成正确的输出。
+
+```python
+import logging
+import torch
+from transformers import AutoTokenizer, GPT2TokenizerFast, pipeline, AutoModelForSeq2SeqLM, AutoModelForCausalLM
+from langchain_huggingface import HuggingFacePipeline
+
+# 注意：此模型需要大型 GPU，例如 80GB 的 A100。请参阅其他运行私有非 OpenAI 模型的方法的文档。
+model_id = "google/flan-ul2"
+model = AutoModelForSeq2SeqLM.from_pretrained(model_id, temperature=0)
+
+device_id = -1  # 默认为无 GPU，但如果可用，则使用 GPU 和半精度模式
+if torch.cuda.is_available():
+    device_id = 0
+    try:
+        model = model.half()
+    except RuntimeError as exc:
+        logging.warn(f"无法以半精度模式运行模型：{str(exc)}")
+
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+pipe = pipeline(task="text2text-generation", model=model, tokenizer=tokenizer, max_length=1024, device=device_id)
+
+local_llm = HuggingFacePipeline(pipeline=pipe)
+```
+
+<CodeOutputBlock lang="python">
+
+```
+    加载检查点分片：100%|██████████| 8/8 [00:32<00:00,  4.11s/it]
+```
+
+</CodeOutputBlock>
+
+```python
+from langchain_community.utilities import SQLDatabase
+from langchain_experimental.sql import SQLDatabaseChain
+
+db = SQLDatabase.from_uri("sqlite:///../../../../notebooks/Chinook.db", include_tables=['Customer'])
+local_chain = SQLDatabaseChain.from_llm(local_llm, db, verbose=True, return_intermediate_steps=True, use_query_checker=True)
+```
+
+只要按照上面指定的方式使用查询检查器，这个模型应该适用于非常简单的 SQL 查询，例如：
+
+```python
+local_chain("有多少顾客？")
+```
+
+<CodeOutputBlock lang="python">
+```
+
+
+    > 进入新的 SQLDatabaseChain 链...
+    有多少客户？
+    SQL查询：
+
+    /workspace/langchain/.venv/lib/python3.9/site-packages/transformers/pipelines/base.py:1070: UserWarning: 您似乎正在 GPU 上按顺序使用管道。为了最大化效率，请使用数据集
+      warnings.warn(
+    /workspace/langchain/.venv/lib/python3.9/site-packages/transformers/pipelines/base.py:1070: UserWarning: 您似乎正在 GPU 上按顺序使用管道。为了最大化效率，请使用数据集
+      warnings.warn(
+
+
+    SELECT count(*) FROM Customer
+    SQL结果: [(59,)]
+    答案：
+
+    /workspace/langchain/.venv/lib/python3.9/site-packages/transformers/pipelines/base.py:1070: UserWarning: 您似乎正在 GPU 上按顺序使用管道。为了最大化效率，请使用数据集
+      warnings.warn(
+
+
+    [59]
+    > 链结束。
+
+
+
+
+    {'query': '有多少客户？',
+     'result': '[59]',
+     'intermediate_steps': [{'input': '有多少客户？\nSQL查询:SELECT count(*) FROM Customer\nSQL结果: [(59,)]\n答案:',
+       'top_k': '5',
+       'dialect': 'sqlite',
+       'table_info': '\nCREATE TABLE "Customer" (\n\t"CustomerId" INTEGER NOT NULL, \n\t"FirstName" NVARCHAR(40) NOT NULL, \n\t"LastName" NVARCHAR(20) NOT NULL, \n\t"Company" NVARCHAR(80), \n\t"Address" NVARCHAR(70), \n\t"City" NVARCHAR(40), \n\t"State" NVARCHAR(40), \n\t"Country" NVARCHAR(40), \n\t"PostalCode" NVARCHAR(10), \n\t"Phone" NVARCHAR(24), \n\t"Fax" NVARCHAR(24), \n\t"Email" NVARCHAR(60) NOT NULL, \n\t"SupportRepId" INTEGER, \n\tPRIMARY KEY ("CustomerId"), \n\tFOREIGN KEY("SupportRepId") REFERENCES "Employee" ("EmployeeId")\n)\n\n/*\n来自 Customer 表的 3 行数据:\nCustomerId\tFirstName\tLastName\tCompany\tAddress\tCity\tState\tCountry\tPostalCode\tPhone\tFax\tEmail\tSupportRepId\n1\tLuís\tGonçalves\tEmbraer - Empresa Brasileira de Aeronáutica S.A.\tAv. Brigadeiro Faria Lima, 2170\tSão José dos Campos\tSP\tBrazil\t12227-000\t+55 (12) 3923-5555\t+55 (12) 3923-5566\tluisg@embraer.com.br\t3\n2\tLeonie\tKöhler\tNone\tTheodor-Heuss-Straße 34\tStuttgart\tNone\tGermany\t70174\t+49 0711 2842222\tNone\tleonekohler@surfeu.de\t5\n3\tFrançois\tTremblay\tNone\t1498 rue Bélanger\tMontréal\tQC\tCanada\tH2G 1A7\t+1 (514) 721-4711\tNone\tftremblay@gmail.com\t3\n*/',
+       'stop': ['\nSQL结果:']},
+      'SELECT count(*) FROM Customer',
+      {'query': 'SELECT count(*) FROM Customer', 'dialect': 'sqlite'},
+      'SELECT count(*) FROM Customer',
+      '[(59,)]']}
+```
+</CodeOutputBlock>
+
+即使是这个相对较大的模型，很可能也无法单独生成更复杂的 SQL。但是，您可以记录其输入和输出，以便手动校正它们，并将校正后的示例用于以后的少样本提示示例。在实践中，您可以记录任何引发异常的链的执行（如下面的示例所示），或在结果不正确的情况下（但未引发异常）直接获得用户反馈。
+
+```bash
+poetry run pip install pyyaml chromadb
+import yaml
+```
+
+<CodeOutputBlock lang="bash">
+```
+    huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+    To disable this warning, you can either:
+    - Avoid using `tokenizers` before the fork if possible
+    - Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+
+
+    11842.36s - pydevd: Sending message related to process being replaced timed-out after 5 seconds
+
+
+    Requirement already satisfied: pyyaml in /workspace/langchain/.venv/lib/python3.9/site-packages (6.0)
+    Requirement already satisfied: chromadb in /workspace/langchain/.venv/lib/python3.9/site-packages (0.3.21)
+    Requirement already satisfied: pandas>=1.3 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (2.0.1)
+    Requirement already satisfied: requests>=2.28 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (2.28.2)
+    Requirement already satisfied: pydantic>=1.9 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (1.10.7)
+    Requirement already satisfied: hnswlib>=0.7 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (0.7.0)
+    Requirement already satisfied: clickhouse-connect>=0.5.7 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (0.5.20)
+    Requirement already satisfied: sentence-transformers>=2.2.2 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (2.2.2)
+    Requirement already satisfied: duckdb>=0.7.1 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (0.7.1)
+    Requirement already satisfied: fastapi>=0.85.1 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (0.95.1)
+    Requirement already satisfied: uvicorn[standard]>=0.18.3 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (0.21.1)
+    Requirement already satisfied: numpy>=1.21.6 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (1.24.3)
+    Requirement already satisfied: posthog>=2.4.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from chromadb) (3.0.1)
+    Requirement already satisfied: certifi in /workspace/langchain/.venv/lib/python3.9/site-packages (from clickhouse-connect>=0.5.7->chromadb) (2022.12.7)
+    Requirement already satisfied: urllib3>=1.26 in /workspace/langchain/.venv/lib/python3.9/site-packages (from clickhouse-connect>=0.5.7->chromadb) (1.26.15)
+    Requirement already satisfied: pytz in /workspace/langchain/.venv/lib/python3.9/site-packages (from clickhouse-connect>=0.5.7->chromadb) (2023.3)
+    Requirement already satisfied: zstandard in /workspace/langchain/.venv/lib/python3.9/site-packages (from clickhouse-connect>=0.5.7->chromadb) (0.21.0)
+    Requirement already satisfied: lz4 in /workspace/langchain/.venv/lib/python3.9/site-packages (from clickhouse-connect>=0.5.7->chromadb) (4.3.2)
+    Requirement already satisfied: starlette<0.27.0,>=0.26.1 in /workspace/langchain/.venv/lib/python3.9/site-packages (from fastapi>=0.85.1->chromadb) (0.26.1)
+    Requirement already satisfied: python-dateutil>=2.8.2 in /workspace/langchain/.venv/lib/python3.9/site-packages (from pandas>=1.3->chromadb) (2.8.2)
+    Requirement already satisfied: tzdata>=2022.1 in /workspace/langchain/.venv/lib/python3.9/site-packages (from pandas>=1.3->chromadb) (2023.3)
+    Requirement already satisfied: six>=1.5 in /workspace/langchain/.venv/lib/python3.9/site-packages (from posthog>=2.4.0->chromadb) (1.16.0)
+    Requirement already satisfied: monotonic>=1.5 in /workspace/langchain/.venv/lib/python3.9/site-packages (from posthog>=2.4.0->chromadb) (1.6)
+    Requirement already satisfied: backoff>=1.10.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from posthog>=2.4.0->chromadb) (2.2.1)
+    Requirement already satisfied: typing-extensions>=4.2.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from pydantic>=1.9->chromadb) (4.5.0)
+    Requirement already satisfied: charset-normalizer<4,>=2 in /workspace/langchain/.venv/lib/python3.9/site-packages (from requests>=2.28->chromadb) (3.1.0)
+    Requirement already satisfied: idna<4,>=2.5 in /workspace/langchain/.venv/lib/python3.9/site-packages (from requests>=2.28->chromadb) (3.4)
+    Requirement already satisfied: transformers<5.0.0,>=4.6.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (4.28.1)
+    Requirement already satisfied: tqdm in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (4.65.0)
+    Requirement already satisfied: torch>=1.6.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (1.13.1)
+    Requirement already satisfied: torchvision in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (0.14.1)
+    Requirement already satisfied: scikit-learn in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (1.2.2)
+    Requirement already satisfied: scipy in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (1.9.3)
+    Requirement already satisfied: nltk in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (3.8.1)
+    Requirement already satisfied: sentencepiece in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (0.1.98)
+    Requirement already satisfied: huggingface-hub>=0.4.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from sentence-transformers>=2.2.2->chromadb) (0.13.4)
+    Requirement already satisfied: click>=7.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from uvicorn[standard]>=0.18.3->chromadb) (8.1.3)
+    Requirement already satisfied: h11>=0.8 in /workspace/langchain/.venv/lib/python3.9/site-packages (from uvicorn[standard]>=0.18.3->chromadb) (0.14.0)
+    Requirement already satisfied: httptools>=0.5.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from uvicorn[standard]>=0.18.3->chromadb) (0.5.0)
+    Requirement already satisfied: python-dotenv>=0.13 in /workspace/langchain/.venv/lib/python3.9/site-packages (from uvicorn[standard]>=0.18.3->chromadb) (1.0.0)
+    Requirement already satisfied: uvloop!=0.15.0,!=0.15.1,>=0.14.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from uvicorn[standard]>=0.18.3->chromadb) (0.17.0)
+    Requirement already satisfied: watchfiles>=0.13 in /workspace/langchain/.venv/lib/python3.9/site-packages (from uvicorn[standard]>=0.18.3->chromadb) (0.19.0)
+    Requirement already satisfied: websockets>=10.4 in /workspace/langchain/.venv/lib/python3.9/site-packages (from uvicorn[standard]>=0.18.3->chromadb) (11.0.2)
+    Requirement already satisfied: filelock in /workspace/langchain/.venv/lib/python3.9/site-packages (from huggingface-hub>=0.4.0->sentence-transformers>=2.2.2->chromadb) (3.12.0)
+    Requirement already satisfied: packaging>=20.9 in /workspace/langchain/.venv/lib/python3.9/site-packages (from huggingface-hub>=0.4.0->sentence-transformers>=2.2.2->chromadb) (23.1)
+    Requirement already satisfied: anyio<5,>=3.4.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from starlette<0.27.0,>=0.26.1->fastapi>=0.85.1->chromadb) (3.6.2)
+    Requirement already satisfied: nvidia-cuda-runtime-cu11==11.7.99 in /workspace/langchain/.venv/lib/python3.9/site-packages (from torch>=1.6.0->sentence-transformers>=2.2.2->chromadb) (11.7.99)
+    Requirement already satisfied: nvidia-cudnn-cu11==8.5.0.96 in /workspace/langchain/.venv/lib/python3.9/site-packages (from torch>=1.6.0->sentence-transformers>=2.2.2->chromadb) (8.5.0.96)
+    Requirement already satisfied: nvidia-cublas-cu11==11.10.3.66 in /workspace/langchain/.venv/lib/python3.9/site-packages (from torch>=1.6.0->sentence-transformers>=2.2.2->chromadb) (11.10.3.66)
+    Requirement already satisfied: nvidia-cuda-nvrtc-cu11==11.7.99 in /workspace/langchain/.venv/lib/python3.9/site-packages (from torch>=1.6.0->sentence-transformers>=2.2.2->chromadb) (11.7.99)
+    Requirement already satisfied: setuptools in /workspace/langchain/.venv/lib/python3.9/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch>=1.6.0->sentence-transformers>=2.2.2->chromadb) (67.7.1)
+    Requirement already satisfied: wheel in /workspace/langchain/.venv/lib/python3.9/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch>=1.6.0->sentence-transformers>=2.2.2->chromadb) (0.40.0)
+    Requirement already satisfied: regex!=2019.12.17 in /workspace/langchain/.venv/lib/python3.9/site-packages (from transformers<5.0.0,>=4.6.0->sentence-transformers>=2.2.2->chromadb) (2023.3.23)
+    Requirement already satisfied: tokenizers!=0.11.3,<0.14,>=0.11.1 in /workspace/langchain/.venv/lib/python3.9/site-packages (from transformers<5.0.0,>=4.6.0->sentence-transformers>=2.2.2->chromadb) (0.13.3)
+    Requirement already satisfied: joblib in /workspace/langchain/.venv/lib/python3.9/site-packages (from nltk->sentence-transformers>=2.2.2->chromadb) (1.2.0)
+    Requirement already satisfied: threadpoolctl>=2.0.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from scikit-learn->sentence-transformers>=2.2.2->chromadb) (3.1.0)
+    Requirement already satisfied: pillow!=8.3.*,>=5.3.0 in /workspace/langchain/.venv/lib/python3.9/site-packages (from torchvision->sentence-transformers>=2.2.2->chromadb) (9.5.0)
+    Requirement already satisfied: sniffio>=1.1 in /workspace/langchain/.venv/lib/python3.9/site-packages (from anyio<5,>=3.4.0->starlette<0.27.0,>=0.26.1->fastapi>=0.85.1->chromadb) (1.3.0)
+```
+```python
+from typing import Dict
+
+QUERY = "列出所有以'a'开头的客户名字"
+
+def _parse_example(result: Dict) -> Dict:
+    sql_cmd_key = "sql_cmd"
+    sql_result_key = "sql_result"
+    table_info_key = "table_info"
+    input_key = "input"
+    final_answer_key = "answer"
+
+    _example = {
+        "input": result.get("query"),
+    }
+
+    steps = result.get("intermediate_steps")
+    answer_key = sql_cmd_key  # 第一个
+    for step in steps:
+        # 步骤是成对出现的，一个是字典（输入），一个是字符串（输出）。
+        # 不幸的是，这里没有模式，但你可以查看字典的输入键来查看输出应该是什么
+        if isinstance(step, dict):
+            # 从中间步骤的输入字典中获取表信息
+            if table_info_key not in _example:
+                _example[table_info_key] = step.get(table_info_key)
+
+            if input_key in step:
+                if step[input_key].endswith("SQLQuery:"):
+                    answer_key = sql_cmd_key  # 这是 SQL 生成输入
+                if step[input_key].endswith("Answer:"):
+                    answer_key = final_answer_key  # 这是最终答案输入
+            elif sql_cmd_key in step:
+                _example[sql_cmd_key] = step[sql_cmd_key]
+                answer_key = sql_result_key  # 这是 SQL 执行输入
+        elif isinstance(step, str):
+            # 前面的元素应该设置了 answer_key
+            _example[answer_key] = step
+    return _example
+
+example: any
+try:
+    result = local_chain(QUERY)
+    print("*** 查询成功")
+    example = _parse_example(result)
+except Exception as exc:
+    print("*** 查询失败")
+    result = {
+        "query": QUERY,
+        "intermediate_steps": exc.intermediate_steps
+    }
+    example = _parse_example(result)
+
+
+# 现在先打印，实际上你可能想把这些写到一个 YAML 文件或数据库中，以便离线手动修复
+yaml_example = yaml.dump(example, allow_unicode=True)
+print("\n" + yaml_example)
+```
+```
+
+    > 进入新的 SQLDatabaseChain 链...
+    列出所有以 'a' 开头的客户名
+    SQL查询:
+
+    /workspace/langchain/.venv/lib/python3.9/site-packages/transformers/pipelines/base.py:1070: UserWarning: You seem to be using the pipelines sequentially on GPU. In order to maximize efficiency please use a dataset
+      warnings.warn(
+
+
+    SELECT firstname FROM customer WHERE firstname LIKE '%a%'
+    SQL结果: [('François',), ('František',), ('Helena',), ('Astrid',), ('Daan',), ('Kara',), ('Eduardo',), ('Alexandre',), ('Fernanda',), ('Mark',), ('Frank',), ('Jack',), ('Dan',), ('Kathy',), ('Heather',), ('Frank',), ('Richard',), ('Patrick',), ('Julia',), ('Edward',), ('Martha',), ('Aaron',), ('Madalena',), ('Hannah',), ('Niklas',), ('Camille',), ('Marc',), ('Wyatt',), ('Isabelle',), ('Ladislav',), ('Lucas',), ('Johannes',), ('Stanisław',), ('Joakim',), ('Emma',), ('Mark',), ('Manoj',), ('Puja',)]
+    答案:
+
+    /workspace/langchain/.venv/lib/python3.9/site-packages/transformers/pipelines/base.py:1070: UserWarning: You seem to be using the pipelines sequentially on GPU. In order to maximize efficiency please use a dataset
+      warnings.warn(
+
+
+    [('François', 'Frantiek', 'Helena', 'Astrid', 'Daan', 'Kara', 'Eduardo', 'Alexandre', 'Fernanda', 'Mark', 'Frank', 'Jack', 'Dan', 'Kathy', 'Heather', 'Frank', 'Richard', 'Patrick', 'Julia', 'Edward', 'Martha', 'Aaron', 'Madalena', 'Hannah', 'Niklas', 'Camille', 'Marc', 'Wyatt', 'Isabelle', 'Ladislav', 'Lucas', 'Johannes', 'Stanisaw', 'Joakim', 'Emma', 'Mark', 'Manoj', 'Puja']
+    > 链结束。
+    *** 查询成功
+
+    答案: '[(''François'', ''Frantiek'', ''Helena'', ''Astrid'', ''Daan'', ''Kara'',
+      ''Eduardo'', ''Alexandre'', ''Fernanda'', ''Mark'', ''Frank'', ''Jack'', ''Dan'',
+      ''Kathy'', ''Heather'', ''Frank'', ''Richard'', ''Patrick'', ''Julia'', ''Edward'',
+      ''Martha'', ''Aaron'', ''Madalena'', ''Hannah'', ''Niklas'', ''Camille'', ''Marc'',
+      ''Wyatt'', ''Isabelle'', ''Ladislav'', ''Lucas'', ''Johannes'', ''Stanisaw'', ''Joakim'',
+      ''Emma'', ''Mark'', ''Manoj'', ''Puja'']'
+    输入: 列出所有以 'a' 开头的客户名
+    SQL命令: SELECT firstname FROM customer WHERE firstname LIKE '%a%'
+    SQL结果: '[(''François'',), (''František'',), (''Helena'',), (''Astrid'',), (''Daan'',),
+      (''Kara'',), (''Eduardo'',), (''Alexandre'',), (''Fernanda'',), (''Mark'',), (''Frank'',),
+      (''Jack'',), (''Dan'',), (''Kathy'',), (''Heather'',), (''Frank'',), (''Richard'',),
+      (''Patrick'',), (''Julia'',), (''Edward'',), (''Martha'',), (''Aaron'',), (''Madalena'',),
+      (''Hannah'',), (''Niklas'',), (''Camille'',), (''Marc'',), (''Wyatt'',), (''Isabelle'',),
+      (''Ladislav'',), (''Lucas'',), (''Johannes'',), (''Stanisław'',), (''Joakim'',),
+      (''Emma'',), (''Mark'',), (''Manoj'',), (''Puja'',)]'
+    表信息: "\nCREATE TABLE \"Customer\" (\n\t\"CustomerId\" INTEGER NOT NULL, \n\t\
+      \"FirstName\" NVARCHAR(40) NOT NULL, \n\t\"LastName\" NVARCHAR(20) NOT NULL, \n\t\
+      \"Company\" NVARCHAR(80), \n\t\"Address\" NVARCHAR(70), \n\t\"City\" NVARCHAR(40),\
+      \ \n\t\"State\" NVARCHAR(40), \n\t\"Country\" NVARCHAR(40), \n\t\"PostalCode\" NVARCHAR(10),\
+      \ \n\t\"Phone\" NVARCHAR(24), \n\t\"Fax\" NVARCHAR(24), \n\t\"Email\" NVARCHAR(60)\
+      \ NOT NULL, \n\t\"SupportRepId\" INTEGER, \n\tPRIMARY KEY (\"CustomerId\"), \n\t\
+      FOREIGN KEY(\"SupportRepId\") REFERENCES \"Employee\" (\"EmployeeId\")\n)\n\n/*\n\
+      3 rows from Customer table:\nCustomerId\tFirstName\tLastName\tCompany\tAddress\t\
+      City\tState\tCountry\tPostalCode\tPhone\tFax\tEmail\tSupportRepId\n1\tLuís\tGonçalves\t\
+      Embraer - Empresa Brasileira de Aeronáutica S.A.\tAv. Brigadeiro Faria Lima, 2170\t\
+      São José dos Campos\tSP\tBrazil\t12227-000\t+55 (12) 3923-5555\t+55 (12) 3923-5566\t\
+      luisg@embraer.com.br\t3\n2\tLeonie\tKöhler\tNone\tTheodor-Heuss-Straße 34\tStuttgart\t\
+      None\tGermany\t70174\t+49 0711 2842222\tNone\tleonekohler@surfeu.de\t5\n3\tFrançois\t\
+      Tremblay\tNone\t1498 rue Bélanger\tMontréal\tQC\tCanada\tH2G 1A7\t+1 (514) 721-4711\t\
+      None\tftremblay@gmail.com\t3\n*/"
+
+```
+```python
+from langchain.prompts import FewShotPromptTemplate, PromptTemplate
+from langchain.chains.sql_database.prompt import _sqlite_prompt, PROMPT_SUFFIX
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain.prompts.example_selector.semantic_similarity import SemanticSimilarityExampleSelector
+from langchain_community.vectorstores import Chroma
+
+example_prompt = PromptTemplate(
+    input_variables=["table_info", "input", "sql_cmd", "sql_result", "answer"],
+    template="{table_info}\n\n问题: {input}\nSQL查询: {sql_cmd}\nSQL结果: {sql_result}\n答案: {answer}",
+)
+
+examples_dict = yaml.safe_load(YAML_EXAMPLES)
+
+local_embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+example_selector = SemanticSimilarityExampleSelector.from_examples(
+                        # This is the list of examples available to select from.
+                        examples_dict,
+                        # This is the embedding class used to produce embeddings which are used to measure semantic similarity.
+                        local_embeddings,
+                        # This is the VectorStore class that is used to store the embeddings and do a similarity search over.
+                        Chroma,  # type: ignore
+                        # This is the number of examples to produce and include per prompt
+                        k=min(3, len(examples_dict)),
+                    )
+
+few_shot_prompt = FewShotPromptTemplate(
+    example_selector=example_selector,
+    example_prompt=example_prompt,
+    prefix=_sqlite_prompt + "以下是一些例子：",
+    suffix=PROMPT_SUFFIX,
+    input_variables=["table_info", "input", "top_k"],
+)
+```
+<CodeOutputBlock lang="python">
+
+```
+    Using embedded DuckDB without persistence: data will be transient
+```
+
+</CodeOutputBlock>
+
+The model should do better now with this few-shot prompt, especially for inputs similar to the examples you have seeded it with.
+
+
+```python
+local_chain = SQLDatabaseChain.from_llm(local_llm, db, prompt=few_shot_prompt, use_query_checker=True, verbose=True, return_intermediate_steps=True)
+```
+
+
+```python
+result = local_chain("How many customers are from Brazil?")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+
+
+    > Entering new SQLDatabaseChain chain...
+    How many customers are from Brazil?
+    SQLQuery:SELECT count(*) FROM Customer WHERE Country = "Brazil";
+    SQLResult: [(5,)]
+    Answer:[5]
+    > Finished chain.
+```
+
+</CodeOutputBlock>
+
+
+```python
+result = local_chain("How many customers are not from Brazil?")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+
+
+    > Entering new SQLDatabaseChain chain...
+    How many customers are not from Brazil?
+    SQLQuery:SELECT count(*) FROM customer WHERE country NOT IN (SELECT country FROM customer WHERE country = 'Brazil')
+    SQLResult: [(54,)]
+    Answer:54 customers are not from Brazil.
+    > Finished chain.
+```
+
+</CodeOutputBlock>
+
+
+```python
+result = local_chain("How many customers are there in total?")
+```
+
+<CodeOutputBlock lang="python">
+
+```
+
+
+    > Entering new SQLDatabaseChain chain...
+    How many customers are there in total?
+    SQLQuery:SELECT count(*) FROM Customer;
+    SQLResult: [(59,)]
+    Answer:There are 59 customers in total.
+    > Finished chain.
+```
+
+</CodeOutputBlock>

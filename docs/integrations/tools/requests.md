@@ -1,0 +1,57 @@
+# 请求
+网络中包含大量LLMs无法访问的信息。为了让LLMs能够轻松地与这些信息进行交互，我们提供了一个围绕Python Requests模块的包装器，它接收一个URL并从该URL获取数据。
+```python
+from langchain.agents import load_tools
+requests_tools = load_tools(["requests_all"])
+```
+```python
+requests_tools
+```
+```output
+[RequestsGetTool(name='requests_get', description='一个通往互联网的门户。当您需要从网站获取特定内容时，请使用此工具。输入应为URL（例如https://www.google.com）。输出将是GET请求的文本响应。', args_schema=None, return_direct=False, verbose=False, callbacks=None, callback_manager=None, requests_wrapper=TextRequestsWrapper(headers=None, aiosession=None)),
+ RequestsPostTool(name='requests_post', description='当您想要向网站进行POST请求时，请使用此工具。\n    输入应为带有两个键的json字符串："url"和"data"。\n    "url"的值应为字符串，"data"的值应为您想要POST到URL的键值对字典。\n    请务必始终在json字符串中使用双引号括起字符串\n    输出将是POST请求的文本响应。\n    ', args_schema=None, return_direct=False, verbose=False, callbacks=None, callback_manager=None, requests_wrapper=TextRequestsWrapper(headers=None, aiosession=None)),
+ RequestsPatchTool(name='requests_patch', description='当您想要向网站进行PATCH请求时，请使用此工具。\n    输入应为带有两个键的json字符串："url"和"data"。\n    "url"的值应为字符串，"data"的值应为您想要PATCH到URL的键值对字典。\n    请务必始终在json字符串中使用双引号括起字符串\n    输出将是PATCH请求的文本响应。\n    ', args_schema=None, return_direct=False, verbose=False, callbacks=None, callback_manager=None, requests_wrapper=TextRequestsWrapper(headers=None, aiosession=None)),
+ RequestsPutTool(name='requests_put', description='当您想要向网站进行PUT请求时，请使用此工具。\n    输入应为带有两个键的json字符串："url"和"data"。\n    "url"的值应为字符串，"data"的值应为您想要PUT到URL的键值对字典。\n    请务必始终在json字符串中使用双引号括起字符串。\n    输出将是PUT请求的文本响应。\n    ', args_schema=None, return_direct=False, verbose=False, callbacks=None, callback_manager=None, requests_wrapper=TextRequestsWrapper(headers=None, aiosession=None)),
+ RequestsDeleteTool(name='requests_delete', description='一个通往互联网的门户。当您需要向URL发出DELETE请求时，请使用此工具。输入应为特定URL，输出将是DELETE请求的文本响应。', args_schema=None, return_direct=False, verbose=False, callbacks=None, callback_manager=None, requests_wrapper=TextRequestsWrapper(headers=None, aiosession=None)]
+```
+### 工具内部
+每个请求工具都包含一个`requests`包装器。您可以直接使用这些包装器。
+```python
+# 每个工具都包装一个requests包装器
+requests_tools[0].requests_wrapper
+```
+```output
+TextRequestsWrapper(headers=None, aiosession=None)
+```
+```python
+from langchain_community.utilities import TextRequestsWrapper
+requests = TextRequestsWrapper()
+```
+```python
+requests.get("https://www.google.com")
+```
+```output
+'<!doctype html><html itemscope="" itemtype="http://schema.org/WebPage" lang="en"><head><meta content="Search the world\'s information, including webpages, images, videos and more. Google has many special features to help you find exactly what you\'re looking for." name="description"><meta content="noodp" name="robots"><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"><meta content="/images/branding/googleg/1x/googleg_standard_color_128dp.png" itemprop="image"><title>Google</title><script nonce="MXrF0nnIBPkxBza4okrgPA">(function(){window.google={kEI:\'TA9QZOa5EdTakPIPuIad-Ac\',kEXPI:\'0,1359409,6059,206,4804,2316,383,246,5,1129120,1197768,626,380097,16111,28687,22431,1361,12319,17581,4997,13228,37471,7692,2891,3926,213,7615,606,50058,8228,17728,432,3,346,1244,1,16920,2648,4,1528,2304,29062,9871,3194,13658,2980,1457,16786,5803,2554,4094,7596,1,42154,2,14022,2373,342,23024,6699,31123,4568,6258,23418,1252,5835,14967,4333,4239,3245,445,2,2,1,26632,239,7916,7321,60,2,3,15965,872,7830,1796,10008,7,1922,9779,36154,6305,2007,17765,427,20136,14,82,2730,184,13600,3692,109,2412,1548,4308,3785,15175,3888,1515,3030,5628,478,4,9706,1804,7734,2738,1853,1032,9480,2995,576,1041,5648,3722,2058,3048,2130,2365,662,476,958,87,111,5807,2,975,1167,891,3580,1439,1128,7343,426,249,517,95,1102,14,696,1270,750,400,2208,274,2776,164,89,119,204,139,129,1710,2505,320,3,631,439,2,300,1645,172,1783,784,169,642,329,401,50,479,614,238,757,535,717,102,2,739,738,44,232,22,442,961,45,214,383,567,500,487,151,120,256,253,179,673,2,102,2,10,535,123,135,1685,5206695,190,2,20,50,198,5994221,2804424,3311,141,795,19735,1,1,346,5008,7,13,10,24,31,2,39,1,5,1,16,7,2,41,247,4,9,7,9,15,4,4,121,24,23944834,4042142,1964,16672,2894,6250,15739,1726,647,409,837,1411438,146986,23612960,7,84,93,33,101,816,57,532,163,1,441,86,1,951,73,31,2,345,178,243,472,2,148,962,455,167,178,29,702,1856,288,292,805,93,137,68,416,177,292,399,55,95,2566\',kBL:\'hw1A\',kOPI:89978449};google.sn=\'webhp\';google.kHL=\'en\';})();(function(){\nvar h=this||self;function l(){return void 0!==window.google&&void 0!==window.google.kOPI&&0!==window.google.kOPI?window.google.kOPI:null};var m,n=[];function p(a){for(var b;a&&(!a.getAttribute||!(b=a.getAttribute("eid")));)a=a.parentNode;return b||m}function q(a){for(var b=null;a&&(!a.getAttribute||!(b=a.getAttribute("leid")));)a=a.parentNode;return b}function r(a){/^http:/i.test(a)&&"https:"===window.location.protocol&&(google.ml&&google.ml(Error("a"),!1,{src:a,glmm:1}),a="");return a}\nfunction t(a,b,c,d,k){var e="";-1===b.search("&ei=")&&(e="&ei="+p(d),-1===b.search("&lei=")&&(d=q(d))&&(e+="&lei="+d));d="";var g=-1===b.search("&cshid=")&&"slh"!==a,f=[];f.push(["zx",Date.now().toString()]);h._cshid&&g&&f.push(["cshid",h._cshid]);c=c();null!=c&&f.push(["opi",c.toString()]);for(c=0;c<f.length;c++){if(0===c||0<c)d+="&";d+=f[c][0]+"="+f[c][1]}return"/"+(k||"gen_204")+"?atyp=i&ct="+String(a)+"&cad="+(b+e+d)};m=google.kEI;google.getEI=p;google.getLEI=q;google.ml=function(){return null};google.log=function(a,b,c,d,k,e){e=void 0===e?l:e;c||(c=t(a,b,e,d,k));if(c=r(c)){a=new Image;var g=n.length;n[g]=a;a.onerror=a.onload=a.onabort=function(){delete n[g]};a.src=c}};google.logUrl=function(a,b){b=void 0===b?l:b;return t("",a,b)};}).call(this);(function(){google.y={};google.sy=[];google.x=function(a,b){if(a)var c=a.id;else{do c=Math.random();while(google.y[c])}google.y[c]=[a,b];return!1};google.sx=function(a){google.sy.push(a)};google.lm=[];google.plm=function(a){google.lm.push.apply(google.lm,a)};google.lq=[];google.load=function(a,b,c){google.lq.push([[a],b,c])};google.loadAll=function(a,b){google.lq.push([a,b])};google.bx=!1;google.lx=function(){};}).call(this);google.f={};(function(){\ndocument.documentElement.addEventListener("submit",function(b){var a;if(a=b.target){var c=a.getAttribute("data-submitfalse");a="1"===c||"q"===c&&!a.elements.q.value?!0:!1}else a=!1;a&&(b.preventDefault(),b.stopPropagation())},!0);document.documentElement.addEventListener("click",function(b){var a;a:{for(a=b.target;a&&a!==document.documentElement;a=a.parentElement)if("A"===a.tagName){a="1"===a.getAttribute("data-nohref");break a}a=!1}a&&b.preventDefault()},!0);}).call(this);document.documentElement.addEventListener("click",function(b){var a;a:{for(a=b.target;a&&a!==document.documentElement;a=a.parentElement)if("A"===a.tagName){a="1"===a.getAttribute("data-nohref");break a}a=!1}a&&b.preventDefault()},!0);</script><style>#gbar,#guser{font-size:13px;padding-top:1px !important;}#gbar{height:22px}#guser{padding-bottom:7px !important;text-align:right}.gbh,.gbd{border-top:1px solid #c9d7f1;font-size:1px}.gbh{height:0;position:absolute;top:24px;width:100%}@media all{.gb1{height:22px;margin-right:.5em;vertical-align:top}#gbar{float:left}}a.gb1,a.gb4{text-decoration:underline !important}a.gb1,a.gb4{color:#00c !important}.gbi .gb4{color:#dd8e27 !important}.gbf .gb4{color:#900 !important}\n</style><style>body,td,a,p,.h{font-family:arial,sans-serif}body{margin:0;overflow-y:scroll}#gog{padding:3px 8px 0}td{line-height:.8em}.gac_m td{line-height:17px}form{margin-bottom:20px}.h{color:#1558d6}em{font-weight:bold;font-style:normal}.lst{height:25px;width:496px}.gsfi,.lst{font:18px arial,sans-serif}.gsfs{font:17px arial,sans-serif}.ds{display:inline-box;display:inline-block;margin:3px 0 4px;margin-left:4px}input{font-family:inherit}body{background:#fff;color:#000}a{color:#4b11a8;text-decoration:none}a:hover,a:active{text-decoration:underline}.fl a{color:#1558d6}a:visited{color:#4b11a8}.sblc{padding-top:5px}.sblc a{display:block;margin:2px 0;margin-left:13px;font-size:11px}.lsbb{background:#f8f9fa;border:solid 1px;border-color:#dadce0 #70757a #70757a #dadce0;height:30px}.lsbb{display:block}#WqQANb a{display:inline-block;margin:0 12px}.lsb{background:url(/images/nav_logo229.png) 0 -261px repeat-x;border:none;color:#000;cursor:pointer;height:30px;margin:0;outline:0;font:15px arial,sans-serif;vertical-align:top}.lsb:active{background:#dadce0}.lst:focus{outline:none}</style><script nonce="MXrF0nnIBPkxBza4okrgPA">(function(){window.google.erd={jsr:1,bv:1785,de:true};\nvar h=this||self;var k,l=null!=(k=h.mei)?k:1,n,p=null!=(n=h.sdo)?n:!0,q:0,r,t=google.erd,v:t.jsr;google.ml=function(a,b,d,m,e){e=void 0===e?2:e;b&&(r=a&&a.message);if(google.dl)return google.dl(a,e,d),null;if(0>v){window.console&&console.error(a,d);if(-2===v)throw a;b=!1}else b=!a||!a.message||"Error loading script"===a.message||q>=l&&!m?!1:!0;if(!b)return null;q++;d=d||{};b=encodeURIComponent;var c="/gen_204?atyp=i&ei="+b(google.kEI);google.kEXPI&&(c+="&jexpid="+b(google.kEXPI));c+="&srcpg="+b(google.sn)+"&jsr="+b(t.jsr)+"&bver="+b(t.bv);var f=a.lineNumber;void 0!==f&&(c+="&line="+f);var g=\na.fileName;g&&(0<g.indexOf("-extension:/")&&(e=3),c+="&script="+b(g),f&&g===window.location.href&&(f=document.documentElement.outerHTML.split("\\n")[f],c+="&cad="+b(f?f.substring(0,300):"No script found.")));c+="&jsel="+e;for(var u in d)c+="&",c+=b(u),c+="=",c+=b(d[u]);c=c+"&emsg="+b(a.name+": "+a.message);c=c+"&jsst="+b(a.stack||"N/A");12288<=c.length&&(c=c.substr(0,12288));a=c;m||google.log(0,"",a);return a};window.onerror=function(a,b,d,m,e){r!==a&&(a=e instanceof Error?e:Error(a),void 0===d||"lineNumber"in a||(a.lineNumber=d),void 0===b||"fileName"in a||(a.fileName=b),google.ml(a,!1,void 0,!1,"SyntaxError"===a.name||"SyntaxError"===a.message.substring(0,11)||-1!==a.message.indexOf("Script error")?3:0));r=null;p&&q>=l&&(window.onerror=null)};})();</script></head><body bgcolor="#fff"><script nonce="MXrF0nnIBPkxBza4okrgPA">(function(){var src=\'/images/nav_logo229.png\';var iesg=false;document.body.onload = function(){window.n && window.n();if (document.images){new Image().src=src;}\nif (!iesg){document.f&&document.f.q.focus();document.gbqf&&document.gbqf.q.focus();}\n}\n})();</script><div id="mngb"><div id=gbar><nobr><b class=gb1>Search</b> <a class=gb1 href="https://www.google.com/imghp?hl=en&tab=wi">Images</a> <a class=gb1 href="https://maps.google.com/maps?hl=en&tab=wl">Maps</a> <a class=gb1 href="https://play.google.com/?hl=en&tab=w8">Play</a> <a class=gb1 href="https://www.youtube.com/?tab=w1">YouTube</a> <a class=gb1 href="https://news.google.com/?tab=wn">News</a> <a class=gb1 href="https://mail.google.com/mail/?tab=wm">Gmail</a> <a class=gb1 href="https://drive.google.com/?tab=wo">Drive</a> <a class=gb1 style="text-decoration:none" href="https://www.google.com/intl/en/about/products?tab=wh"><u>More</u> &raquo;</a></
+```python
+如果您需要将输出从 JSON 解码，可以使用 ``JsonRequestsWrapper``。
+```python
+from langchain_community.utilities.requests import JsonRequestsWrapper
+requests = JsonRequestsWrapper()
+rval = requests.get("https://api.agify.io/?name=jackson")
+print(
+    f"""
+Type - {type(rval)}
+Content: 
+```
+{rval}
+```
+"""
+)
+```
+```output
+Type - <class 'dict'>
+Content: 
+```
+{'count': 5707, 'name': 'jackson', 'age': 38}
+```
+```

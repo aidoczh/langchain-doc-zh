@@ -1,0 +1,31 @@
+# Airbyte
+
+[Airbyte](https://github.com/airbytehq/airbyte) 是一个用于从 API、数据库和文件到数据仓库和数据湖的 ELT 管道的数据集成平台。它拥有最大的 ELT 连接器目录，可连接到数据仓库和数据库。
+
+## 安装和设置
+
+```bash
+pip install -U langchain-airbyte
+```
+
+:::note
+
+目前，`langchain-airbyte` 库不支持 Pydantic v2。
+
+请降级到 Pydantic v1 以使用此软件包。
+
+此软件包目前还需要 Python 3.10+。
+
+:::
+
+集成包不需要设置任何全局环境变量，但某些集成（例如 `source-github`）可能需要传递凭据。
+
+## 文档加载器
+
+### AirbyteLoader
+
+查看[使用示例](/docs/integrations/document_loaders/airbyte)。
+
+```python
+from langchain_airbyte import AirbyteLoader
+```

@@ -1,0 +1,42 @@
+# DataForSEO
+
+[DataForSeo](https://dataforseo.com/) 通过 API 提供全面的 SEO 和数字营销数据解决方案。
+
+本页面提供了如何在 LangChain 中使用 DataForSEO 搜索 API 的说明。
+
+## 安装和设置
+
+获取 [DataForSEO API 访问登录和密码](https://app.dataforseo.com/register)，并将它们设置为环境变量 (`DATAFORSEO_LOGIN` 和 `DATAFORSEO_PASSWORD` 分别)。
+
+```python
+import os
+os.environ["DATAFORSEO_LOGIN"] = "your_login"
+os.environ["DATAFORSEO_PASSWORD"] = "your_password"
+```
+
+## 实用工具
+
+DataForSEO 实用工具封装了 API。要导入此实用工具，请使用：
+
+```python
+from langchain_community.utilities.dataforseo_api_search import DataForSeoAPIWrapper
+```
+
+有关此封装的详细步骤，请参阅[此笔记本](/docs/integrations/tools/dataforseo)。
+
+## 工具
+
+您还可以将此封装加载为一个工具，以便与代理一起使用：
+
+```python
+from langchain.agents import load_tools
+tools = load_tools(["dataforseo-api-search"])
+```
+
+## 示例用法
+
+```python
+dataforseo = DataForSeoAPIWrapper(api_login="your_login", api_password="your_password")
+result = dataforseo.run("Bill Gates")
+print(result)
+```

@@ -1,0 +1,84 @@
+# Jaguar
+
+本页面介绍了如何在 LangChain 中使用 Jaguar 向量数据库。
+
+它包含三个部分：介绍、安装和设置以及 Jaguar API。
+
+## 介绍
+
+Jaguar 向量数据库具有以下特点：
+
+1. 它是一个分布式向量数据库
+
+2. JaguarDB 的 “ZeroMove” 功能实现了即时的水平扩展性
+
+3. 多模态：嵌入、文本、图像、视频、PDF、音频、时间序列和地理空间
+
+4. 全主节点：允许并行读写
+
+5. 异常检测能力
+
+6. RAG 支持：将 LLM 与专有和实时数据结合使用
+
+7. 共享元数据：在多个向量索引之间共享元数据
+
+8. 距离度量：欧氏距离、余弦距离、内积、曼哈顿距离、切比雪夫距离、汉明距离、杰卡德距离、闵可夫斯基距离
+
+[Jaguar 可扩展向量数据库概述](http://www.jaguardb.com)
+
+您可以在 Docker 容器中运行 JaguarDB；或者下载软件并在云端或离线运行。
+
+## 安装和设置
+
+- 在一个主机或多个主机上安装 JaguarDB
+
+- 在一个主机上安装 Jaguar HTTP 网关服务器
+
+- 安装 JaguarDB HTTP 客户端包
+
+这些步骤在[Jaguar 文档](http://www.jaguardb.com/support.html)中有描述。
+
+客户端程序中的环境变量：
+
+```shell
+export OPENAI_API_KEY="......"
+export JAGUAR_API_KEY="......"
+```
+
+  
+
+## Jaguar API
+
+与 LangChain 一起，通过在 Python 中导入 Jaguar 客户端类提供了以下方式：
+
+```python
+from langchain_community.vectorstores.jaguar import Jaguar
+```
+
+Jaguar 类支持的 API 函数包括：
+
+- `add_texts`
+
+- `add_documents`
+
+- `from_texts`
+
+- `from_documents`
+
+- `similarity_search`
+
+- `is_anomalous`
+
+- `create`
+
+- `delete`
+
+- `clear`
+
+- `drop`
+
+- `login`
+
+- `logout`
+
+有关 Jaguar API 的更多详细信息，请参阅[此笔记本](/docs/integrations/vectorstores/jaguar)。

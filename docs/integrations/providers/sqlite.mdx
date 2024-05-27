@@ -1,0 +1,27 @@
+# SQLite
+
+[SQLite](https://en.wikipedia.org/wiki/SQLite) 是用 C 语言编写的数据库引擎。它不是一个独立的应用程序，而是一个软件开发人员嵌入其应用程序中的库。因此，它属于嵌入式数据库家族。作为最广泛部署的数据库引擎，它被多个顶级网络浏览器、操作系统、手机和其他嵌入式系统使用。
+
+## 安装和设置
+
+我们需要安装 `SQLAlchemy` Python 包。
+
+```bash
+pip install SQLAlchemy
+```
+
+## 向量存储
+
+查看[使用示例](/docs/integrations/vectorstores/sqlitevss)。
+
+```python
+from langchain_community.vectorstores import SQLiteVSS
+```
+
+## 内存
+
+查看[使用示例](/docs/integrations/memory/sqlite)。
+
+```python
+from langchain_community.chat_message_histories import SQLChatMessageHistory
+```

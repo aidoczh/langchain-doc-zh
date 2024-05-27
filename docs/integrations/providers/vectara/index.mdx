@@ -1,0 +1,115 @@
+# Vectara
+
+[Vectara](https://vectara.com/) 是开发者信赖的 GenAI 平台。它提供了一个简单的 API，用于构建语义搜索或 RAG（检索增强生成）的 GenAI 应用程序。
+
+**Vectara 概述：**
+
+- `Vectara` 是面向开发者的 API 平台，用于构建可信赖的 GenAI 应用程序。
+
+- 要使用 Vectara，请先[注册](https://vectara.com/integrations/langchain)并创建一个账户。然后创建一个语料库和一个用于索引和搜索的 API 密钥。
+
+- 您可以使用 Vectara 的[索引 API](https://docs.vectara.com/docs/indexing-apis/indexing)将文档添加到 Vectara 的索引中。
+
+- 您可以使用 Vectara 的[搜索 API](https://docs.vectara.com/docs/search-apis/search)查询 Vectara 的索引（还支持隐式的混合搜索）。
+
+## 安装和设置
+
+使用 LangChain 的 `Vectara` 不需要特殊的安装步骤。
+
+要开始使用，请[注册](https://vectara.com/integrations/langchain)并按照我们的[快速入门](https://docs.vectara.com/docs/quickstart)指南创建一个语料库和一个 API 密钥。
+
+一旦您拥有了这些，您可以将它们作为参数提供给 Vectara 的 vectorstore，或者将它们设置为环境变量。
+
+- export `VECTARA_CUSTOMER_ID`="your_customer_id"
+
+- export `VECTARA_CORPUS_ID`="your_corpus_id"
+
+- export `VECTARA_API_KEY`="your-vectara-api-key"
+
+## Vectara 作为向量存储
+
+存在一个围绕 Vectara 平台的包装器，允许您将其用作向量存储，无论是用于语义搜索还是示例选择。
+
+要导入此向量存储：
+
+```python
+from langchain_community.vectorstores import Vectara
+```
+
+要创建 Vectara 向量存储的实例：
+
+```python
+vectara = Vectara(
+    vectara_customer_id=customer_id, 
+    vectara_corpus_id=corpus_id, 
+    vectara_api_key=api_key
+)
+```
+
+customer_id、corpus_id 和 api_key 是可选的，如果未提供将从环境变量 `VECTARA_CUSTOMER_ID`、`VECTARA_CORPUS_ID` 和 `VECTARA_API_KEY` 中读取。
+
+在获得向量存储之后，您可以按照标准的 `VectorStore` 接口使用 `add_texts` 或 `add_documents`，例如：
+
+```python
+vectara.add_texts(["to be or not to be", "that is the question"])
+```
+
+由于 Vectara 支持文件上传，我们还添加了直接上传文件（PDF、TXT、HTML、PPT、DOC 等）的功能。使用此方法时，文件将直接上传到 Vectara 后端，在那里进行处理和最佳分块，因此您不必使用 LangChain 的文档加载器或分块机制。
+
+例如：
+
+```python
+vectara.add_files(["path/to/file1.pdf", "path/to/file2.pdf",...])
+```
+
+要查询向量存储，您可以使用 `similarity_search` 方法（或 `similarity_search_with_score`），它接受一个查询字符串并返回一个结果列表：
+
+```python
+results = vectara.similarity_score("what is LangChain?")
+```
+
+结果以相关文档的列表和每个文档的相关性分数返回。
+
+在这种情况下，我们使用了默认的检索参数，但您还可以在 `similarity_search` 或 `similarity_search_with_score` 中指定以下附加参数：
+
+- `k`：要返回的结果数量（默认为 5）
+
+- `lambda_val`：混合搜索的[词汇匹配](https://docs.vectara.com/docs/api-reference/search-apis/lexical-matching)因子（默认为 0.025）
+
+- `filter`：要应用于结果的[过滤器](https://docs.vectara.com/docs/common-use-cases/filtering-by-metadata/filter-overview)（默认为 None）
+
+- `n_sentence_context`：返回结果时包括实际匹配段前/后的句子数量。默认为 2。
+
+- `mmr_config`：可用于在查询中指定 MMR 模式。
+
+   - `is_enabled`：True 或 False
+
+   - `mmr_k`：用于 MMR 重新排序的结果数量
+
+   - `diversity_bias`：0 = 无多样性，1 = 完全多样性。这是 MMR 公式中的 lambda 参数，取值范围为 0...1
+
+## Vectara 用于检索增强生成（RAG）
+
+Vectara 提供了完整的 RAG 流程，包括生成式摘要。
+
+要使用此流程，您可以在 `similarity_search` 或 `similarity_search_with_score` 中指定 `summary_config` 参数，如下所示：
+
+- `summary_config`：可用于在 RAG 中请求 LLM 摘要
+
+   - `is_enabled`：True 或 False
+
+   - `max_results`：用于摘要生成的结果数量
+
+   - `response_lang`：响应摘要的语言，使用 ISO 639-2 格式（例如 'en'、'fr'、'de' 等）
+
+## 示例笔记本
+
+有关使用 Vectara 的更详细示例，请参阅以下示例：
+
+* [此笔记本](/docs/integrations/vectorstores/vectara)演示了如何将 Vectara 用作语义搜索的向量存储
+
+* [此笔记本](/docs/integrations/providers/vectara/vectara_chat)演示了如何使用 Langchain 和 Vectara 构建聊天机器人
+
+* [此笔记本](/docs/integrations/providers/vectara/vectara_summary)演示了如何使用完整的 Vectara RAG 流程，包括生成式摘要
+
+* [这个笔记本](/docs/integrations/retrievers/self_query/vectara_self_query) 展示了使用 Vectara 进行自查询的能力。

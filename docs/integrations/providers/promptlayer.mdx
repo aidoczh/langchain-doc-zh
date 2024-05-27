@@ -1,0 +1,44 @@
+# PromptLayer
+
+[PromptLayer](https://docs.promptlayer.com/introduction) 是一个用于提示工程的平台。它还有助于LLM的可观察性，可以可视化请求、版本提示和跟踪使用情况。
+
+虽然 `PromptLayer` 确实有与 LangChain 直接集成的LLM（例如 [`PromptLayerOpenAI`](https://docs.promptlayer.com/languages/langchain)），但使用回调是将 `PromptLayer` 与 LangChain 集成的推荐方式。
+
+## 安装和设置
+
+要使用 `PromptLayer`，我们需要：
+
+- 创建一个 `PromptLayer` 账户
+
+- 创建一个API令牌并将其设置为环境变量（`PROMPTLAYER_API_KEY`）
+
+安装Python包：
+
+```bash
+pip install promptlayer
+```
+
+## 回调
+
+查看[使用示例](/docs/integrations/callbacks/promptlayer)。
+
+```python
+import promptlayer  # 不要忘记这个导入！
+from langchain.callbacks import PromptLayerCallbackHandler
+```
+
+## LLM
+
+查看[使用示例](/docs/integrations/llms/promptlayer_openai)。
+
+```python
+from langchain_community.llms import PromptLayerOpenAI
+```
+
+## 聊天模型
+
+查看[使用示例](/docs/integrations/chat/promptlayer_chatopenai)。
+
+```python
+from langchain_community.chat_models import PromptLayerChatOpenAI
+```

@@ -1,0 +1,114 @@
+# LangChain的发展历程
+
+## LangChain有哪些新功能？
+
+在0.1.x版本的开发过程中，添加了以下功能：
+
+- 通过[事件流API](https://python.langchain.com/docs/expression_language/streaming/#using-stream-events)提供更好的流媒体支持。
+
+- [标准化的工具调用支持](https://blog.langchain.dev/tool-calling-with-langchain/)
+
+- 用于[结构化输出的标准化接口](https://github.com/langchain-ai/langchain/discussions/18154)
+
+- [@chain装饰器](https://python.langchain.com/docs/expression_language/how_to/decorator/)，更容易创建**RunnableLambdas**
+
+- https://python.langchain.com/docs/expression_language/how_to/inspect/
+
+- 在Python中，对许多核心抽象提供更好的异步支持（感谢[@cbornet](https://github.com/cbornet)!!）
+
+- 在`AIMessage`中包含响应元数据，以便轻松访问底层模型的原始输出
+
+- 可视化工具，用于查看[你的可运行对象](https://python.langchain.com/docs/expression_language/how_to/inspect/)或[你的langgraph应用](https://github.com/langchain-ai/langgraph/blob/main/examples/visualization.ipynb)
+
+- 大多数提供商之间的聊天消息历史互操作性
+
+- 为流行的集成提供了[20多个合作伙伴包](https://python.langchain.com/docs/integrations/platforms/)的Python支持
+
+## LangChain即将推出哪些功能？
+
+- 我们一直在努力开发[langgraph](https://langchain-ai.github.io/langgraph/)。我们将在其基础上构建更多功能，并致力于使其成为代理架构的首选框架。
+
+- Vectorstores V2！我们将重新审视我们的向量存储抽象，以提高可用性和可靠性。
+
+- 更好的文档和版本化文档！
+
+- 我们计划在7月至9月之间发布一个重大版本（0.3.0），以[升级到完全支持Pydantic 2](https://github.com/langchain-ai/langchain/discussions/19339)，并停止支持Pydantic 1（包括源自Pydantic 2的`v1`命名空间的对象）。
+
+## 有什么变化？
+
+由于领域的快速发展，LangChain也在快速演变。
+
+本文档旨在概述高层次上发生了什么变化以及为什么发生了变化。
+
+### 简要总结
+
+**截至0.2.0版本：**
+
+- 该版本完成了我们在0.1.0版本中开始的工作，将`langchain`对`langchain-community`的依赖关系移除。
+
+- `langchain`包不再需要`langchain-community`。相反，`langchain-community`现在将依赖于`langchain-core`和`langchain`。
+
+- 仍依赖于`langchain`中已弃用导入的用户代码将在0.4.x版本中开始引发错误，只要安装了`langchain_community`，这些导入将继续工作。
+
+**截至0.1.0版本：**
+
+- `langchain`被拆分为以下组件包：`langchain-core`、`langchain`、`langchain-community`、`langchain-[partner]`，以提高在生产环境中使用langchain代码的可用性。您可以在我们的[博客](https://blog.langchain.dev/langchain-v0-1-0/)上了解更多信息。
+
+### 生态系统组织
+
+到0.1.0版本的发布时，LangChain已经发展成一个庞大的生态系统，拥有许多集成和庞大的社区。
+
+为了提高LangChain在生产环境中的可用性，我们将单一的`langchain`包拆分为多个包。这使我们能够为LangChain生态系统创建一个良好的基础架构，并提高`langchain`在生产环境中的可用性。
+
+以下是生态系统的高层次分解：
+
+- **langchain-core**：包含涉及LangChain可运行对象、可观察性工具和重要抽象的基本实现（例如，聊天模型）。
+
+- **langchain**：包含使用`langchain-core`中定义的接口构建的通用代码。该包适用于在不同实现的特定接口之间具有良好泛化性的代码。例如，`create_tool_calling_agent`适用于支持[工具调用功能](https://blog.langchain.dev/tool-calling-with-langchain/)的聊天模型。
+
+- **langchain-community**：由社区维护的第三方集成。包含基于**langchain-core**中定义的接口的集成。由LangChain社区维护。
+
+- **合作伙伴包（例如，langchain-[partner]）**：合作伙伴包是专门用于特别流行的集成的包（例如，`langchain-openai`、`langchain-anthropic`等）。这些专用包通常具有更好的可靠性和支持。
+
+- `langgraph`：通过将步骤建模为图中的边缘和节点，使用LLMs构建强大且有状态的多角色应用程序。
+
+- `langserve`：将LangChain链部署为REST API。
+
+在0.1.0版本中，保留了`langchain-community`作为`langchain`的依赖项。
+
+这使得可以通过`langchain`继续导入向量存储、聊天模型和其他集成。
+
+与其强制用户更新所有导入到 `langchain-community` 的内容，我们决定在 0.2.0 版本中移除 `langchain` 对 `langchain-community` 的依赖。自 0.1 版本发布以来，我们一直在计划这样做，因为我们认为这是正确的软件包架构。
+
+旧的导入将在安装了 `langchain-community` 的情况下继续工作。这些导入将在 0.4.0 版本中被移除。
+
+要理解为什么我们认为断开 `langchain` 对 `langchain-community` 的依赖是最好的，我们应该了解每个软件包的用途。
+
+`langchain` 旨在包含高级链和代理架构。这些逻辑应该在像 `ChatModel` 和 `Retriever` 这样的抽象级别上指定，并且不应特定于任何一个集成。这有两个主要好处：
+
+1. `langchain` 相当轻量级。以下是拆分后所需的全部依赖项列表：
+
+    ```toml
+    python = ">=3.8.1,<4.0"
+    langchain-core = "^0.2.0"
+    langchain-text-splitters = ">=0.0.1,<0.1"
+    langsmith = "^0.1.17"
+    pydantic = ">=1,<3"
+    SQLAlchemy = ">=1.4,<3"
+    requests = "^2"
+    PyYAML = ">=5.3"
+    numpy = "^1"
+    aiohttp = "^3.8.3"
+    tenacity = "^8.1.0"
+    jsonpatch = "^1.33"
+    ```
+
+2. `langchain` 的链/代理在很大程度上与集成无关，这使得尝试不同的集成变得容易，并且在某个特定集成出现问题时，使您的代码具有未来的潜力。
+
+还有第三个不太明显的好处，即与集成无关会迫使我们只找到那些非常通用的抽象和架构，这些抽象和架构在各种集成中都能很好地泛化。鉴于基础技术的通用能力以及这个领域的快速发展，拥有通用架构是未来保护您的应用程序的好方法。
+
+`langchain-community` 旨在拥有所有特定于集成的组件，这些组件尚未在单独的 `langchain-{partner}` 软件包中进行维护。目前，这仍然是大多数集成和大量代码。这些代码主要由社区贡献，而 `langchain` 主要由核心维护人员编写。所有这些集成都使用可选依赖项和条件导入，这可以防止依赖膨胀和冲突，但意味着兼容的依赖版本并未明确指定。考虑到 `langchain-community` 中的集成数量以及集成变化的速度，很难遵循语义版本控制，而我们目前并没有这样做。
+
+总之，`langchain` 依赖于 `langchain-community` 并没有太大的好处，但有一些明显的缺点：`langchain` 中的功能本来就应该与集成无关，`langchain-community` 无法得到适当的版本控制，并且依赖于 `langchain-community` 会增加 `langchain` 的[漏洞面](https://github.com/langchain-ai/langchain/discussions/19083)。
+
+有关组织原因的更多背景信息，请参阅我们的博客：[https://blog.langchain.dev/langchain-v0-1-0/](https://blog.langchain.dev/langchain-v0-1-0/)

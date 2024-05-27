@@ -1,0 +1,19 @@
+# Jina
+
+本页面介绍了如何在 LangChain 中使用 Jina 嵌入。内容分为两部分：安装和设置，以及特定 Jina 封装的参考资料。
+
+## 安装和设置
+
+- 从[这里](https://jina.ai/embeddings/)获取 Jina AI API 令牌，并将其设置为环境变量 (`JINA_API_TOKEN`)
+
+存在一个 Jina 嵌入封装，您可以通过以下方式访问：
+
+```python
+from langchain_community.embeddings import JinaEmbeddings
+# 如果未传递 jina_api_key，则会从 `JINA_API_TOKEN` 环境变量中获取
+embeddings = JinaEmbeddings(jina_api_key='jina_**', model_name='jina-embeddings-v2-base-en')
+```
+
+您可以从[这里](https://jina.ai/embeddings/)检查可用模型的列表。
+
+有关更详细的操作说明，请参阅[此笔记本](/docs/integrations/text_embedding/jina)。

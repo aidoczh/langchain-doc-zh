@@ -1,0 +1,31 @@
+# Llama.cpp
+
+本页面介绍了如何在LangChain中使用[llama.cpp](https://github.com/ggerganov/llama.cpp)。它分为两个部分：安装和设置，以及对特定的Llama-cpp包装器的引用。
+
+## 安装和设置
+
+- 使用`pip install llama-cpp-python`安装Python包。
+
+- 根据[说明](https://github.com/ggerganov/llama.cpp)下载并将其中一个支持的模型转换为llama.cpp格式。
+
+## 包装器
+
+### LLM
+
+存在一个LlamaCpp LLM包装器，您可以使用以下代码访问：
+
+```python
+from langchain_community.llms import LlamaCpp
+```
+
+有关更详细的步骤，请参见[此笔记本](/docs/integrations/llms/llamacpp)。
+
+### 嵌入
+
+存在一个LlamaCpp嵌入包装器，您可以使用以下代码访问：
+
+```python
+from langchain_community.embeddings import LlamaCppEmbeddings
+```
+
+有关更详细的步骤，请参见[此笔记本](/docs/integrations/text_embedding/llamacpp)。

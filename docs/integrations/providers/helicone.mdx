@@ -1,0 +1,51 @@
+# Helicone
+
+本页面介绍如何在 LangChain 中使用 [Helicone](https://helicone.ai) 生态系统。
+
+## Helicone 是什么？
+
+Helicone 是一个开源的可观测性平台，它代理您的 OpenAI 流量，并为您提供有关开销、延迟和使用情况的关键见解。
+
+![Helicone 仪表板的截图，显示每天的平均请求次数、响应时间、每次响应的令牌数、总成本以及随时间变化的请求图表。](/img/HeliconeDashboard.png "Helicone 仪表板")
+
+## 快速入门
+
+在您的 LangChain 环境中，您只需添加以下参数。
+
+```bash
+export OPENAI_API_BASE="https://oai.hconeai.com/v1"
+```
+
+现在前往 [helicone.ai](https://www.helicone.ai/signup) 创建您的账户，并在我们的仪表板中添加您的 OpenAI API 密钥以查看日志。
+
+![在 Helicone 仪表板中输入和管理 OpenAI API 密钥的界面。](/img/HeliconeKeys.png "Helicone API 密钥输入")
+
+## 如何启用 Helicone 缓存
+
+```python
+from langchain_openai import OpenAI
+import openai
+openai.api_base = "https://oai.hconeai.com/v1"
+llm = OpenAI(temperature=0.9, headers={"Helicone-Cache-Enabled": "true"})
+text = "什么是 helicone？"
+print(llm.invoke(text))
+```
+
+[Helicone 缓存文档](https://docs.helicone.ai/advanced-usage/caching)
+
+## 如何使用 Helicone 自定义属性
+
+```python
+from langchain_openai import OpenAI
+import openai
+openai.api_base = "https://oai.hconeai.com/v1"
+llm = OpenAI(temperature=0.9, headers={
+        "Helicone-Property-Session": "24",
+        "Helicone-Property-Conversation": "support_issue_2",
+        "Helicone-Property-App": "mobile",
+      })
+text = "什么是 helicone？"
+print(llm.invoke(text))
+```
+
+[Helicone 自定义属性文档](https://docs.helicone.ai/advanced-usage/custom-properties)

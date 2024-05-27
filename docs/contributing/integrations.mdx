@@ -1,0 +1,188 @@
+---
+
+sidebar_position: 5
+
+---
+
+# 贡献集成
+
+首先，请确保您已经具备了[代码贡献指南](/docs/contributing/code/)中列出的所有依赖项。
+
+您可以在以下几个不同的地方为 LangChain 贡献集成：
+
+- **社区**：主要由 LangChain 和开源社区共同维护的轻量级集成。
+
+- **合作伙伴包**：由 LangChain 和合作伙伴共同维护的独立包。
+
+大部分情况下，新的集成应该添加到社区包中。合作伙伴包作为单独的包需要更多的维护工作，因此在创建新的合作伙伴包之前，请务必与 LangChain 团队确认。
+
+接下来，我们将介绍如何从一个虚构的公司“Parrot Link AI”贡献到每个包中。
+
+## 社区包
+
+`langchain-community` 包位于 `libs/community` 中，包含了大部分的集成。
+
+可以使用 `pip install langchain-community` 进行安装，并且可以通过以下代码导入导出的成员：
+
+```python
+from langchain_community.chat_models import ChatParrotLink
+from langchain_community.llms import ParrotLinkLLM
+from langchain_community.vectorstores import ParrotLinkVectorStore
+```
+
+`community` 包依赖于手动安装的依赖包，因此如果尝试导入未安装的包，将会看到错误。在我们的虚构示例中，如果您尝试在未安装 `parrot-link-sdk` 的情况下导入 `ParrotLinkLLM`，您将看到 `ImportError` 提示您在使用时安装它。
+
+假设我们想要为 Parrot Link AI 实现一个聊天模型。我们可以在 `libs/community/langchain_community/chat_models/parrot_link.py` 中创建一个新文件，并编写以下代码：
+
+```python
+from langchain_core.language_models.chat_models import BaseChatModel
+class ChatParrotLink(BaseChatModel):
+    """ChatParrotLink 聊天模型。
+    示例:
+        .. code-block:: python
+            from langchain_community.chat_models import ChatParrotLink
+            model = ChatParrotLink()
+    """
+    ...
+```
+
+然后我们可以在以下位置编写测试：
+
+- 单元测试：`libs/community/tests/unit_tests/chat_models/test_parrot_link.py`
+
+- 集成测试：`libs/community/tests/integration_tests/chat_models/test_parrot_link.py`
+
+并且在以下位置添加文档：
+
+- `docs/docs/integrations/chat/parrot_link.ipynb`
+
+## LangChain 仓库中的合作伙伴包
+
+合作伙伴包可以托管在 `LangChain` 的 monorepo 中，也可以托管在外部仓库中。
+
+在 `LangChain` 仓库中的合作伙伴包位于 `libs/partners/{partner}`，包源代码位于 `libs/partners/{partner}/langchain_{partner}`。
+
+用户可以使用 `pip install langchain-{partner}` 安装该包，并且可以通过以下代码导入包成员：
+
+```python
+from langchain_{partner} import X
+```
+
+### 设置一个新包
+
+要设置一个新的合作伙伴包，请使用最新版本的 LangChain CLI。您可以使用以下命令安装或更新它：
+
+```bash
+pip install -U langchain-cli
+```
+
+假设您想要为一个名为 Parrot Link AI 的公司创建一个新的合作伙伴包。
+
+然后，运行以下命令创建一个新的合作伙伴包：
+
+```bash
+cd libs/partners
+langchain-cli integration new
+> Name: parrot-link
+> Name of integration in PascalCase [ParrotLink]: ParrotLink
+```
+
+这将在 `libs/partners/parrot-link` 中创建一个新的包，具有以下结构：
+
+```
+libs/partners/parrot-link/
+  langchain_parrot_link/ # 包含您的包的文件夹
+    ...
+  tests/
+    ...
+  docs/ # 初始化的文档笔记本，必须移动到 monorepo 根目录的 /docs 中
+    ...
+  scripts/ # CI 脚本
+    ...
+  LICENSE
+  README.md # 填写有关您的包的信息
+  Makefile # CI 的默认命令
+  pyproject.toml # 包元数据，大部分由 Poetry 管理
+  poetry.lock # 由 Poetry 管理的包锁定文件
+  .gitignore
+```
+
+### 实现您的包
+
+首先，添加您的包需要的任何依赖项，比如您公司的 SDK：
+
+```bash
+poetry add parrot-link-sdk
+```
+
+如果您需要类型检查的单独依赖项，您可以使用以下命令将它们添加到 `typing` 组中：
+
+```bash
+poetry add --group typing types-parrot-link-sdk
+```
+
+然后，在 `libs/partners/parrot-link/langchain_parrot_link` 中实现您的包。
+
+默认情况下，这将包括聊天模型、LLM 和/或向量存储的存根。您应该删除您不打算使用的任何文件，并从 `__init__.py` 中删除它们。
+
+### 编写单元测试和集成测试
+
+一些基本测试位于 `tests/` 目录中。您应该添加更多的测试来覆盖您的包的功能。
+
+有关运行和实现测试的信息，请参阅[测试指南](/docs/contributing/testing/)。
+
+### 编写文档
+
+文档是从 Jupyter 笔记本在 `docs/` 目录中生成的。您应该将带有示例的笔记本放到相关的 `docs/docs/integrations` 目录中，位于 monorepo 根目录下。
+
+### （如有必要）弃用社区集成
+
+注意：只有在将现有的社区集成迁移到合作伙伴包中时才需要这样做。如果您要集成的组件是 LangChain 中的全新组件（即不在 `community` 包中），则可以跳过此步骤。
+
+假设我们将 `ChatParrotLink` 聊天模型从社区包迁移到合作伙伴包。我们需要弃用社区包中的旧模型。
+
+我们可以通过在 `libs/community/langchain_community/chat_models/parrot_link.py` 中如下添加 `@deprecated` 装饰器来实现这一点。
+
+在我们的更改之前，我们的聊天模型可能如下所示：
+
+```python
+class ChatParrotLink(BaseChatModel):
+  ...
+```
+
+在我们的更改之后，它将如下所示：
+
+```python
+from langchain_core._api.deprecation import deprecated
+@deprecated(
+    since="0.0.<下一个社区版本>",
+    removal="0.2.0",
+    alternative_import="langchain_parrot_link.ChatParrotLink"
+)
+class ChatParrotLink(BaseChatModel):
+  ...
+```
+
+您应该为*每个*要迁移到合作伙伴包的组件执行此操作。
+
+### 附加步骤
+
+贡献者步骤：
+
+- [ ] 在 `.github/workflows/_integration_test.yml` 中的手动集成工作流程中添加秘密名称
+
+- [ ] 在 `.github/workflows/_release.yml` 中的发布工作流程中添加秘密（用于预发布测试）
+
+维护者步骤（贡献者**不**应执行以下步骤）：
+
+- [ ] 设置 pypi 和测试 pypi 项目
+
+- [ ] 将凭据秘密添加到 Github Actions
+
+- [ ] 将包添加到 conda-forge
+
+## 外部存储库中的合作伙伴包
+
+外部存储库中的合作伙伴包必须在 LangChain 团队和合作伙伴组织之间协调，以确保它们得到维护和更新。
+
+如果您有兴趣在外部存储库中创建合作伙伴包，请先在 LangChain 存储库中创建一个，然后与 LangChain 团队联系，讨论如何将其移至外部存储库。

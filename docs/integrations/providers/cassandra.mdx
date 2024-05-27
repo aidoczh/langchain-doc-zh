@@ -1,0 +1,66 @@
+# Cassandra
+
+> [Apache Cassandra®](https://cassandra.apache.org/) 是一种 NoSQL、面向行的、高度可扩展且高度可用的数据库。
+
+> 从 5.0 版本开始，该数据库具备了[向量搜索功能](https://cassandra.apache.org/doc/trunk/cassandra/vector-search/overview.html)。
+
+本页面中概述的集成可以与 `Cassandra` 以及其他兼容 CQL 的数据库一起使用，即那些使用 `Cassandra Query Language` 协议的数据库。
+
+## 安装和设置
+
+安装以下 Python 包：
+
+```bash
+pip install "cassio>=0.1.6"
+```
+
+## 向量存储
+
+```python
+from langchain_community.vectorstores import Cassandra
+```
+
+在 [示例笔记本](/docs/integrations/vectorstores/cassandra) 中了解更多信息。
+
+## 聊天消息历史
+
+```python
+from langchain_community.chat_message_histories import CassandraChatMessageHistory
+```
+
+在 [示例笔记本](/docs/integrations/memory/cassandra_chat_message_history) 中了解更多信息。
+
+## LLM 缓存
+
+```python
+from langchain.globals import set_llm_cache
+from langchain_community.cache import CassandraCache
+set_llm_cache(CassandraCache())
+```
+
+在 [示例笔记本](/docs/integrations/llms/llm_caching#cassandra-caches) 中了解更多信息（滚动到 Cassandra 部分）。
+
+## 语义 LLM 缓存
+
+```python
+from langchain.globals import set_llm_cache
+from langchain_community.cache import CassandraSemanticCache
+set_llm_cache(CassandraSemanticCache(
+    embedding=my_embedding,
+    table_name="my_store",
+))
+```
+
+在 [示例笔记本](/docs/integrations/llms/llm_caching#cassandra-caches) 中了解更多信息（滚动到相应部分）。
+
+## 文档加载器
+
+```python
+from langchain_community.document_loaders import CassandraLoader
+```
+
+在 [示例笔记本](/docs/integrations/document_loaders/cassandra) 中了解更多信息。
+
+#### 归属声明
+
+> Apache Cassandra、Cassandra 和 Apache 分别是 [Apache Software Foundation](http://www.apache.org/) 在美国和/或其他国家的注册商标或商标。

@@ -1,0 +1,29 @@
+# Robocorp
+
+[Robocorp](https://robocorp.com/) 是一个帮助构建和运行 Python 工作程序的平台，可以在任何规模的环境中无缝运行。
+
+## 安装和设置
+
+你需要安装 `langchain-robocorp` Python 包：
+
+```bash
+pip install langchain-robocorp
+```
+
+你需要运行一个 Action 服务器实例，以便从你的代理应用程序进行通信。请参阅 [Robocorp Quickstart](https://github.com/robocorp/robocorp#quickstart) 了解如何设置 Action 服务器并创建你的 Actions。
+
+你可以使用 Action 服务器的 `new` 命令来启动一个新项目。
+
+```bash
+action-server new
+cd ./your-project-name
+action-server start
+```
+
+## 工具包
+
+查看 [使用示例](/docs/integrations/toolkits/robocorp)。
+
+```python
+from langchain_robocorp import ActionServerToolkit
+```

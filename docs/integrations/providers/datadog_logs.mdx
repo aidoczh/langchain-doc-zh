@@ -1,0 +1,19 @@
+# Datadog 日志
+
+>[Datadog](https://www.datadoghq.com/) 是一个针对云规模应用的监控和分析平台。
+
+## 安装和设置
+
+```bash
+pip install datadog_api_client
+```
+
+我们必须使用 Datadog API 密钥和应用密钥初始化加载器，并设置查询以提取所需的日志。
+
+## 文档加载器
+
+查看[使用示例](/docs/integrations/document_loaders/datadog_logs)。
+
+```python
+from langchain_community.document_loaders import DatadogLogsLoader
+```

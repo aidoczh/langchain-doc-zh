@@ -1,0 +1,23 @@
+# TensorFlow 数据集
+
+[TensorFlow 数据集](https://www.tensorflow.org/datasets) 是一组准备好供 TensorFlow 或其他 Python 机器学习框架（如 Jax）使用的数据集。所有数据集都以 [tf.data.Datasets](https://www.tensorflow.org/api_docs/python/tf/data/Dataset) 的形式公开，从而实现了易于使用和高性能的输入流水线。要开始使用，请参阅 [指南](https://www.tensorflow.org/datasets/overview) 和 [数据集列表](https://www.tensorflow.org/datasets/catalog/overview#all_datasets)。
+
+## 安装和设置
+
+您需要安装 `tensorflow` 和 `tensorflow-datasets` Python 包。
+
+```bash
+pip install tensorflow
+```
+
+```bash
+pip install tensorflow-dataset
+```
+
+## 文档加载器
+
+请参阅[使用示例](/docs/integrations/document_loaders/tensorflow_datasets)。
+
+```python
+from langchain_community.document_loaders import TensorflowDatasetLoader
+```

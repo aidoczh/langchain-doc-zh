@@ -1,0 +1,23 @@
+# 自信的人工智能
+
+[自信的人工智能](https://confident-ai.com) 是 `DeepEval` 的创建者。
+
+[DeepEval](https://github.com/confident-ai/deepeval) 是一个用于对LLMs进行单元测试的软件包。使用 `DeepEval`，每个人都可以通过更快的迭代过程构建稳健的语言模型，同时结合单元测试和集成测试。`DeepEval` 在迭代过程中的每个步骤都提供支持，从合成数据的创建到测试。
+
+## 安装和设置
+
+您需要获取 [DeepEval API 凭据](https://app.confident-ai.com)。
+
+您需要安装 `DeepEval` Python 软件包：
+
+```bash
+pip install deepeval
+```
+
+## 回调
+
+查看一个 [示例](/docs/integrations/callbacks/confident)。
+
+```python
+from langchain.callbacks.confident_callback import DeepEvalCallbackHandler
+```

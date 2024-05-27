@@ -1,0 +1,20 @@
+---
+
+sidebar_position: 3
+
+---
+
+# 如何使用工具包
+
+工具包是一组旨在一起使用以完成特定任务的工具集合。它们具有方便的加载方法。要获取可用的现成工具包的完整列表，请访问[Integrations](/docs/integrations/toolkits/)。
+
+所有工具包都公开了一个 `get_tools` 方法，该方法返回一个工具列表。因此，您可以这样做：
+
+```python
+# 初始化工具包
+toolkit = ExampleTookit(...)
+# 获取工具列表
+tools = toolkit.get_tools()
+# 创建代理
+agent = create_agent_method(llm, tools, prompt)
+```

@@ -1,0 +1,117 @@
+# 迁移到 Astream 事件 v2
+
+:::danger
+
+此迁移指南正在进行中，尚未完成。请等待迁移到 astream_events。
+
+:::
+
+我们在发布 `0.2.0` 版本时添加了 `v2` 版本的 astream_events API。您可以在 [PR](https://github.com/langchain-ai/langchain/pull/21638) 中查看更多详情。
+
+`v2` 版本是对 `v1` 版本的重写，应该更加高效，并且事件的输出更加一致。API 的 `v1` 版本将被弃用，取而代之的是 `v2` 版本，并将在 `0.4.0` 中移除。
+
+以下是 `v1` 版本和 `v2` 版本 API 之间的更改列表。
+
+### `on_chat_model_end` 的输出
+
+在 `v1` 中，与 `on_chat_model_end` 相关的输出会根据聊天模型是作为根级可运行项还是作为链的一部分而改变。
+
+作为根级可运行项时，输出为：
+
+```python
+"data": {"output": AIMessageChunk(content="hello world!", id='some id')}
+```
+
+作为链的一部分时，输出为：
+
+```
+            "data": {
+                "output": {
+                    "generations": [
+                        [
+                            {
+                                "generation_info": None,
+                                "message": AIMessageChunk(
+                                    content="hello world!", id=AnyStr()
+                                ),
+                                "text": "hello world!",
+                                "type": "ChatGenerationChunk",
+                            }
+                        ]
+                    ],
+                    "llm_output": None,
+                }
+            },
+```
+
+在 `v2` 中，输出将始终是更简单的表示形式：
+
+```python
+"data": {"output": AIMessageChunk(content="hello world!", id='some id')}
+```
+
+:::note
+
+非聊天模型（即常规 LLMs）目前将始终与更冗长的格式相关联。
+
+:::
+
+### `on_retriever_end` 的输出
+
+`on_retriever_end` 输出将始终返回一个 `Documents` 列表。
+
+之前：
+
+```python
+{
+    "data": {
+        "output": [
+            Document(...),
+            Document(...),
+            ...
+        ]
+    }
+}
+```
+
+### 移除 `on_retriever_stream`
+
+`on_retriever_stream` 事件是实现的产物，已被移除。
+
+与该事件相关的完整信息已经在 `on_retriever_end` 事件中可用。
+
+请改用 `on_retriever_end`。
+
+### 移除 `on_tool_stream`
+
+`on_tool_stream` 事件是实现的产物，已被移除。
+
+与该事件相关的完整信息已经在 `on_tool_end` 事件中可用。
+
+请改用 `on_tool_end`。
+
+### 传播名称
+
+可运行项的名称已更新为更加一致。
+
+```python
+model = GenericFakeChatModel(messages=infinite_cycle).configurable_fields(
+    messages=ConfigurableField(
+        id="messages",
+        name="Messages",
+        description="Messages return by the LLM",
+    )
+)
+```
+
+在 `v1` 中，事件名称为 `RunnableConfigurableFields`。
+
+在 `v2` 中，事件名称为 `GenericFakeChatModel`。
+
+如果您正在按事件名称进行过滤，请检查是否需要更新您的过滤器。
+
+### RunnableRetry
+
+在 `v1` 中，流式生成的 LCEL 链中使用 [RunnableRetry](https://api.python.langchain.com/en/latest/runnables/langchain_core.runnables.retry.RunnableRetry.html) 会导致 `on_chain_end` 事件出现错误，该事件对应正在重试的失败可运行项调用。在 `v2` 中，已移除此事件。
+
+对于此更改无需采取任何操作。

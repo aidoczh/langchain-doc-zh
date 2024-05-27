@@ -1,0 +1,79 @@
+# OracleAI 矢量搜索
+
+Oracle AI 矢量搜索是专为人工智能（AI）工作负载设计的，允许您基于语义而不是关键词查询数据。
+
+Oracle AI 矢量搜索的最大优势之一是，可以将非结构化数据的语义搜索与业务数据的关系搜索结合在一个单一系统中。
+
+这不仅强大，而且更加有效，因为您无需添加专门的矢量数据库，消除了在多个系统之间的数据碎片化带来的痛苦。
+
+此外，您的矢量可以受益于 Oracle Database 的所有最强大的功能，如下所示：
+
+* [分区支持](https://www.oracle.com/database/technologies/partitioning.html)
+
+* [实时应用集群可伸缩性](https://www.oracle.com/database/real-application-clusters/)
+
+* [Exadata 智能扫描](https://www.oracle.com/database/technologies/exadata/software/smartscan/)
+
+* [跨地理分布式数据库的分片处理](https://www.oracle.com/database/distributed-database/)
+
+* [事务](https://docs.oracle.com/en/database/oracle/oracle-database/23/cncpt/transactions.html)
+
+* [并行 SQL](https://docs.oracle.com/en/database/oracle/oracle-database/21/vldbg/parallel-exec-intro.html#GUID-D28717E4-0F77-44F5-BB4E-234C31D4E4BA)
+
+* [灾难恢复](https://www.oracle.com/database/data-guard/)
+
+* [安全性](https://www.oracle.com/security/database-security/)
+
+* [Oracle 机器学习](https://www.oracle.com/artificial-intelligence/database-machine-learning/)
+
+* [Oracle 图数据库](https://www.oracle.com/database/integrated-graph-database/)
+
+* [Oracle 空间和图形](https://www.oracle.com/database/spatial/)
+
+* [Oracle 区块链](https://docs.oracle.com/en/database/oracle/oracle-database/23/arpls/dbms_blockchain_table.html#GUID-B469E277-978E-4378-A8C1-26D3FF96C9A6)
+
+* [JSON](https://docs.oracle.com/en/database/oracle/oracle-database/23/adjsn/json-in-oracle-database.html)
+
+## 文档加载器
+
+请查看[使用示例](/docs/integrations/document_loaders/oracleai)。
+
+```python
+from langchain_community.document_loaders.oracleai import OracleDocLoader
+```
+
+## 文本分割器
+
+请查看[使用示例](/docs/integrations/document_loaders/oracleai)。
+
+```python
+from langchain_community.document_loaders.oracleai import OracleTextSplitter
+```
+
+## 嵌入
+
+请查看[使用示例](/docs/integrations/text_embedding/oracleai)。
+
+```python
+from langchain_community.embeddings.oracleai import OracleEmbeddings
+```
+
+## 摘要
+
+请查看[使用示例](/docs/integrations/tools/oracleai)。
+
+```python
+from langchain_community.utilities.oracleai import OracleSummary
+```
+
+## 矢量存储
+
+请查看[使用示例](/docs/integrations/vectorstores/oracle)。
+
+```python
+from langchain_community.vectorstores.oraclevs import OracleVS
+```
+
+## 端到端演示
+
+请查看[Oracle AI 矢量搜索端到端演示指南](https://github.com/langchain-ai/langchain/blob/master/cookbook/oracleai_demo.ipynb)。

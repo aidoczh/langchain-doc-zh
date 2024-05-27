@@ -1,0 +1,80 @@
+# 模态
+
+本页面介绍如何使用模态生态系统来运行 LangChain 定制的LLM（语言模型）。分为两个部分：
+
+1. 模态安装和Web端点部署
+
+2. 使用部署的Web端点与 `LLM` 包装类。
+
+## 安装和设置
+
+- 使用 `pip install modal` 进行安装
+
+- 运行 `modal token new`
+
+## 定义您的模态函数和Webhooks
+
+您必须包含一个提示。有一个严格的响应结构：
+
+```python
+class Item(BaseModel):
+    prompt: str
+@stub.function()
+@modal.web_endpoint(method="POST")
+def get_text(item: Item):
+    return {"prompt": run_gpt2.call(item.prompt)}
+```
+
+以下是一个使用 GPT2 模型的示例：
+
+```python
+from pydantic import BaseModel
+import modal
+CACHE_PATH = "/root/model_cache"
+class Item(BaseModel):
+    prompt: str
+stub = modal.Stub(name="example-get-started-with-langchain")
+def download_model():
+    from transformers import GPT2Tokenizer, GPT2LMHeadModel
+    tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+    model = GPT2LMHeadModel.from_pretrained('gpt2')
+    tokenizer.save_pretrained(CACHE_PATH)
+    model.save_pretrained(CACHE_PATH)
+# 为下面的LLM函数定义一个容器镜像，用于下载和存储GPT-2模型。
+image = modal.Image.debian_slim().pip_install(
+    "tokenizers", "transformers", "torch", "accelerate"
+).run_function(download_model)
+@stub.function(
+    gpu="any",
+    image=image,
+    retries=3,
+)
+def run_gpt2(text: str):
+    from transformers import GPT2Tokenizer, GPT2LMHeadModel
+    tokenizer = GPT2Tokenizer.from_pretrained(CACHE_PATH)
+    model = GPT2LMHeadModel.from_pretrained(CACHE_PATH)
+    encoded_input = tokenizer(text, return_tensors='pt').input_ids
+    output = model.generate(encoded_input, max_length=50, do_sample=True)
+    return tokenizer.decode(output[0], skip_special_tokens=True)
+@stub.function()
+@modal.web_endpoint(method="POST")
+def get_text(item: Item):
+    return {"prompt": run_gpt2.call(item.prompt)}
+```
+
+### 部署Web端点
+
+使用 [`modal deploy`](https://modal.com/docs/reference/cli/deploy) CLI 命令将Web端点部署到模态云。您的Web端点将在 `modal.run` 域下获得一个持久的URL。
+
+## LLM包装器封装模态Web端点
+
+`Modal` LLM包装器类将接受您部署的Web端点的URL。
+
+```python
+from langchain_community.llms import Modal
+endpoint_url = "https://ecorp--custom-llm-endpoint.modal.run"  # 用您部署的模态Web端点的URL替换此处
+llm = Modal(endpoint_url=endpoint_url)
+llm_chain = LLMChain(prompt=prompt, llm=llm)
+question = "贾斯汀·比伯出生年份的超级碗冠军是哪支NFL球队？"
+llm_chain.run(question)
+```

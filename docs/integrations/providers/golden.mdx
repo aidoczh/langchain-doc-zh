@@ -1,0 +1,40 @@
+# Golden
+
+[Golden](https://golden.com) 提供了一套自然语言 API，用于使用 Golden 知识图谱进行查询和丰富，例如查询 `OpenAI 的产品`、`具有 A 轮融资的生成 AI 公司` 和 `投资的说唱歌手` 可以用来检索相关实体的结构化数据。
+
+`golden-query` 是一个基于 [Golden 查询 API](https://docs.golden.com/reference/query-api) 的包装工具，可以对这些结果进行编程访问。
+
+有关更多信息，请参阅 [Golden 查询 API 文档](https://docs.golden.com/reference/query-api)。
+
+## 安装和设置
+
+- 前往 [Golden API 文档](https://docs.golden.com/) 了解 Golden API 的概述。
+
+- 从 [Golden API 设置](https://golden.com/settings/api) 页面获取您的 API 密钥。
+
+- 将您的 API 密钥保存到 GOLDEN_API_KEY 环境变量中。
+
+## 包装工具
+
+### 实用工具
+
+存在一个名为 GoldenQueryAPIWrapper 的实用工具，用于包装此 API。要导入此实用工具：
+
+```python
+from langchain_community.utilities.golden_query import GoldenQueryAPIWrapper
+```
+
+有关此包装工具的更详细说明，请参阅[此笔记本](/docs/integrations/tools/golden_query)。
+
+### 工具
+
+您还可以将此包装工具轻松加载为工具（用于与 Agent 一起使用）。
+
+可以使用以下代码实现：
+
+```python
+from langchain.agents import load_tools
+tools = load_tools(["golden-query"])
+```
+
+有关工具的更多信息，请参阅[此页面](/docs/how_to/tools_builtin)。

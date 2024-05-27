@@ -1,0 +1,48 @@
+# IBM
+
+`LangChain` 集成相关于 [IBM watsonx.ai](https://www.ibm.com/products/watsonx-ai) 平台。
+
+IBM® watsonx.ai™ AI studio 是 IBM [watsonx](https://www.ibm.com/watsonx)™ AI 和数据平台的一部分，汇集了由 [foundation models](https://www.ibm.com/products/watsonx-ai/foundation-models) 提供动力的新生成 AI 能力和传统机器学习 (ML)，构建了一个跨越 AI 生命周期的强大工作室。利用易于使用的工具来构建和完善高性能提示，调整和引导模型以满足企业数据的需求。通过 watsonx.ai，您可以在更短的时间内以更少的数据构建 AI 应用程序。Watsonx.ai 提供：
+
+- **多模型种类和灵活性：** 可选择 IBM 开发的、开源和第三方模型，或构建自己的模型。
+
+- **差异化的客户保护：** IBM 支持 IBM 开发的模型，并对客户免受第三方知识产权索赔的保护。
+
+- **端到端 AI 治理：** 企业可以通过在业务各处使用可信数据，扩展和加速 AI 的影响。
+
+- **混合、多云部署：** IBM 提供灵活性，将您的 AI 工作负载集成和部署到您选择的混合云堆栈中。
+
+## 安装和设置
+
+使用以下命令安装集成包
+
+```bash
+pip install -qU langchain-ibm
+```
+
+获取 IBM watsonx.ai api 密钥，并将其设置为环境变量 (`WATSONX_APIKEY`)
+
+```python
+import os
+os.environ["WATSONX_APIKEY"] = "your IBM watsonx.ai api key"
+```
+
+## LLMs
+
+### WatsonxLLM
+
+查看 [使用示例](/docs/integrations/llms/ibm_watsonx)。
+
+```python
+from langchain_ibm import WatsonxLLM
+```
+
+## 嵌入模型
+
+### WatsonxEmbeddings
+
+查看 [使用示例](/docs/integrations/text_embedding/ibm_watsonx)。
+
+```python
+from langchain_ibm import WatsonxEmbeddings
+```

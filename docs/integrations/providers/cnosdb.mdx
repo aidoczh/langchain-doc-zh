@@ -1,0 +1,119 @@
+# CnosDB
+
+[CnosDB](https://github.com/cnosdb/cnosdb) 是一个开源的分布式时间序列数据库，具有高性能、高压缩率和高易用性。
+
+## 安装和设置
+
+```python
+pip install cnos-connector
+```
+
+## 连接到 CnosDB
+
+您可以使用 `SQLDatabase.from_cnosdb()` 方法连接到 CnosDB。
+
+### 语法
+
+```python
+def SQLDatabase.from_cnosdb(url: str = "127.0.0.1:8902",
+                              user: str = "root",
+                              password: str = "",
+                              tenant: str = "cnosdb",
+                              database: str = "public")
+```
+
+参数:
+
+1. url (str): CnosDB 服务的 HTTP 连接主机名和端口号，不包括 "http://" 或 "https://"，默认值为 "127.0.0.1:8902"。
+
+2. user (str): 用于连接到 CnosDB 服务的用户名，默认值为 "root"。
+
+3. password (str): 连接到 CnosDB 服务的用户密码，默认值为 ""。
+
+4. tenant (str): 用于连接到 CnosDB 服务的租户名称，默认值为 "cnosdb"。
+
+5. database (str): CnosDB 租户中的数据库名称。
+
+## 示例
+
+```python
+# 使用 SQLDatabase Wrapper 连接到 CnosDB
+from langchain_community.utilities import SQLDatabase
+db = SQLDatabase.from_cnosdb()
+```
+
+```python
+# 创建 OpenAI Chat LLM Wrapper
+from langchain_openai import ChatOpenAI
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+```
+
+### SQL 数据库链
+
+此示例演示了使用 SQL 链来回答关于 CnosDB 的问题。
+
+```python
+from langchain_community.utilities import SQLDatabaseChain
+db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True)
+db_chain.run(
+    "What is the average temperature of air at station XiaoMaiDao between October 19, 2022 and Occtober 20, 2022?"
+)
+```
+
+```shell
+> 进入新的链...
+What is the average temperature of air at station XiaoMaiDao between October 19, 2022 and Occtober 20, 2022?
+SQLQuery:SELECT AVG(temperature) FROM air WHERE station = 'XiaoMaiDao' AND time >= '2022-10-19' AND time < '2022-10-20'
+SQLResult: [(68.0,)]
+Answer:The average temperature of air at station XiaoMaiDao between October 19, 2022 and October 20, 2022 is 68.0.
+> 完成链。
+```
+
+### SQL 数据库代理
+
+此示例演示了使用 SQL 数据库代理来回答关于 CnosDB 的问题。
+
+```python
+from langchain.agents import create_sql_agent
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
+toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+agent = create_sql_agent(llm=llm, toolkit=toolkit, verbose=True)
+```
+
+```python
+agent.run(
+    "What is the average temperature of air at station XiaoMaiDao between October 19, 2022 and Occtober 20, 2022?"
+)
+```
+
+```shell
+> 进入新的链...
+Action: sql_db_list_tables
+Action Input: ""
+Observation: air
+Thought:The "air" table seems relevant to the question. I should query the schema of the "air" table to see what columns are available.
+Action: sql_db_schema
+Action Input: "air"
+Observation:
+CREATE TABLE air (
+	pressure FLOAT,
+	station STRING,
+	temperature FLOAT,
+	time TIMESTAMP,
+	visibility FLOAT
+)
+/*
+3 rows from air table:
+pressure	station	temperature	time	visibility
+75.0	XiaoMaiDao	67.0	2022-10-19T03:40:00	54.0
+77.0	XiaoMaiDao	69.0	2022-10-19T04:40:00	56.0
+76.0	XiaoMaiDao	68.0	2022-10-19T05:40:00	55.0
+*/
+Thought:The "temperature" column in the "air" table is relevant to the question. I can query the average temperature between the specified dates.
+Action: sql_db_query
+Action Input: "SELECT AVG(temperature) FROM air WHERE station = 'XiaoMaiDao' AND time >= '2022-10-19' AND time <= '2022-10-20'"
+Observation: [(68.0,)]
+Thought:The average temperature of air at station XiaoMaiDao between October 19, 2022 and October 20, 2022 is 68.0.
+Final Answer: 68.0
+> 完成链。
+```

@@ -1,0 +1,63 @@
+# Eden AI
+
+[Eden AI](https://docs.edenai.co/docs/getting-started-with-eden-ai) 的用户界面（UI）旨在处理人工智能项目。通过 `Eden AI Portal`，您可以使用市场上最好的引擎执行无代码人工智能。
+
+## 安装和设置
+
+访问 Eden AI API 需要 API 密钥，您可以通过 [创建账户](https://app.edenai.run/user/register) 并前往 [这里](https://app.edenai.run/admin/account/settings) 获取。
+
+## LLMs
+
+查看 [使用示例](/docs/integrations/llms/edenai)。
+
+```python
+from langchain_community.llms import EdenAI
+```
+
+## 聊天模型
+
+查看 [使用示例](/docs/integrations/chat/edenai)。
+
+```python
+from langchain_community.chat_models.edenai import ChatEdenAI
+```
+
+## 嵌入模型
+
+查看 [使用示例](/docs/integrations/text_embedding/edenai)。
+
+```python
+from langchain_community.embeddings.edenai import EdenAiEmbeddings
+```
+
+## 工具
+
+Eden AI 提供了一系列工具，使您的代理能够执行多项任务，例如：
+
+* 语音转文本
+
+* 文本转语音
+
+* 文本明确内容检测
+
+* 图像明确内容检测
+
+* 物体检测
+
+* OCR 发票解析
+
+* OCR 身份证解析
+
+查看 [使用示例](/docs/integrations/tools/edenai_tools)。
+
+```python
+from langchain_community.tools.edenai import (
+    EdenAiExplicitImageTool,
+    EdenAiObjectDetectionTool,
+    EdenAiParsingIDTool,
+    EdenAiParsingInvoiceTool,
+    EdenAiSpeechToTextTool,
+    EdenAiTextModerationTool,
+    EdenAiTextToSpeechTool,
+)
+```

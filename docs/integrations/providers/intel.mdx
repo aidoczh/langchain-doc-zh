@@ -1,0 +1,136 @@
+# 英特尔
+
+[Optimum Intel](https://github.com/huggingface/optimum-intel?tab=readme-ov-file#optimum-intel) 是 🤗 Transformers 和 Diffusers 库与英特尔提供的不同工具和库之间的接口，用于加速在英特尔架构上端到端流程的执行。
+
+[Intel® Extension for Transformers](https://github.com/intel/intel-extension-for-transformers?tab=readme-ov-file#intel-extension-for-transformers)（ITREX）是一个创新工具包，旨在加速在各种英特尔平台上的 GenAI/LLM，包括英特尔 Gaudi2、英特尔 CPU 和英特尔 GPU 上基于 Transformer 模型的最佳性能。
+
+本页面介绍了如何在 LangChain 中使用 optimum-intel 和 ITREX。
+
+## Optimum-intel
+
+所有与 [optimum-intel](https://github.com/huggingface/optimum-intel.git) 和 [IPEX](https://github.com/intel/intel-extension-for-pytorch) 相关的功能。
+
+### 安装
+
+使用以下命令安装 optimum-intel 和 ipex：
+
+```bash
+pip install optimum[neural-compressor]
+pip install intel_extension_for_pytorch
+```
+
+请按照以下指定的安装说明进行安装：
+
+- 按照[这里](https://github.com/huggingface/optimum-intel)的说明安装 optimum-intel。
+
+- 按照[这里](https://intel.github.io/intel-extension-for-pytorch/index.html#installation?platform=cpu&version=v2.2.0%2Bcpu)的说明安装 IPEX。
+
+### 嵌入模型
+
+查看[使用示例](/docs/integrations/text_embedding/optimum_intel)。
+
+我们还提供了一个完整的教程笔记本“rag_with_quantized_embeddings.ipynb”，用于在 cookbook 目录中使用嵌入器进行 RAG 流水线。
+
+```python
+from langchain_community.embeddings import QuantizedBiEncoderEmbeddings
+```
+
+## Intel® Extension for Transformers (ITREX)
+
+(ITREX) 是一个创新工具包，旨在加速英特尔平台上基于 Transformer 模型的运行，特别是在第四代英特尔至强可扩展处理器 Sapphire Rapids（代号 Sapphire Rapids）上表现出色。
+
+量化是一个过程，涉及通过使用更少的位数来表示这些权重来减少这些权重的精度。仅权重量化专门关注量化神经网络的权重，同时保持其他组件（如激活）在其原始精度。
+
+随着大型语言模型（LLMs）变得更加普遍，对能够满足这些现代架构的计算需求并保持准确性的新型和改进型量化方法的需求日益增长。与[普通量化](https://github.com/intel/intel-extension-for-transformers/blob/main/docs/quantization.md)（如 W8A8）相比，仅权重量化可能是在性能和准确性之间取得更好平衡的更好选择，因为我们将在下文中看到，部署 LLMs 的瓶颈通常是内存带宽，通常仅权重量化可以带来更好的准确性。
+
+在这里，我们将介绍使用 ITREX 的嵌入模型和仅权重量化的 Transformers 大型语言模型。仅权重量化是深度学习中用于减少神经网络的内存和计算需求的技术。在深度神经网络的背景下，模型参数，也称为权重，通常使用浮点数表示，这可能会消耗大量内存并需要大量计算资源。
+
+所有与 [intel-extension-for-transformers](https://github.com/intel/intel-extension-for-transformers) 相关的功能。
+
+### 安装
+
+安装 intel-extension-for-transformers。有关系统要求和其他安装提示，请参阅[安装指南](https://github.com/intel/intel-extension-for-transformers/blob/main/docs/installation.md)。
+
+```bash
+pip install intel-extension-for-transformers
+```
+
+安装其他所需的包。
+
+```bash
+pip install -U torch onnx accelerate datasets
+```
+
+### 嵌入模型
+
+查看[使用示例](/docs/integrations/text_embedding/itrex)。
+
+```python
+from langchain_community.embeddings import QuantizedBgeEmbeddings
+```
+
+### 仅权重量化与 ITREX
+
+查看[使用示例](/docs/integrations/llms/weight_only_quantization)。
+
+## 配置参数详细信息
+
+这是 `WeightOnlyQuantConfig` 类的详细信息。
+
+#### weight_dtype (string): Weight Data Type，默认为 "nf4"。
+
+我们支持将权重量化为以下数据类型以存储（WeightOnlyQuantConfig 中的 weight_dtype）：
+
+- **int8**：使用 8 位数据类型。
+
+- **int4_fullrange**：与正常 int4 范围 [-7,7] 相比，使用 int4 范围的 -8 值。
+
+- **int4_clip**：剪切并保留在 int4 范围内的值，将其他值设为零。
+
+- **nf4**：使用归一化的浮点 4 位数据类型。
+
+- **fp4_e2m1**：使用常规浮点 4 位数据类型。"e2" 表示使用 2 位作为指数，"m1" 表示使用 1 位作为尾数。
+
+#### compute_dtype (string): Computing Data Type，默认为 "fp32"。
+
+虽然这些技术将权重存储为4位或8位，但计算仍然以float32、bfloat16或int8（在WeightOnlyQuantConfig中的compute_dtype）进行：
+
+* **fp32**：使用float32数据类型进行计算。
+
+* **bf16**：使用bfloat16数据类型进行计算。
+
+* **int8**：使用8位数据类型进行计算。
+
+#### llm_int8_skip_modules（模块名称列表）：要跳过量化的模块，默认为None。
+
+这是一个要跳过量化的模块列表。
+
+#### scale_dtype（字符串）：比例数据类型，默认为"fp32"。
+
+目前仅支持"fp32"（float32）。
+
+#### mse_range（布尔值）：是否从范围[0.805, 1.0, 0.005]中搜索最佳剪裁范围，默认为False。
+
+#### use_double_quant（布尔值）：是否量化比例，默认为False。
+
+目前还不支持。
+
+#### double_quant_dtype（字符串）：保留用于双重量化。
+
+#### double_quant_scale_dtype（字符串）：保留用于双重量化。
+
+#### group_size（整数）：量化时的组大小。
+
+#### scheme（字符串）：要将权重量化为的格式。默认为"sym"。
+
+* **sym**：对称的。
+
+* **asym**：非对称的。
+
+#### algorithm（字符串）：用于提高准确性的算法。默认为"RTN"。
+
+* **RTN**：最近舍入（RTN）是一种我们可以非常直观地考虑的量化方法。
+
+* **AWQ**：仅保护1%的显著权重可以大大减少量化误差。通过观察每个通道的激活和权重分布来选择显著权重通道。在量化前，显著权重也经过乘以一个大比例因子的处理以保留。
+
+* **TEQ**：一种可训练的等效转换，可以在仅对权重进行量化时保留FP32精度。 [20]

@@ -1,0 +1,63 @@
+# AI21 Labs
+
+[AI21 Labs](https://www.ai21.com/about) 是一家专注于自然语言处理（NLP）的公司，开发能够理解和生成自然语言的人工智能系统。
+
+本页面介绍如何在 `LangChain` 中使用 `AI21` 生态系统。
+
+## 安装和设置
+
+- 获取 AI21 的 API 密钥并将其设置为环境变量 (`AI21_API_KEY`)
+
+- 安装 Python 包：
+
+```bash
+pip install langchain-ai21
+```
+
+## LLMs
+
+查看[使用示例](/docs/integrations/llms/ai21)。
+
+### AI21 LLM
+
+```python
+from langchain_ai21 import AI21LLM
+```
+
+### AI21 上下文答案
+
+您可以使用 AI21 的上下文答案模型，接收文本或文档作为上下文，并提出问题，完全基于这个上下文返回一个答案。
+
+```python
+from langchain_ai21 import AI21ContextualAnswers
+```
+
+## 聊天模型
+
+### AI21 聊天
+
+查看[使用示例](/docs/integrations/chat/ai21)。
+
+```python
+from langchain_ai21 import ChatAI21
+```
+
+## 嵌入模型
+
+### AI21 嵌入
+
+查看[使用示例](/docs/integrations/text_embedding/ai21)。
+
+```python
+from langchain_ai21 import AI21Embeddings
+```
+
+## 文本分割器
+
+### AI21 语义文本分割器
+
+查看[使用示例](/docs/integrations/document_transformers/ai21_semantic_text_splitter)。
+
+```python
+from langchain_ai21 import AI21SemanticTextSplitter
+```

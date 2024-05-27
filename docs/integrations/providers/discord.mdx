@@ -1,0 +1,33 @@
+# Discord
+
+[Discord](https://discord.com/) 是一款支持语音通话和即时消息的社交平台。用户可以通过语音通话、视频通话、文字消息、媒体和文件在私聊或所谓的“服务器”中进行交流。服务器是一组持久的聊天室和语音频道，可以通过邀请链接进行访问。
+
+## 安装和设置
+
+```bash
+pip install pandas
+```
+
+按照以下步骤下载你的 `Discord` 数据：
+
+1. 进入**用户设置**
+
+2. 然后进入**隐私与安全**
+
+3. 转到**请求我的所有数据**，并点击**请求数据**按钮
+
+你可能需要等待30天才能收到你的数据。你将会收到一封发送到 Discord 注册邮箱的电子邮件。邮件中会有一个下载按钮，通过它你可以下载你的个人 Discord 数据。
+
+## 文档加载器
+
+查看[使用示例](/docs/integrations/document_loaders/discord)。
+
+**注意：** `DiscordChatLoader` 不是 `ChatLoader`，而是 `DocumentLoader`。它用于从 `Discord` 数据转储中加载数据。有关 `ChatLoader`，请参见下面的聊天加载器部分。
+
+```python
+from langchain_community.document_loaders import DiscordChatLoader
+```
+
+## 聊天加载器
+
+查看[使用示例](/docs/integrations/chat_loaders/discord)。

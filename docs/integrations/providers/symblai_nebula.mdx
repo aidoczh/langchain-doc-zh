@@ -1,0 +1,20 @@
+# 星云
+
+本页面介绍了如何在 LangChain 中使用 [星云](https://symbl.ai/nebula)，即 [Symbl.ai](https://symbl.ai/) 的LLM生态系统。
+
+内容分为两个部分：安装和设置，以及特定星云包装器的引用。
+
+## 安装和设置
+
+- 获取一个 [星云 API 密钥](https://info.symbl.ai/Nebula_Private_Beta.html)，并将其设置为环境变量 `NEBULA_API_KEY`
+
+- 请查看 [星云文档](https://docs.symbl.ai/docs/nebula-llm) 以获取更多详细信息。
+
+### LLM
+
+存在一个星云LLM包装器，您可以通过以下方式访问：
+
+```python
+from langchain_community.llms import Nebula
+llm = Nebula()
+```

@@ -1,0 +1,105 @@
+# Zep
+
+> 回忆、理解并提取聊天记录中的数据。为个性化的 AI 体验提供动力。
+
+[Zep](https://www.getzep.com) 是一种长期记忆服务，适用于 AI 助手应用程序。
+
+有了 Zep，您可以让 AI 助手具备回忆过去对话的能力，无论过去多久，
+
+同时还能减少幻觉、延迟和成本。
+
+## Zep 的工作原理
+
+Zep 持久保存和回忆聊天记录，并自动生成摘要和其他文档。
+
+它还嵌入消息和摘要，使您能够从过去的对话中搜索与之相关的上下文。
+
+Zep 所有这些操作都是异步进行的，确保这些操作不会影响用户的聊天体验。
+
+数据被持久保存到数据库中，使您能够根据增长需求进行扩展。
+
+Zep 还提供了一种名为文档集合（Document Collections）的简单易用的文档向量搜索抽象。
+
+这旨在补充 Zep 的核心记忆功能，但并非旨在成为通用的向量数据库。
+
+Zep 允许您更有意识地构建您的提示：
+
+- 自动添加一些最近的消息，数量可根据您的应用程序进行定制；
+
+- 最近对话的摘要；
+
+- 和/或从整个聊天会话中浮出的具有上下文相关性的摘要或消息；
+
+- 和/或来自 Zep 文档集合的相关业务数据。
+
+## 什么是 Zep Cloud？
+
+[Zep Cloud](https://www.getzep.com) 是一个托管服务，其核心是 Zep 开源。
+
+除了 Zep 开源的记忆管理功能外，Zep Cloud 还提供：
+
+- **事实提取**：无需事先定义数据架构，即可自动从对话中构建事实表。
+
+- **对话分类**：即时准确地对聊天对话进行分类。了解用户意图和情感，分割用户等。基于语义上下文路由链，并触发事件。
+
+- **结构化数据提取**：使用您定义的模式，快速从聊天对话中提取业务数据。了解您的助手接下来应该询问什么以完成其任务。
+
+对 Zep Cloud 感兴趣？请参阅[Zep Cloud 安装指南](https://help.getzep.com/sdks)，[Zep Cloud 消息历史示例](https://help.getzep.com/langchain/examples/messagehistory-example)，[Zep Cloud 向量存储示例](https://help.getzep.com/langchain/examples/vectorstore-example)。
+
+## 开源安装和设置
+
+Zep 开源项目：[https://github.com/getzep/zep](https://github.com/getzep/zep)
+
+Zep 开源文档：[https://docs.getzep.com/](https://docs.getzep.com/)
+
+1. 安装 Zep 服务。请参阅[Zep 快速入门指南](https://docs.getzep.com/deployment/quickstart/)。
+
+2. 安装 Zep Python SDK：
+
+```bash
+pip install zep_python
+```
+
+## 记忆
+
+Zep 的[记忆 API](https://docs.getzep.com/sdk/chat_history/)将您的应用程序的聊天记录和元数据持久保存到一个会话中，丰富记忆，自动生成摘要，并使您能够在历史聊天消息和摘要上进行向量相似性搜索。
+
+有两种方法可以用来填充您的提示与聊天历史：
+
+1. 检索最近的 N 条消息（可能还有摘要）从一个会话中，并使用它们来构建您的提示。
+
+2. 在会话的聊天历史中搜索相关消息，并使用它们来构建您的提示。
+
+这两种方法都可能有用，第一种方法为 LLM 提供了关于最近与人类互动的上下文。第二种方法使您能够在聊天历史中进一步回溯，并以一种高效的方式检索与当前对话相关的消息。
+
+```python
+from langchain.memory import ZepMemory
+```
+
+在这里查看[RAG 应用示例](/docs/integrations/memory/zep_memory)。
+
+## 检索器
+
+Zep 的记忆检索器是 LangChain 检索器，它使您能够从 Zep 会话中检索消息并使用它们来构建您的提示。
+
+该检索器支持对单个消息和对话摘要进行搜索。后者对于向 LLM 提供丰富但简洁的上下文至关重要，以便了解相关的过去对话。
+
+Zep 的记忆检索器支持相似性搜索和[最大边际相关性（MMR）重新排序](https://docs.getzep.com/sdk/search_query/)。MMR 搜索对于确保检索到的消息是多样化且彼此不太相似非常有用。
+
+在这里查看[使用示例](/docs/integrations/retrievers/zep_memorystore)。
+
+```python
+from langchain_community.retrievers import ZepRetriever
+```
+
+## 向量存储
+
+Zep 的[文档向量存储 API](https://docs.getzep.com/sdk/documents/)使您能够使用向量相似性搜索存储和检索文档。Zep 不要求您了解距离函数、嵌入类型或索引最佳实践。您只需传入您的分块文档，Zep 将处理其余部分。
+
+Zep支持相似性搜索和最大边际相关性（MMR）重新排序。MMR搜索有助于确保检索到的文档具有多样性，彼此之间不太相似。
+
+```python
+from langchain_community.vectorstores import ZepVectorStore
+```
+
+查看[使用示例](/docs/integrations/vectorstores/zep)。

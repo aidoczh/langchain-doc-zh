@@ -1,0 +1,116 @@
+# OpenAI
+
+所有与 OpenAI 相关的功能
+
+>[OpenAI](https://en.wikipedia.org/wiki/OpenAI) 是美国的人工智能（AI）研究实验室，由非营利性组织 `OpenAI Incorporated` 和其营利性子公司 `OpenAI Limited Partnership` 组成。`OpenAI` 旨在推动和发展友好型人工智能。`OpenAI` 系统在 `Microsoft` 的基于 `Azure` 的超级计算平台上运行。
+
+>[OpenAI API](https://platform.openai.com/docs/models) 由多种具有不同功能和价格的模型驱动。
+
+>[ChatGPT](https://chat.openai.com) 是由 `OpenAI` 开发的人工智能聊天机器人。
+
+## 安装和设置
+
+使用以下命令安装集成包
+
+```bash
+pip install langchain-openai
+```
+
+获取 OpenAI API 密钥并将其设置为环境变量 (`OPENAI_API_KEY`)
+
+## LLM
+
+查看[使用示例](/docs/integrations/llms/openai)。
+
+```python
+from langchain_openai import OpenAI
+```
+
+如果您使用的是托管在 `Azure` 上的模型，您应该使用不同的包装器：
+
+```python
+from langchain_openai import AzureOpenAI
+```
+
+有关 `Azure` 包装器的更详细的步骤，请参见[此处](/docs/integrations/llms/azure_openai)。
+
+## 聊天模型
+
+查看[使用示例](/docs/integrations/chat/openai)。
+
+```python
+from langchain_openai import ChatOpenAI
+```
+
+如果您使用的是托管在 `Azure` 上的模型，您应该使用不同的包装器：
+
+```python
+from langchain_openai import AzureChatOpenAI
+```
+
+有关 `Azure` 包装器的更详细的步骤，请参见[此处](/docs/integrations/chat/azure_chat_openai)。
+
+## 嵌入模型
+
+查看[使用示例](/docs/integrations/text_embedding/openai)。
+
+```python
+from langchain_openai import OpenAIEmbeddings
+```
+
+## 文档加载器
+
+查看[使用示例](/docs/integrations/document_loaders/chatgpt_loader)。
+
+```python
+from langchain_community.document_loaders.chatgpt import ChatGPTLoader
+```
+
+## 检索器
+
+查看[使用示例](/docs/integrations/retrievers/chatgpt-plugin)。
+
+```python
+from langchain.retrievers import ChatGPTPluginRetriever
+```
+
+## 工具
+
+### Dall-E 图像生成器
+
+>[OpenAI Dall-E](https://openai.com/dall-e-3) 是由 `OpenAI` 开发的文本到图像模型，使用深度学习方法从自然语言描述（称为“提示”）生成数字图像。
+
+查看[使用示例](/docs/integrations/tools/dalle_image_generator)。
+
+```python
+from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
+```
+
+## 适配器
+
+查看[使用示例](/docs/integrations/adapters/openai)。
+
+```python
+from langchain.adapters import openai as lc_openai
+```
+
+## 分词器
+
+您可以在多个地方使用 `tiktoken` 分词器。默认情况下，它用于计算 OpenAI LLMs 的标记数。
+
+您还可以在拆分文档时使用它来计算标记
+
+```python
+from langchain.text_splitter import CharacterTextSplitter
+CharacterTextSplitter.from_tiktoken_encoder(...)
+```
+
+有关更详细的步骤，请参见[此笔记本](/docs/how_to/split_by_token/#tiktoken)。
+
+## 链
+
+查看[使用示例](https://python.langchain.com/v0.1/docs/guides/productionization/safety/moderation)。
+
+```python
+from langchain.chains import OpenAIModerationChain
+```

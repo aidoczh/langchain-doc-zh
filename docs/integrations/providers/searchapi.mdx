@@ -1,0 +1,55 @@
+# SearchApi
+本页面介绍如何在 LangChain 中使用 [SearchApi](https://www.searchapi.io/) 谷歌搜索 API。SearchApi 是一个实时 SERP API，用于轻松进行搜索结果页面的抓取。
+## 设置
+- 前往 [https://www.searchapi.io/](https://www.searchapi.io/) 注册免费账户
+- 获取 API 密钥，并将其设置为环境变量 (`SEARCHAPI_API_KEY`)
+## 封装器
+### 实用工具
+有一个 SearchApiAPIWrapper 实用工具封装了这个 API。要导入此实用工具：
+```python
+from langchain_community.utilities import SearchApiAPIWrapper
+```
+您可以将其作为 Self Ask 链的一部分使用：
+```python
+from langchain_community.utilities import SearchApiAPIWrapper
+from langchain_openai import OpenAI
+from langchain.agents import initialize_agent, Tool
+from langchain.agents import AgentType
+import os
+os.environ["SEARCHAPI_API_KEY"] = ""
+os.environ['OPENAI_API_KEY'] = ""
+llm = OpenAI(temperature=0)
+search = SearchApiAPIWrapper()
+tools = [
+    Tool(
+        name="Intermediate Answer",
+        func=search.run,
+        description="useful for when you need to ask with search"
+    )
+]
+self_ask_with_search = initialize_agent(tools, llm, agent=AgentType.SELF_ASK_WITH_SEARCH, verbose=True)
+self_ask_with_search.run("Who lived longer: Plato, Socrates, or Aristotle?")
+```
+#### 输出
+```
+> 进入新的 AgentExecutor 链...
+ 是的。
+后续问题: 柏拉图去世时多大年纪？
+中间答案: 八十
+后续问题: 苏格拉底去世时多大年纪？
+中间答案: | 苏格拉底 | 
+| -------- || 出生 | 公元前约470年 雅典阿洛佩克区 || 逝世 | 公元前399年（约71岁） 雅典 || 死因 | 被迫自杀服毒处死 || 配偶 | 先斯菲普，缪尔托 |
+后续问题: 亚里士多德去世时多大年纪？
+中间答案: 62岁
+因此最终答案是：柏拉图
+> 链结束。
+'Plato'
+```
+### 工具
+您还可以将此封装器轻松加载为工具（用于与代理一起使用）。
+您可以使用以下方式实现：
+```python
+from langchain.agents import load_tools
+tools = load_tools(["searchapi"])
+```
+有关工具的更多信息，请参阅[此页面](/docs/how_to/tools_builtin)。

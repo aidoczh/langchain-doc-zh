@@ -1,0 +1,43 @@
+# Pinecone
+
+[Pinecone](https://docs.pinecone.io/docs/overview) 是一个功能广泛的向量数据库。
+
+## 安装和设置
+
+安装 Python SDK：
+
+```bash
+pip install langchain-pinecone
+```
+
+## 向量存储
+
+存在一个围绕 Pinecone 索引的包装器，允许您将其用作向量存储，无论是用于语义搜索还是示例选择。
+
+```python
+from langchain_pinecone import PineconeVectorStore
+```
+
+有关 Pinecone 向量存储的更详细说明，请参见[此笔记本](/docs/integrations/vectorstores/pinecone)。
+
+## 检索器
+
+### Pinecone 混合搜索
+
+```bash
+pip install pinecone-client pinecone-text
+```
+
+```python
+from langchain_community.retrievers import (
+    PineconeHybridSearchRetriever,
+)
+```
+
+有关更详细的信息，请参见[此笔记本](/docs/integrations/retrievers/pinecone_hybrid_search)。
+
+### 自查询检索器
+
+Pinecone 向量存储可以用作自查询的检索器。
+
+有关更详细的信息，请参见[此笔记本](/docs/integrations/retrievers/self_query/pinecone)。

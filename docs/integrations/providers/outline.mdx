@@ -1,0 +1,21 @@
+# 大纲
+
+> [大纲](https://www.getoutline.com/) 是一个开源的协作知识库平台，旨在为团队信息共享提供支持。
+
+## 设置
+
+首先，您需要为您的大纲实例[创建一个 API 密钥](https://www.getoutline.com/developers#section/Authentication)。然后，您需要设置以下环境变量：
+
+```python
+import os
+os.environ["OUTLINE_API_KEY"] = "xxx"
+os.environ["OUTLINE_INSTANCE_URL"] = "https://app.getoutline.com"
+```
+
+## 检索器
+
+查看[使用示例](/docs/integrations/retrievers/outline)。
+
+```python
+from langchain.retrievers import OutlineRetriever
+```

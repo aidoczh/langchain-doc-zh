@@ -1,0 +1,121 @@
+# Hugging Face
+
+与 [Hugging Face 平台](https://huggingface.co/) 相关的所有功能。
+
+## 安装
+
+大多数 Hugging Face 集成都包含在 `langchain-huggingface` 包中。
+
+```bash
+pip install langchain-huggingface
+```
+
+## 聊天模型
+
+### Hugging Face 模型
+
+我们可以使用 `Hugging Face` 的 LLM 类或直接使用 `ChatHuggingFace` 类。
+
+查看 [使用示例](/docs/integrations/chat/huggingface)。
+
+```python
+from langchain_huggingface import ChatHuggingFace
+```
+
+## LLMs
+
+### Hugging Face 本地管道
+
+可以通过 `HuggingFacePipeline` 类在本地运行 Hugging Face 模型。
+
+查看 [使用示例](/docs/integrations/llms/huggingface_pipelines)。
+
+```python
+from langchain_huggingface import HuggingFacePipeline
+```
+
+## 嵌入模型
+
+### HuggingFaceEmbeddings
+
+查看 [使用示例](/docs/integrations/text_embedding/huggingfacehub)。
+
+```python
+from langchain_huggingface import HuggingFaceEmbeddings
+```
+
+### HuggingFaceInstructEmbeddings
+
+查看 [使用示例](/docs/integrations/text_embedding/instruct_embeddings)。
+
+```python
+from langchain_community.embeddings import HuggingFaceInstructEmbeddings
+```
+
+### HuggingFaceBgeEmbeddings
+
+>[HuggingFace 上的 BGE 模型](https://huggingface.co/BAAI/bge-large-en) 是 [最佳的开源嵌入模型](https://huggingface.co/spaces/mteb/leaderboard)。
+
+>BGE 模型由 [北京人工智能学会 (BAAI)](https://en.wikipedia.org/wiki/Beijing_Academy_of_Artificial_Intelligence) 创建。`BAAI` 是从事人工智能研究和开发的私人非营利组织。
+
+查看 [使用示例](/docs/integrations/text_embedding/bge_huggingface)。
+
+```python
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+```
+
+### Hugging Face 文本嵌入推断 (TEI)
+
+>[Hugging Face 文本嵌入推断 (TEI)](https://huggingface.co/docs/text-generation-inference/index) 是用于部署和提供开源文本嵌入和序列分类模型的工具包。
+
+> `TEI` 实现了对最流行的模型，包括 `FlagEmbedding`、`Ember`、`GTE` 和 `E5` 的高性能提取。
+
+我们需要安装 `huggingface-hub` python 包。
+
+```bash
+pip install huggingface-hub
+```
+
+查看 [使用示例](/docs/integrations/text_embedding/text_embeddings_inference)。
+
+```python
+from langchain_community.embeddings import HuggingFaceHubEmbeddings
+```
+
+## 文档加载器
+
+### Hugging Face 数据集
+
+>[Hugging Face Hub](https://huggingface.co/docs/hub/index) 拥有超过 75,000 个 [数据集](https://huggingface.co/docs/hub/index#datasets)，涵盖 100 多种语言，可用于 NLP、计算机视觉和音频等广泛任务。
+
+> 这些数据集可用于诸如翻译、自动语音识别和图像分类等多样任务。
+
+我们需要安装 `datasets` python 包。
+
+```bash
+pip install datasets
+```
+
+查看 [使用示例](/docs/integrations/document_loaders/hugging_face_dataset)。
+
+```python
+from langchain_community.document_loaders.hugging_face_dataset import HuggingFaceDatasetLoader
+```
+
+## 工具
+
+### Hugging Face Hub 工具
+
+>[Hugging Face 工具](https://huggingface.co/docs/transformers/v4.29.0/en/custom_tools) 支持文本 I/O，并使用 `load_huggingface_tool` 函数加载。
+
+我们需要安装几个 python 包。
+
+```bash
+pip install transformers huggingface_hub
+```
+
+查看 [使用示例](/docs/integrations/tools/huggingface_tools)。
+
+```python
+from langchain.agents import load_huggingface_tool
+```

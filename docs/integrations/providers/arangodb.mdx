@@ -1,0 +1,23 @@
+# ArangoDB
+
+[ArangoDB](https://github.com/arangodb/arangodb) 是一个可扩展的图形数据库系统，旨在更快地从连接数据中获取价值。通过一种查询语言，支持原生图形、集成搜索引擎和 JSON。ArangoDB 可以在本地、云端或任何地方运行。
+
+## 安装与设置
+
+使用以下命令安装 [ArangoDB Python Driver](https://github.com/ArangoDB-Community/python-arango) 包：
+
+```bash
+pip install python-arango
+```
+
+## 图形问答链
+
+将您的 `ArangoDB` 数据库与聊天模型连接，以获取有关数据的见解。
+
+查看笔记本示例[这里](/docs/integrations/graphs/arangodb)。
+
+```python
+from arango import ArangoClient
+from langchain_community.graphs import ArangoGraph
+from langchain.chains import ArangoGraphQAChain
+```

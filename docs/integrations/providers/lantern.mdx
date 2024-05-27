@@ -1,0 +1,25 @@
+# 兰特灯
+
+本页介绍如何在 LangChain 中使用 [兰特灯](https://github.com/lanterndata/lantern)。内容分为两部分：设置和特定兰特灯包装器的引用。
+
+## 设置
+
+1. 第一步是创建一个安装了 `lantern` 扩展的数据库。
+
+    请按照 [兰特灯安装指南](https://github.com/lanterndata/lantern#-quick-install) 中的步骤来安装数据库和扩展。使用 Docker 镜像是最简单的入门方式。
+
+## 包装器
+
+### 向量存储
+
+存在一个围绕着 Postgres 向量数据库的包装器，允许您将其用作向量存储，无论是用于语义搜索还是示例选择。
+
+要导入此向量存储：
+
+```python
+from langchain_community.vectorstores import Lantern
+```
+
+### 用法
+
+要了解更详细的兰特灯包装器操作步骤，请参阅[此笔记本](/docs/integrations/vectorstores/lantern)。

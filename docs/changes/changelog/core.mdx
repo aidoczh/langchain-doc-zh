@@ -1,0 +1,13 @@
+# LangChain-Core
+
+## 0.1.x
+
+#### 弃用
+
+- `BaseChatModel` 类的 `__call__`，`call_as_llm`，`predict`，`predict_messages` 方法。将在 0.2.0 版本中移除。请使用 `BaseChatModel.invoke` 代替。
+
+- `BaseChatModel` 类的 `apredict`，`apredict_messages` 方法。将在 0.2.0 版本中移除。请使用 `BaseChatModel.ainvoke` 代替。
+
+- `BaseLLM` 类的 `__call__`，`predict`，`predict_messages` 方法。将在 0.2.0 版本中移除。请使用 `BaseLLM.invoke` 代替。
+
+- `BaseLLM` 类的 `apredict`，`apredict_messages` 方法。将在 0.2.0 版本中移除。请使用 `BaseLLM.ainvoke` 代替。

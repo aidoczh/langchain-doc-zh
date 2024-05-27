@@ -1,0 +1,144 @@
+# MLflow AI Gateway
+
+:::warning
+
+MLflow AI Gateway 已被弃用。请改用[MLflow Deployments for LLMs](/docs/integrations/providers/mlflow/)。
+
+:::
+
+>[MLflow AI Gateway](https://www.mlflow.org/docs/latest/index.html)服务是一个强大的工具，旨在简化组织内各种大型语言模型（LLM）提供商（如OpenAI和Anthropic）的使用和管理。它提供了一个高级接口，通过提供统一的端点来处理特定的LLM相关请求，从而简化与这些服务的交互。
+
+## 安装和设置
+
+使用以下命令安装带有 MLflow AI Gateway 依赖项的 `mlflow`：
+
+```sh
+pip install 'mlflow[gateway]'
+```
+
+将 OpenAI API 密钥设置为环境变量：
+
+```sh
+export OPENAI_API_KEY=...
+```
+
+创建一个配置文件：
+
+```yaml
+routes:
+  - name: completions
+    route_type: llm/v1/completions
+    model:
+      provider: openai
+      name: text-davinci-003
+      config:
+        openai_api_key: $OPENAI_API_KEY
+  - name: embeddings
+    route_type: llm/v1/embeddings
+    model:
+      provider: openai
+      name: text-embedding-ada-002
+      config:
+        openai_api_key: $OPENAI_API_KEY
+```
+
+启动 Gateway 服务器：
+
+```sh
+mlflow gateway start --config-path /path/to/config.yaml
+```
+
+## `MLflow` 提供的示例
+
+>`mlflow.langchain` 模块提供了用于记录和加载 `LangChain` 模型的 API。该模块以 langchain flavor 导出多变量 LangChain 模型，以 pyfunc flavor 导出单变量 LangChain 模型。
+
+查看[API 文档和示例](https://www.mlflow.org/docs/latest/python_api/mlflow.langchain.html?highlight=langchain#module-mlflow.langchain)。
+
+## 完成示例
+
+```python
+import mlflow
+from langchain.chains import LLMChain, PromptTemplate
+from langchain_community.llms import MlflowAIGateway
+gateway = MlflowAIGateway(
+    gateway_uri="http://127.0.0.1:5000",
+    route="completions",
+    params={
+        "temperature": 0.0,
+        "top_p": 0.1,
+    },
+)
+llm_chain = LLMChain(
+    llm=gateway,
+    prompt=PromptTemplate(
+        input_variables=["adjective"],
+        template="Tell me a {adjective} joke",
+    ),
+)
+result = llm_chain.run(adjective="funny")
+print(result)
+with mlflow.start_run():
+    model_info = mlflow.langchain.log_model(chain, "model")
+model = mlflow.pyfunc.load_model(model_info.model_uri)
+print(model.predict([{"adjective": "funny"}]))
+```
+
+## 嵌入示例
+
+```python
+from langchain_community.embeddings import MlflowAIGatewayEmbeddings
+embeddings = MlflowAIGatewayEmbeddings(
+    gateway_uri="http://127.0.0.1:5000",
+    route="embeddings",
+)
+print(embeddings.embed_query("hello"))
+print(embeddings.embed_documents(["hello"]))
+```
+
+## 聊天示例
+
+```python
+from langchain_community.chat_models import ChatMLflowAIGateway
+from langchain_core.messages import HumanMessage, SystemMessage
+chat = ChatMLflowAIGateway(
+    gateway_uri="http://127.0.0.1:5000",
+    route="chat",
+    params={
+        "temperature": 0.1
+    }
+)
+messages = [
+    SystemMessage(
+        content="You are a helpful assistant that translates English to French."
+    ),
+    HumanMessage(
+        content="Translate this sentence from English to French: I love programming."
+    ),
+]
+print(chat(messages))
+```
+
+## Databricks MLflow AI Gateway
+
+Databricks MLflow AI Gateway 处于私人预览阶段。
+
+请联系 Databricks 代表以参加预览。
+
+```python
+from langchain.chains import LLMChain
+from langchain_core.prompts import PromptTemplate
+from langchain_community.llms import MlflowAIGateway
+gateway = MlflowAIGateway(
+    gateway_uri="databricks",
+    route="completions",
+)
+llm_chain = LLMChain(
+    llm=gateway,
+    prompt=PromptTemplate(
+        input_variables=["adjective"],
+        template="Tell me a {adjective} joke",
+    ),
+)
+result = llm_chain.run(adjective="funny")
+print(result)
+```

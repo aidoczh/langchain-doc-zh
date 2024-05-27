@@ -1,0 +1,87 @@
+# 阿里巴巴云计算
+
+>[阿里巴巴集团有限公司（维基百科）](https://zh.wikipedia.org/wiki/%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E9%9B%86%E5%9B%A2)，简称 `阿里巴巴`，是一家中国的跨国科技公司，专注于电子商务、零售、互联网和技术领域。
+
+>
+
+>[阿里巴巴云计算（维基百科）](https://zh.wikipedia.org/wiki/%E9%98%BF%E9%87%8C%E4%BA%91)，也被称为 `阿里云`，是阿里巴巴集团的子公司。阿里巴巴云计算为在线业务和阿里巴巴自身的电子商务生态系统提供云计算服务。
+
+## 语言模型
+
+### 阿里巴巴云计算 PAI EAS
+
+请参阅[安装说明和使用示例](/docs/integrations/llms/alibabacloud_pai_eas_endpoint)。
+
+```python
+from langchain_community.llms.pai_eas_endpoint import PaiEasEndpoint
+```
+
+### 同一问
+
+请参阅[安装说明和使用示例](/docs/integrations/llms/tongyi)。
+
+```python
+from langchain_community.llms import Tongyi
+```
+
+## 对话模型
+
+### 阿里巴巴云计算 PAI EAS
+
+请参阅[安装说明和使用示例](/docs/integrations/chat/alibaba_cloud_pai_eas)。
+
+```python
+from langchain_community.chat_models import PaiEasChatEndpoint
+```
+
+### 同一问对话
+
+请参阅[安装说明和使用示例](/docs/integrations/chat/tongyi)。
+
+```python
+from langchain_community.chat_models.tongyi import ChatTongyi
+```
+
+## 文档加载器
+
+### 阿里巴巴云计算 MaxCompute
+
+请参阅[安装说明和使用示例](/docs/integrations/document_loaders/alibaba_cloud_maxcompute)。
+
+```python
+from langchain_community.document_loaders import MaxComputeLoader
+```
+
+## 向量存储
+
+### 阿里巴巴云计算 OpenSearch
+
+请参阅[安装说明和使用示例](/docs/integrations/vectorstores/alibabacloud_opensearch)。
+
+```python
+from langchain_community.vectorstores import AlibabaCloudOpenSearch, AlibabaCloudOpenSearchSettings
+```
+
+### 阿里巴巴云计算 Tair
+
+请参阅[安装说明和使用示例](/docs/integrations/vectorstores/tair)。
+
+```python
+from langchain_community.vectorstores import Tair
+```
+
+### AnalyticDB
+
+请参阅[安装说明和使用示例](/docs/integrations/vectorstores/analyticdb)。
+
+```python
+from langchain_community.vectorstores import AnalyticDB
+```
+
+### Hologres
+
+请参阅[安装说明和使用示例](/docs/integrations/vectorstores/hologres)。
+
+```python
+from langchain_community.vectorstores import Hologres
+```

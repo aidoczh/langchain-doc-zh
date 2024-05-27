@@ -1,0 +1,15 @@
+# Infinispan VS
+
+[Infinispan](https://infinispan.org) 是一个开源的内存数据网格，提供了一个能够存储各种类型数据的键/值数据存储，从 Java 对象到纯文本都可以。自版本 15 起，Infinispan 支持在缓存上进行向量搜索。
+
+## 安装和设置
+
+请参阅 [入门指南](https://infinispan.org/get-started/) 以运行 Infinispan 服务器，您可能需要禁用身份验证（目前不支持）。
+
+## 向量存储
+
+查看 [使用示例](/docs/integrations/vectorstores/infinispanvs)。
+
+```python
+from langchain_community.vectorstores import InfinispanVS
+```

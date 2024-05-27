@@ -1,0 +1,19 @@
+# Postgres 嵌入
+
+> [pg_embedding](https://github.com/neondatabase/pg_embedding) 是一个开源软件包，用于使用 `Postgres` 和 `Hierarchical Navigable Small Worlds` 算法进行近似最近邻搜索。
+
+## 安装和设置
+
+我们需要安装几个 Python 软件包。
+
+```bash
+pip install psycopg2-binary
+```
+
+## 向量存储
+
+查看[使用示例](/docs/integrations/vectorstores/pgembedding)。
+
+```python
+from langchain_community.vectorstores import PGEmbedding
+```

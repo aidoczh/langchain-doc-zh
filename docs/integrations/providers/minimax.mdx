@@ -1,0 +1,35 @@
+# 极小化极大算法
+
+[极小化极大算法](https://api.minimax.chat) 是一家中国初创公司，为企业和个人提供自然语言处理模型。
+
+## 安装和设置
+
+获取一个[极小化极大 API 密钥](https://api.minimax.chat/user-center/basic-information/interface-key)，并将其设置为环境变量 (`MINIMAX_API_KEY`)。
+
+获取一个[极小化极大群组 ID](https://api.minimax.chat/user-center/basic-information)，并将其设置为环境变量 (`MINIMAX_GROUP_ID`)。
+
+## LLM
+
+存在一个极小化极大 LLM 包装器，您可以通过以下方式访问
+
+查看[使用示例](/docs/integrations/llms/minimax)。
+
+```python
+from langchain_community.llms import Minimax
+```
+
+## 聊天模型
+
+查看[使用示例](/docs/integrations/chat/minimax)。
+
+```python
+from langchain_community.chat_models import MiniMaxChat
+```
+
+## 文本嵌入模型
+
+存在一个极小化极大嵌入模型，您可以通过以下方式访问
+
+```python
+from langchain_community.embeddings import MiniMaxEmbeddings
+```

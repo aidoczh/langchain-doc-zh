@@ -1,0 +1,28 @@
+# GooseAI
+
+本页面介绍如何在 LangChain 中使用 GooseAI 生态系统。
+
+内容分为两部分：安装和设置，以及特定 GooseAI 封装的参考资料。
+
+## 安装和设置
+
+- 使用 `pip install openai` 安装 Python SDK。
+
+- 从[这里](https://goose.ai/)获取你的 GooseAI API 密钥。
+
+- 设置环境变量 (`GOOSEAI_API_KEY`)。
+
+```python
+import os
+os.environ["GOOSEAI_API_KEY"] = "YOUR_API_KEY"
+```
+
+## 封装
+
+### LLM
+
+存在一个 GooseAI LLM 封装，你可以通过以下方式访问：
+
+```python
+from langchain_community.llms import GooseAI
+```

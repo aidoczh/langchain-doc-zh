@@ -3,13 +3,15 @@
 
 LangChain是使用非常广的大模型编排工具，可以低代码的做大模型各种应用，有点类似在数据分析处理里面Pandas的地位。所以我有了一些想把一些工具的文档翻译成中文的想法。希望对于大家有一些帮助。 由于文档较多，人力和能力都有限，有可能很多地方有问题，如果发现，请给我反馈，我会修改优化。希望能抛砖引玉，更多人加入到翻译优秀AI工具文档中，对于国内广大Langchain使用者有一点帮助。未来我也会陆续翻译更多的优秀AI工具的文档。
 
-![](https://github.com/aidoczh/langchain-doc-zh/blob/main/static/img/screenshot.png)
-
 ### 1、在线文档
 
 已经部署了在线文档 请看这个地址 http://www.aidoczh.com/langchain/v0.2/docs/introduction/
 
+![](https://github.com/aidoczh/langchain-doc-zh/blob/main/static/img/screenshot.png)
 
+![](https://github.com/aidoczh/langchain-doc-zh/blob/main/static/img/screen1.png)
+
+![](https://github.com/aidoczh/langchain-doc-zh/blob/main/static/img/jupyter_screen.png)
 
 ## 二、项目内容
 
@@ -68,6 +70,8 @@ yarn run docusaurus build
 ```
 npm run serve
 ```
+
+![](https://github.com/aidoczh/langchain-doc-zh/blob/main/static/img/npm_run_serve.png)
 
 ### 7、文档查看
 

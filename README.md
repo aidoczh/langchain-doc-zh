@@ -5,6 +5,10 @@ LangChain是使用非常广的大模型编排工具，可以低代码的做大�
 
 ![](https://github.com/aidoczh/langchain-doc-zh/blob/main/static/img/screenshot.png)
 
+### 1、在线文档
+
+已经部署了在线文档 请看这个地址 http://www.aidoczh.com/langchain/v0.2/docs/introduction/
+
 
 
 ## 二、项目内容
@@ -63,6 +67,12 @@ yarn run docusaurus build
 
 ```
 npm run serve
+```
+
+### 7、文档查看
+
+```
+http://localhost:3000/v0.2/
 ```
 
 

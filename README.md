@@ -45,13 +45,27 @@ yarn
 
 ![](https://github.com/aidoczh/langchain-doc-zh/blob/main/static/img/yarn_install.png)
 
-### 4、启动程序
+### 4、测试启动程序
 
 ```
 yarn run start
 ```
 
 ![](https://github.com/aidoczh/langchain-doc-zh/blob/main/static/img/yarn_run_start.png)
+
+### 5、代码编译
+
+```
+yarn run docusaurus build
+```
+
+### 6、 程序启动
+
+```
+npm run serve
+```
+
+
 
 ## 四、公众号
 

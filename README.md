@@ -79,9 +79,68 @@ npm run serve
 http://localhost:3000/v0.2/
 ```
 
+## 四、LangChain Cookbook
+使用 LangChain 构建应用程序的示例代码，可以直接点击查看。
 
 
-## 四、公众号
+| 笔记本                                                       | 描述                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [LLaMA2_sql_chat.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/LLaMA2_sql_chat.ipynb) | 构建一个与 SQL 数据库交互的聊天应用程序，使用开源的 llm (llama2) 进行演示，具体演示了包含名册的 SQLite 数据库。 |
+| [Semi_Structured_RAG.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/Semi_Structured_RAG.ipynb) | 对包含文本和表格等半结构化数据的文档执行检索增强生成 (rag)，使用非结构化进行解析，多向量检索器进行存储，以及 lcel 进行链式实现。 |
+| [Semi_structured_and_multi_moda...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/Semi_structured_and_multi_modal_RAG.ipynb) | 对包含半结构化数据和图像的文档执行检索增强生成 (rag)，使用非结构化进行解析，多向量检索器进行存储和检索，以及 lcel 进行链式实现。 |
+| [Semi_structured_multi_modal_RA...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/Semi_structured_multi_modal_RAG_LLaMA2.ipynb) | 对包含半结构化数据和图像的文档执行检索增强生成 (rag)，使用非结构化进行解析，多向量检索器进行存储，lcel 进行链式实现，以及 llama2、llava 和 gpt4all 等开源语言模型等各种工具和方法。 |
+| [amazon_personalize_how_to.ipynb](https://nbviewer.org/github/langchain-ai/langchain/blob/master/cookbook/amazon_personalize_how_to.ipynb) | 从 Amazon Personalize 获取个性化推荐，并使用自定义代理构建生成式 AI 应用程序。 |
+| [analyze_document.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/analyze_document.ipynb) | 分析单个长文档。                                             |
+| [autogpt/autogpt.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/autogpt/autogpt.ipynb) | 使用 langchain 原语（如 llms、prompttemplates、vectorstores、embeddings 和 tools）实现 autogpt 语言模型。 |
+| [autogpt/marathon_times.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/autogpt/marathon_times.ipynb) | 实现 autogpt 以找到马拉松的获胜时间。                        |
+| [baby_agi.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/baby_agi.ipynb) | 实现 babyagi，一个可以根据给定目标生成和执行任务的 AI 代理，具有灵活性可以替换特定的向量存储/模型提供者。 |
+| [baby_agi_with_agent.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/baby_agi_with_agent.ipynb) | 用一个具有工具访问权限的代理替换 babyagi 笔记本中的执行链，旨在获得更可靠的信息。 |
+| [camel_role_playing.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/camel_role_playing.ipynb) | 使用角色扮演和启示提示来指导聊天代理完成任务，在大规模语言模型中实现创建自治合作代理的骆驼框架。 |
+| [causal_program_aided_language_...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/causal_program_aided_language_model.ipynb) | 实现因果程序辅助语言 (cpal) 链，它通过结合因果结构来改进程序辅助语言 (pal)，以防止语言模型在处理复杂叙述和具有嵌套依赖关系的数学问题时产生幻觉。 |
+| [code-analysis-deeplake.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/code-analysis-deeplake.ipynb) | 使用 gpt 和 activeloop 的 deep lake 分析自己的代码库。       |
+| [custom_agent_with_plugin_retri...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/custom_agent_with_plugin_retrieval.ipynb) | 构建一个可以通过检索工具并在 openapi 端点周围创建自然语言包装器来与 AI 插件交互的自定义代理。 |
+| [custom_agent_with_plugin_retri...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/custom_agent_with_plugin_retrieval_using_plugnplai.ipynb) | 构建具有插件检索功能的自定义代理，利用 `plugnplai` 目录中的 AI 插件。 |
+| [databricks_sql_db.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/databricks_sql_db.ipynb) | 连接到 databricks 运行时和 databricks sql。                  |
+| [deeplake_semantic_search_over_...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/deeplake_semantic_search_over_chat.ipynb) | 使用 activeloop 的 deep lake 和 gpt4 在群聊中执行语义搜索和问答。 |
+| [elasticsearch_db_qa.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/elasticsearch_db_qa.ipynb) | 使用自然语言与 Elasticsearch 分析数据库进行交互，并通过 Elasticsearch dsl API 构建搜索查询。 |
+| [extraction_openai_tools.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/extraction_openai_tools.ipynb) | 使用 OpenAI 工具进行结构化数据提取。                         |
+| [forward_looking_retrieval_augm...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/forward_looking_retrieval_augmented_generation.ipynb) | 实现前瞻性主动检索增强生成（flare）方法，该方法生成问题的答案，识别不确定的标记，基于这些标记生成假设性问题，并检索相关文档以继续生成答案。 |
+| [generative_agents_interactive_...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/generative_agents_interactive_simulacra_of_human_behavior.ipynb) | 根据一篇研究论文，使用由 Langchain 检索器支持的时间加权记忆对象，实现模拟人类行为的生成代理。 |
+| [gymnasium_agent_simulation.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/gymnasium_agent_simulation.ipynb) | 在类似基于文本的游戏的模拟环境中创建一个简单的代理-环境交互循环，使用 gymnasium。 |
+| [hugginggpt.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/hugginggpt.ipynb) | 实现 hugginggpt，这是一个将语言模型（如 chatgpt）与机器学习社区通过 hugging face 连接起来的系统。 |
+| [hypothetical_document_embeddin...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/hypothetical_document_embeddings.ipynb) | 使用假设性文档嵌入（hyde）改进文档索引，这是一种生成和嵌入查询的假设答案的嵌入技术。 |
+| [learned_prompt_optimization.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/learned_prompt_optimization.ipynb) | 通过强化学习注入特定术语自动增强语言模型提示，可用于根据用户偏好个性化响应。 |
+| [llm_bash.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/llm_bash.ipynb) | 使用语言学习模型（LLMs）和一个 bash 进程执行简单的文件系统命令。 |
+| [llm_checker.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/llm_checker.ipynb) | 使用 llmcheckerchain 函数创建一个自检链。                    |
+| [llm_math.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/llm_math.ipynb) | 使用语言模型和 Python repls 解决复杂的文字数学问题。         |
+| [llm_summarization_checker.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/llm_summarization_checker.ipynb) | 检查文本摘要的准确性，并可以多次运行检查器以改善结果。       |
+| [llm_symbolic_math.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/llm_symbolic_math.ipynb) | 使用语言学习模型（LLMs）和 Python 符号数学库 sympy 解决代数方程。 |
+| [meta_prompt.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/meta_prompt.ipynb) | 实现元提示概念，这是一种构建自我改进代理的方法，反映其自身性能并相应地修改其指令。 |
+| [multi_modal_output_agent.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/multi_modal_output_agent.ipynb) | 生成多模态输出，特别是图像和文本。                           |
+| [multi_player_dnd.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/multi_player_dnd.ipynb) | 模拟多人龙与地下城游戏，其中有一个自定义函数确定代理的发言计划。 |
+| [multiagent_authoritarian.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/multiagent_authoritarian.ipynb) | 实现一个多代理模拟，其中一个特权代理控制对话，包括决定谁何时发言以及对话何时结束，这是在模拟新闻网络的背景下进行的。 |
+| [multiagent_bidding.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/multiagent_bidding.ipynb) | 实现一个多代理模拟，其中代理出价发言，出价最高者下次发言，通过一个虚构的总统辩论例子进行演示。 |
+| [myscale_vector_sql.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/myscale_vector_sql.ipynb) | 访问并与 myscale 集成向量数据库交互，该数据库可以增强语言模型（LLM）应用的性能。 |
+| [openai_functions_retrieval_qa....](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/openai_functions_retrieval_qa.ipynb) | 将 OpenAI 函数结合到检索流程中，构建一个问答系统的响应输出结构。 |
+| [openai_v1_cookbook.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/openai_v1_cookbook.ipynb) | 探索 OpenAI Python 库 V1 版本发布时的新功能。                |
+| [petting_zoo.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/petting_zoo.ipynb) | 使用 petting zoo 库创建多智能体模拟环境。                    |
+| [plan_and_execute_agent.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/plan_and_execute_agent.ipynb) | 创建计划与执行代理，通过使用语言模型（llm）进行任务规划，并由另一个代理执行任务来实现目标。 |
+| [press_releases.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/press_releases.ipynb) | 使用 [Kay.ai](https://kay.ai) 提供的公司新闻稿数据进行检索和查询。 |
+| [program_aided_language_model.i...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/program_aided_language_model.ipynb) | 根据提供的研究论文，实现辅助编程的语言模型。                 |
+| [qa_citations.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/qa_citations.ipynb) | 使模型能够引用其来源的不同方法。                             |
+| [rag_upstage_layout_analysis_groundedness_check.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/rag_upstage_layout_analysis_groundedness_check.ipynb) | 使用 Upstage 布局分析和基于实际情况的检查的端到端 RAG 示例。 |
+| [retrieval_in_sql.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/retrieval_in_sql.ipynb) | 使用 pgvector 在 PostgreSQL 数据库上执行检索增强生成（rag）。 |
+| [sales_agent_with_context.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/sales_agent_with_context.ipynb) | 实现一个上下文感知的 AI 销售代理，salesgpt，可以进行自然销售对话，与其他系统交互，并使用产品知识库讨论公司的产品。 |
+| [self_query_hotel_search.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/self_query_hotel_search.ipynb) | 使用自查询检索构建酒店房间搜索功能，使用特定的酒店推荐数据集。 |
+| [smart_llm.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/smart_llm.ipynb) | 实现一个智能自我批评链，生成多个输出建议，对它们进行批评以找到最佳建议，然后改进以产生最终输出。 |
+| [tree_of_thought.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/tree_of_thought.ipynb) | 使用思维树技术查询大型语言模型。                             |
+| [twitter-the-algorithm-analysis...](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/twitter-the-algorithm-analysis-deeplake.ipynb) | 使用 gpt4 和 activeloop 的 deep lake，分析 Twitter 算法的源代码。 |
+| [two_agent_debate_tools.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/two_agent_debate_tools.ipynb) | 模拟多智能体对话，智能体可以利用各种工具。                   |
+| [two_player_dnd.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/two_player_dnd.ipynb) | 模拟两人龙与地下城游戏，使用对话模拟器类来协调主角和地下城主人之间的对话。 |
+| [wikibase_agent.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/wikibase_agent.ipynb) | 创建一个简单的 wikibase 代理，利用 sparql 生成，使用 http://wikidata.org 进行测试。 |
+| [oracleai_demo.ipynb](https://nbviewer.org/github/aidoczh/langchain-doc-zh/blob/main/cookbook/oracleai_demo.ipynb) | 本指南介绍如何在 Langchain 中使用 Oracle AI Vector Search 构建端到端的 RAG 流水线，并提供逐步示例。该过程包括使用 OracleDocLoader 从各种来源加载文档，使用 OracleSummary 在数据库内或外进行摘要，通过 OracleEmbeddings 生成嵌入，还涵盖使用 OracleTextSplitter 的高级 Oracle 能力根据特定要求对文档进行分块，最后，使用 OracleVS 存储和索引这些文档以供 OracleVS 查询。 |
+
+## 五、公众号
 
 我的公众号是数智笔记，欢迎关注。
 
